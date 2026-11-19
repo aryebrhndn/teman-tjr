@@ -123,10 +123,10 @@ export const PrayerScreen: React.FC = () => {
   return (
     <div className="flex flex-col w-full space-y-2.5">
       {/* Location & Method Header Bar */}
-      <div className="bg-surface-container-lowest rounded-xl p-3 shadow-xs flex flex-col gap-1.5 border border-surface-container/80">
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs flex flex-col gap-2 border border-surface-container/80">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span className="material-symbols-outlined text-primary-container text-[18px] shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="material-symbols-outlined text-primary-container text-[20px] shrink-0">
               location_on
             </span>
             <div className="relative inline-block">
@@ -134,7 +134,7 @@ export const PrayerScreen: React.FC = () => {
                 id="city-selector"
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
-                className="appearance-none bg-surface-container-low text-[11px] font-bold text-on-surface pl-2 pr-6 py-0.5 rounded-lg focus:outline-none cursor-pointer border border-surface-container"
+                className="appearance-none bg-surface-container-low text-[13.5px] font-bold text-on-surface pl-2.5 pr-7 py-1 rounded-lg focus:outline-none cursor-pointer border border-surface-container"
               >
                 {Object.values(JAPAN_CITIES).map((c) => (
                   <option key={c.id} value={c.id}>
@@ -142,36 +142,36 @@ export const PrayerScreen: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <span className="material-symbols-outlined pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px]">
+              <span className="material-symbols-outlined pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
                 expand_more
               </span>
             </div>
           </div>
-          <span className="px-2 py-0.2 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[9px] uppercase font-bold tracking-wider">
+          <span className="px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10.5px] uppercase font-bold tracking-wider">
             JST (UTC+9)
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-y-1 text-on-surface-variant text-[10.5px] pt-0.5">
-          <div className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[14px] text-primary">calendar_month</span>
+        <div className="flex flex-wrap items-center justify-between gap-y-1 text-on-surface-variant text-[12px] pt-0.5">
+          <div className="flex items-center gap-1.5 font-medium">
+            <span className="material-symbols-outlined text-[16px] text-primary">calendar_month</span>
             <span>Rabu, 13 April 2025</span>
             <span className="text-outline-variant">•</span>
-            <span className="text-primary-container font-semibold">14 Syawal 1446 H</span>
+            <span className="text-primary-container font-bold">14 Syawal 1446 H</span>
           </div>
-          <div className="flex items-center gap-1 text-[9.5px]">
-            <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+          <div className="flex items-center gap-1.5 text-[11px] font-medium">
+            <span className="w-2 h-2 rounded-full bg-secondary"></span>
             <span>Japan Islamic Trust (Offline)</span>
           </div>
         </div>
       </div>
 
       {/* Card 1: Waktu Sholat Utama & Countdown Card */}
-      <div className="bg-surface-container-lowest rounded-xl p-3 shadow-xs flex flex-col gap-2.5 border border-surface-container/80">
-        <div className="relative overflow-hidden bg-primary-container rounded-xl p-3 text-white shadow-xs">
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs flex flex-col gap-3 border border-surface-container/80">
+        <div className="relative overflow-hidden bg-primary-container rounded-xl p-3.5 text-white shadow-xs">
           {/* Decorative Islamic Geometry Accent */}
           <div className="absolute -right-4 -bottom-4 opacity-10 pointer-events-none text-white">
-            <svg fill="currentColor" height="100" viewBox="0 0 100 100" width="100">
+            <svg fill="currentColor" height="110" viewBox="0 0 100 100" width="110">
               <polygon points="50,0 63,35 100,50 63,65 50,100 37,65 0,50 37,35"></polygon>
               <circle cx="50" cy="50" fill="none" r="22" stroke="currentColor" strokeWidth="4"></circle>
             </svg>
@@ -179,108 +179,109 @@ export const PrayerScreen: React.FC = () => {
 
           <div className="flex justify-between items-start relative z-10">
             <div>
-              <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-white text-[9px] font-bold tracking-wide uppercase">
+              <span className="px-2 py-0.5 rounded-full bg-white/20 text-white text-[10.5px] font-bold tracking-wide uppercase">
                 WAKTU BERIKUTNYA
               </span>
-              <h2 className="text-lg mt-0.5 font-bold">
+              <h2 className="text-2xl mt-1 font-extrabold tracking-tight">
                 {prayers?.nextPrayer.name.toUpperCase() || 'ASHAR'}
               </h2>
             </div>
             <div className="text-right">
-              <span className="text-[10px] opacity-80 block">Adzan JST</span>
-              <span className="text-base font-bold tracking-tight">
+              <span className="text-xs opacity-90 block">Adzan JST</span>
+              <span className="text-xl font-black tracking-tight">
                 {prayers?.nextPrayer.time || '15:20'}
               </span>
             </div>
           </div>
 
-          <div className="mt-2 pt-2 bg-white/10 rounded-lg px-2.5 py-1.5 flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-1">
-              <span className="material-symbols-outlined text-[15px] text-secondary-container">
+          <div className="mt-2.5 pt-2 bg-white/10 rounded-lg px-3 py-2 flex items-center justify-between relative z-10">
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[18px] text-secondary-container">
                 hourglass_top
               </span>
-              <span className="text-[11px] font-semibold">Menuju Masuk Waktu</span>
+              <span className="text-[13px] font-semibold">Menuju Masuk Waktu</span>
             </div>
-            <div className="text-sm font-bold tracking-wider font-mono text-secondary-container">
+            <div className="text-base font-bold tracking-wider font-mono text-secondary-container">
               {formatTimer(tickerSeconds)}
             </div>
           </div>
         </div>
 
         {/* 5 Daily Prayer Cards */}
-        <div className="grid grid-cols-5 gap-1">
-          <div className="bg-surface-container-low rounded-lg p-1.5 flex flex-col items-center text-center opacity-70">
-            <span className="text-[9.5px] text-on-surface-variant font-medium">Subuh</span>
-            <span className="text-[11px] font-bold text-on-surface my-0.5">{prayers?.fajr || '04:15'}</span>
-            <span className="text-[8.5px] px-1 py-0.2 rounded bg-surface-container-high text-on-surface-variant font-medium">
+        <div className="grid grid-cols-5 gap-1.5">
+          <div className="bg-surface-container-low rounded-lg p-2 flex flex-col items-center text-center opacity-70">
+            <span className="text-[11.5px] text-on-surface-variant font-medium">Subuh</span>
+            <span className="text-[13px] font-bold text-on-surface my-0.5">{prayers?.fajr || '04:15'}</span>
+            <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-semibold">
               Selesai
             </span>
           </div>
-          <div className="bg-surface-container-low rounded-lg p-1.5 flex flex-col items-center text-center opacity-70">
-            <span className="text-[9.5px] text-on-surface-variant font-medium">Dzuhur</span>
-            <span className="text-[11px] font-bold text-on-surface my-0.5">{prayers?.dhuhr || '11:52'}</span>
-            <span className="text-[8.5px] px-1 py-0.2 rounded bg-surface-container-high text-on-surface-variant font-medium">
+          <div className="bg-surface-container-low rounded-lg p-2 flex flex-col items-center text-center opacity-70">
+            <span className="text-[11.5px] text-on-surface-variant font-medium">Dzuhur</span>
+            <span className="text-[13px] font-bold text-on-surface my-0.5">{prayers?.dhuhr || '11:52'}</span>
+            <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-semibold">
               Selesai
             </span>
           </div>
-          <div className="bg-secondary-fixed rounded-lg p-1.5 flex flex-col items-center text-center shadow-2xs">
-            <span className="text-[9.5px] text-on-secondary-fixed font-bold">Ashar</span>
-            <span className="text-[11px] font-bold text-on-secondary-fixed my-0.5">{prayers?.asr || '15:20'}</span>
-            <span className="text-[8.5px] px-1 py-0.2 rounded bg-primary-container text-white font-bold">
+          <div className="bg-secondary-fixed rounded-lg p-2 flex flex-col items-center text-center shadow-2xs">
+            <span className="text-[11.5px] text-on-secondary-fixed font-bold">Ashar</span>
+            <span className="text-[13px] font-extrabold text-on-secondary-fixed my-0.5">{prayers?.asr || '15:20'}</span>
+            <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-primary-container text-white font-bold">
               Nanti
             </span>
           </div>
-          <div className="bg-surface-container-low rounded-lg p-1.5 flex flex-col items-center text-center">
-            <span className="text-[9.5px] text-on-surface-variant font-medium">Maghrib</span>
-            <span className="text-[11px] font-bold text-on-surface my-0.5">{prayers?.maghrib || '18:10'}</span>
-            <span className="text-[8.5px] px-1 py-0.2 rounded bg-surface-container-high text-on-surface-variant font-medium">
+          <div className="bg-surface-container-low rounded-lg p-2 flex flex-col items-center text-center">
+            <span className="text-[11.5px] text-on-surface-variant font-medium">Maghrib</span>
+            <span className="text-[13px] font-bold text-on-surface my-0.5">{prayers?.maghrib || '18:10'}</span>
+            <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-semibold">
               18:10
             </span>
           </div>
-          <div className="bg-surface-container-low rounded-lg p-1.5 flex flex-col items-center text-center">
-            <span className="text-[9.5px] text-on-surface-variant font-medium">Isya</span>
-            <span className="text-[11px] font-bold text-on-surface my-0.5">{prayers?.isha || '19:28'}</span>
-            <span className="text-[8.5px] px-1 py-0.2 rounded bg-surface-container-high text-on-surface-variant font-medium">
+          <div className="bg-surface-container-low rounded-lg p-2 flex flex-col items-center text-center">
+            <span className="text-[11.5px] text-on-surface-variant font-medium">Isya</span>
+            <span className="text-[13px] font-bold text-on-surface my-0.5">{prayers?.isha || '19:28'}</span>
+            <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-semibold">
               19:28
             </span>
           </div>
         </div>
       </div>
 
+
       {/* Card 2: Kompas Arah Kiblat Jepang */}
-      <div className="bg-surface-container-lowest rounded-xl p-3 shadow-xs flex flex-col gap-2 border border-surface-container/80">
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs flex flex-col gap-2.5 border border-surface-container/80">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <div className="w-7 h-7 rounded-full bg-primary-fixed flex items-center justify-center text-primary-container">
-              <span className="material-symbols-outlined text-[16px]">explore</span>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary-container">
+              <span className="material-symbols-outlined text-[18px]">explore</span>
             </div>
             <div>
-              <h3 className="text-xs font-bold text-on-surface">Kompas Arah Kiblat</h3>
-              <p className="text-[10px] text-on-surface-variant">Presisi astronomis Ka'bah dari Jepang</p>
+              <h3 className="text-[14px] font-bold text-on-surface">Kompas Arah Kiblat</h3>
+              <p className="text-[11.5px] text-on-surface-variant">Presisi astronomis Ka'bah dari Jepang</p>
             </div>
           </div>
           <div className="text-right">
-            <span className="text-xs font-bold text-primary-container">{targetQibla}° NW</span>
-            <span className="text-[9px] text-on-surface-variant block font-medium">Barat Laut</span>
+            <span className="text-sm font-extrabold text-primary-container">{targetQibla}° NW</span>
+            <span className="text-[11px] text-on-surface-variant block font-semibold">Barat Laut</span>
           </div>
         </div>
 
         {/* Compass Graphic Visualizer */}
-        <div className="relative w-full aspect-square max-w-[170px] mx-auto my-0.5 flex items-center justify-center">
+        <div className="relative w-full aspect-square max-w-[190px] mx-auto my-1 flex items-center justify-center">
           {/* Outer Compass Disc */}
           <div className="absolute inset-0 rounded-full bg-surface-container-low flex items-center justify-center shadow-inner border border-surface-container">
             <svg className="w-full h-full text-outline-variant p-2" viewBox="0 0 100 100">
               <circle cx="50" cy="50" fill="none" r="46" stroke="currentColor" strokeDasharray="2, 6" strokeWidth="1.5"></circle>
-              <text fill="#7d0004" fontSize="7" fontWeight="bold" textAnchor="middle" x="50" y="12">
+              <text fill="#7d0004" fontSize="8" fontWeight="bold" textAnchor="middle" x="50" y="13">
                 U
               </text>
-              <text fill="#906f6b" fontSize="6" textAnchor="middle" x="90" y="52">
+              <text fill="#906f6b" fontSize="7" fontWeight="bold" textAnchor="middle" x="90" y="53">
                 T
               </text>
-              <text fill="#906f6b" fontSize="6" textAnchor="middle" x="50" y="93">
+              <text fill="#906f6b" fontSize="7" fontWeight="bold" textAnchor="middle" x="50" y="93">
                 S
               </text>
-              <text fill="#906f6b" fontSize="6" textAnchor="middle" x="10" y="52">
+              <text fill="#906f6b" fontSize="7" fontWeight="bold" textAnchor="middle" x="10" y="53">
                 B
               </text>
             </svg>
@@ -293,8 +294,8 @@ export const PrayerScreen: React.FC = () => {
           >
             <div className="w-full flex items-center justify-between px-1">
               <div className="flex items-center gap-1 -rotate-90">
-                <div className="w-5 h-5 rounded-full bg-secondary-container flex items-center justify-center shadow-xs">
-                  <span className="material-symbols-outlined text-[13px] text-on-secondary-container">
+                <div className="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center shadow-xs">
+                  <span className="material-symbols-outlined text-[15px] text-on-secondary-container">
                     mosque
                   </span>
                 </div>
@@ -305,41 +306,41 @@ export const PrayerScreen: React.FC = () => {
 
           {/* Rotating Compass Needle */}
           <div
-            className="relative z-10 w-28 h-28 flex items-center justify-center transition-transform duration-700 ease-out"
+            className="relative z-10 w-32 h-32 flex items-center justify-center transition-transform duration-700 ease-out"
             style={{ transform: `rotate(${needleAngle}deg)` }}
           >
-            <div className="w-1.5 h-full relative flex flex-col justify-between items-center">
-              <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[32px] border-b-primary-container"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-on-surface shadow-xs"></div>
-              <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[28px] border-t-tertiary-fixed-dim"></div>
+            <div className="w-2 h-full relative flex flex-col justify-between items-center">
+              <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[38px] border-b-primary-container"></div>
+              <div className="w-3 h-3 rounded-full bg-on-surface shadow-xs"></div>
+              <div className="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[32px] border-t-tertiary-fixed-dim"></div>
             </div>
           </div>
 
           {/* Central Dial Cap */}
-          <div className="absolute w-5 h-5 rounded-full bg-surface-container-lowest shadow-xs flex items-center justify-center z-20">
-            <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+          <div className="absolute w-6 h-6 rounded-full bg-surface-container-lowest shadow-xs flex items-center justify-center z-20">
+            <div className="w-2 h-2 rounded-full bg-primary"></div>
           </div>
         </div>
 
         {/* Calibration Info Box */}
-        <div className="bg-surface-container-low rounded-lg p-2.5 flex items-start gap-2">
-          <span className="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">
+        <div className="bg-surface-container-low rounded-xl p-3 flex items-start gap-2.5">
+          <span className="material-symbols-outlined text-secondary text-[18px] shrink-0 mt-0.5">
             info
           </span>
-          <p className="text-[10px] text-on-surface-variant leading-relaxed">
+          <p className="text-[12px] text-on-surface-variant leading-relaxed">
             Pegang ponsel sejajar permukaan tanah. Arahkan jarum merah ke kubah Ka'bah ({targetQibla}°). Jika kompas deviasi, hadapkan <strong>67° ke kanan dari arah barat</strong> sejati.
           </p>
         </div>
       </div>
 
       {/* Card 3: Direktori Masjid & Musholla */}
-      <div className="bg-surface-container-lowest rounded-xl p-3 shadow-xs flex flex-col gap-2 border border-surface-container/80">
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs flex flex-col gap-2.5 border border-surface-container/80">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-xs font-bold text-on-surface">Masjid & Musholla Terdekat</h3>
-            <p className="text-[10px] text-on-surface-variant">Tempat ibadah ramah musafir di sekitar Jepang</p>
+            <h3 className="text-[14px] font-bold text-on-surface">Masjid & Musholla Terdekat</h3>
+            <p className="text-[11.5px] text-on-surface-variant">Tempat ibadah ramah musafir di sekitar Jepang</p>
           </div>
-          <span className="w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface text-[10px] font-bold">
+          <span className="w-7 h-7 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface text-[12px] font-bold">
             {filteredPlaces.length}
           </span>
         </div>
@@ -351,20 +352,20 @@ export const PrayerScreen: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari masjid atau musholla..."
-            className="w-full h-8 pl-8 pr-3 rounded-lg bg-surface-container-low text-[11px] text-on-surface placeholder:text-outline focus:outline-none border border-surface-container"
+            className="w-full h-10 pl-9 pr-3 rounded-xl bg-surface-container-low text-[13px] text-on-surface placeholder:text-outline focus:outline-none border border-surface-container"
           />
-          <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline text-[16px]">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">
             search
           </span>
         </div>
 
         {/* Filter Pills */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-0.5 -mx-1 px-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 -mx-1 px-1">
           {['Semua', 'Masjid Besar', 'Prayer Room Stasiun', 'Halal Restaurant Space'].map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`h-6.5 px-2.5 rounded-full text-[10px] font-medium flex items-center whitespace-nowrap transition-colors ${
+              className={`h-7.5 px-3 rounded-full text-[11.5px] font-medium flex items-center whitespace-nowrap transition-colors ${
                 selectedCategory === cat
                   ? 'bg-primary-container text-white shadow-2xs font-semibold'
                   : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
@@ -376,35 +377,35 @@ export const PrayerScreen: React.FC = () => {
         </div>
 
         {/* Directory Listing Items */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2.5">
           {filteredPlaces.map((place) => (
-            <div key={place.id} className="bg-surface-container-low rounded-lg p-2.5 flex flex-col gap-1.5">
-              <div className="flex gap-2.5">
-                <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 bg-primary-fixed/30 flex items-center justify-center text-primary-container">
-                  <span className="material-symbols-outlined text-[18px]">
+            <div key={place.id} className="bg-surface-container-low rounded-xl p-3 flex flex-col gap-2 border border-surface-container/60">
+              <div className="flex gap-3">
+                <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-primary-fixed/30 flex items-center justify-center text-primary-container">
+                  <span className="material-symbols-outlined text-[22px]">
                     {place.type === 'Mosque' ? 'mosque' : 'door_sliding'}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-1">
-                    <h4 className="text-[11.5px] font-bold text-on-surface leading-tight truncate">
+                    <h4 className="text-[13.5px] font-bold text-on-surface leading-tight truncate">
                       {place.name}
                     </h4>
                     {place.distance_km && (
-                      <span className="shrink-0 text-[10px] font-bold text-primary px-1.5 py-0.5 rounded bg-primary-fixed">
+                      <span className="shrink-0 text-[11px] font-bold text-primary px-2 py-0.5 rounded bg-primary-fixed">
                         {place.distance_km} km
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-on-surface-variant mt-0.5 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[14px]">train</span>
+                  <p className="text-[12px] text-on-surface-variant mt-0.5 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[15px]">train</span>
                     <span className="truncate">{place.address}</span>
                   </p>
                   <div className="flex flex-wrap gap-1 mt-1.5">
                     {place.facilities.map((fac, idx) => (
                       <span
                         key={idx}
-                        className="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant text-[10px] font-medium"
+                        className="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant text-[11px] font-medium"
                       >
                         {fac}
                       </span>
@@ -413,15 +414,15 @@ export const PrayerScreen: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-1 flex items-center justify-between border-t border-surface-container">
-                <span className="text-[10px] text-on-surface-variant flex items-center gap-1">
+              <div className="pt-1.5 flex items-center justify-between border-t border-surface-container">
+                <span className="text-[11.5px] text-on-surface-variant flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-secondary"></span>
                   {place.open_hours || 'Buka setiap hari'}
                 </span>
                 <button
                   type="button"
                   onClick={() => openGoogleMaps(place)}
-                  className="h-8 px-3 rounded-full bg-primary text-white text-xs font-medium flex items-center gap-1 shadow-sm active:scale-95 transition-transform"
+                  className="h-8 px-3.5 rounded-full bg-primary text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs active:scale-95 transition-transform"
                 >
                   <span className="material-symbols-outlined text-[16px]">navigation</span>
                   <span>Buka di Maps</span>
@@ -430,6 +431,7 @@ export const PrayerScreen: React.FC = () => {
             </div>
           ))}
         </div>
+
 
         {/* Quick Halal Tips Footer inside Directory */}
         <div className="p-3 bg-surface-container-high rounded-xl flex items-center gap-3">

@@ -116,9 +116,34 @@
 .material-symbols-outlined.text-\[21px\]  { font-size: 21px !important; }
 .material-symbols-outlined.text-\[22px\]  { font-size: 22px !important; }
 .material-symbols-outlined.text-\[24px\]  { font-size: 24px !important; }
+.material-symbols-outlined.text-\[26px\]  { font-size: 26px !important; }
+.material-symbols-outlined.text-\[28px\]  { font-size: 28px !important; }
 .material-symbols-outlined.text-xs       { font-size: 12px !important; }
 .material-symbols-outlined.text-sm       { font-size: 14px !important; }
 .material-symbols-outlined.text-base     { font-size: 16px !important; }
 .material-symbols-outlined.text-lg       { font-size: 18px !important; }
 .material-symbols-outlined.text-xl       { font-size: 20px !important; }
 .material-symbols-outlined.text-2xl      { font-size: 24px !important; }
+
+/* Sembunyikan badge, watermark, & drawer bawaan Netlify */
+#netlify-drawer-root,
+.netlify-drawer-root,
+[data-netlify-drawer],
+iframe[id*="netlify"],
+iframe[src*="netlify"],
+div:has(> a[href*="netlify.com"]),
+div:has(> button[aria-label*="Netlify"]),
+div[class*="netlify-drawer"],
+.netlify-badge {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  width: 0 !important;
+  height: 0 !important;
+  z-index: -9999 !important;
+}
+

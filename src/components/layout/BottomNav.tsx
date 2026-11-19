@@ -15,28 +15,28 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
   ];
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 bg-[#ffffff]/95 backdrop-blur-xl border-t border-surface-container/80 shadow-xs pb-safe">
-      <div className="flex justify-around items-center h-11 max-w-md mx-auto px-1">
+    <nav className="fixed bottom-0 inset-x-0 z-50 bg-[#ffffff]/98 backdrop-blur-xl border-t border-surface-container shadow-xs pb-safe">
+      <div className="flex justify-around items-center h-[60px] max-w-md mx-auto px-1">
         {tabs.map((tab) => {
           const isActive = currentTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex-1 flex flex-col items-center justify-center py-0.5 transition-all select-none group ${
+              className={`flex-1 flex flex-col items-center justify-center py-1 transition-all select-none group active:scale-95 ${
                 isActive
-                  ? 'text-primary-container font-semibold'
-                  : 'text-on-surface-variant/70 hover:text-on-surface'
+                  ? 'text-primary-container font-bold'
+                  : 'text-on-surface-variant/80 hover:text-on-surface'
               }`}
             >
               <span
-                className={`material-symbols-outlined text-[16px] group-hover:scale-105 transition-transform ${
+                className={`material-symbols-outlined text-[22px] transition-transform ${
                   isActive ? "font-variation-settings: 'FILL' 1" : ''
                 }`}
               >
                 {tab.icon}
               </span>
-              <span className="text-[9px] font-medium tracking-tight mt-0.5">
+              <span className={`text-[11px] tracking-tight mt-0.5 ${isActive ? 'font-bold' : 'font-medium'}`}>
                 {tab.label}
               </span>
             </button>
@@ -44,5 +44,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
         })}
       </div>
     </nav>
+
   );
 };

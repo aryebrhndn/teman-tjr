@@ -58,28 +58,28 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
   const formatJpy = (num: number) => new Intl.NumberFormat('ja-JP').format(Math.round(num));
 
   return (
-    <div className="flex flex-col w-full space-y-2.5">
+    <div className="flex flex-col w-full space-y-3">
       {/* Top Greeting & Context Status */}
-      <div className="flex items-center justify-between pt-0.5">
+      <div className="flex items-center justify-between pt-1">
         <div className="flex flex-col leading-tight">
           <div className="flex items-center gap-1.5">
-            <span className="text-[13.5px] font-bold text-on-surface tracking-tight">
+            <span className="text-[16px] font-extrabold text-on-surface tracking-tight">
               Halo, Traveler!
             </span>
-            <span className="inline-flex text-xs">🌸</span>
+            <span className="inline-flex text-sm">🌸</span>
           </div>
-          <p className="text-[10px] text-on-surface-variant font-medium mt-0.5">
+          <p className="text-[12px] text-on-surface-variant font-medium mt-0.5">
             {trip ? trip.name : 'Tokyo & Kyoto Trip • Musim Semi 2025'}
           </p>
         </div>
-        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-low text-on-surface text-[9.5px] font-semibold shadow-2xs border border-surface-container">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] inline-block animate-ping"></span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface text-[11px] font-semibold shadow-2xs border border-surface-container">
+          <span className="w-2 h-2 rounded-full bg-[#10b981] inline-block animate-ping"></span>
           <span>Aktif Offline</span>
         </div>
       </div>
 
-      {/* 1. Travel Countdown Card (Hero Card) - Sleek & Compact */}
-      <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-tertiary to-inverse-surface text-inverse-on-surface p-3 shadow-xs">
+      {/* 1. Travel Countdown Card (Hero Card) */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-tertiary to-inverse-surface text-inverse-on-surface p-4 shadow-xs">
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           <svg className="w-full h-full object-cover" fill="none" viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg">
             <path d="M-20 220C50 160 120 250 200 190C280 130 350 220 420 170V240H-20V220Z" fill="white" />
@@ -88,78 +88,78 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
           </svg>
         </div>
 
-        <div className="relative z-10 flex flex-col space-y-2">
+        <div className="relative z-10 flex flex-col space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[9.5px] font-bold shadow-2xs">
-              <span className="material-symbols-outlined text-[12px]">flight_takeoff</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[11.5px] font-bold shadow-2xs">
+              <span className="material-symbols-outlined text-[15px]">flight_takeoff</span>
               H - 14 Hari Menuju Berangkat
             </span>
-            <span className="text-[8.5px] text-surface-variant/80 tracking-widest uppercase font-semibold">
+            <span className="text-[10.5px] text-surface-variant/90 tracking-wider uppercase font-semibold">
               Spring Tour
             </span>
           </div>
 
-          <div className="space-y-0.5">
-            <h3 className="text-[13.5px] font-bold text-white tracking-tight leading-snug">
+          <div className="space-y-1">
+            <h3 className="text-[15.5px] font-extrabold text-white tracking-tight leading-snug">
               Petualanganmu makin dekat!
             </h3>
-            <p className="text-[10px] text-surface-dim flex items-center gap-1">
-              <span className="material-symbols-outlined text-[13px] text-secondary-fixed">calendar_today</span>
+            <p className="text-[12px] text-surface-dim flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[15px] text-secondary-fixed">calendar_today</span>
               12 April 2025 • CGK ➔ HND (GA874)
             </p>
           </div>
 
           {/* Quick Flight Route Chip */}
-          <div className="flex items-center justify-between p-1.5 rounded-lg bg-white/10 backdrop-blur-md">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-[9px]">
+          <div className="flex items-center justify-between p-2 rounded-xl bg-white/10 backdrop-blur-md">
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-[11px]">
                 GA
               </div>
               <div className="flex flex-col leading-tight">
-                <span className="text-[10px] text-white font-semibold">Garuda Indonesia</span>
-                <span className="text-[9px] text-surface-variant">Non-stop • 7j 25m</span>
+                <span className="text-[12px] text-white font-bold">Garuda Indonesia</span>
+                <span className="text-[10.5px] text-surface-variant">Non-stop • 7j 25m</span>
               </div>
             </div>
             <button
               onClick={() => onNavigateTab('itinerary')}
-              className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-white text-on-surface text-[10px] font-semibold hover:bg-surface-container-high transition-colors shadow-2xs active:scale-95"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white text-on-surface text-[11.5px] font-bold hover:bg-surface-container-high transition-colors shadow-2xs active:scale-95"
             >
               Atur Detail
-              <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
+              <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* 2. Today's Itinerary Quick Card */}
-      <div className="rounded-xl bg-surface-container-lowest p-3 shadow-xs flex flex-col space-y-2 border border-surface-container/80">
+      <div className="rounded-2xl bg-surface-container-lowest p-3.5 shadow-xs flex flex-col space-y-2.5 border border-surface-container/80">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
-            <span className="text-[11.5px] font-bold text-on-surface">Sorotan Hari Ini</span>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-primary-container"></span>
+            <span className="text-[14px] font-bold text-on-surface">Sorotan Hari Ini</span>
           </div>
-          <span className="px-1.5 py-0.2 rounded bg-primary-fixed text-primary text-[9px] font-bold">
+          <span className="px-2 py-0.5 rounded bg-primary-fixed text-primary text-[10.5px] font-bold">
             Hari 1 • Tokyo
           </span>
         </div>
 
-        <div className="relative overflow-hidden rounded-lg bg-surface-container-low p-2 flex gap-2 items-center">
-          <div className="w-10 h-10 rounded-md overflow-hidden shrink-0 bg-primary-fixed/20 flex items-center justify-center text-primary-container">
-            <span className="material-symbols-outlined text-[18px]">park</span>
+        <div className="relative overflow-hidden rounded-xl bg-surface-container-low p-2.5 flex gap-2.5 items-center">
+          <div className="w-11 h-11 rounded-lg overflow-hidden shrink-0 bg-primary-fixed/20 flex items-center justify-center text-primary-container">
+            <span className="material-symbols-outlined text-[20px]">park</span>
           </div>
           <div className="flex flex-col min-w-0 flex-1 space-y-0.5 leading-tight">
-            <div className="flex items-center gap-1">
-              <span className="px-1 py-0.2 rounded bg-secondary-fixed text-on-secondary-fixed text-[8.5px] font-bold">
+            <div className="flex items-center gap-1.5">
+              <span className="px-1.5 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold">
                 14:30 JST
               </span>
-              <span className="text-[10px] text-on-surface-variant font-medium truncate">
+              <span className="text-[11.5px] text-on-surface-variant font-medium truncate">
                 Shinjuku & Shibuya
               </span>
             </div>
-            <h4 className="text-[11.5px] font-bold text-on-surface truncate">
+            <h4 className="text-[13.5px] font-bold text-on-surface truncate">
               Shinjuku Gyoen Garden
             </h4>
-            <p className="text-[9.5px] text-on-surface-variant line-clamp-1">
+            <p className="text-[11px] text-on-surface-variant line-clamp-1">
               Piknik santai hanami sakura & istirahat sejenak setelah check-in hotel.
             </p>
           </div>
@@ -167,150 +167,150 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
 
         <button
           onClick={() => onNavigateTab('itinerary')}
-          className="w-full py-1.5 px-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors flex items-center justify-center gap-1 text-on-surface text-[10.5px] font-semibold border border-surface-container active:scale-98"
+          className="w-full h-9 px-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex items-center justify-center gap-1.5 text-on-surface text-[12px] font-bold border border-surface-container active:scale-98"
         >
-          <span className="material-symbols-outlined text-[13px] text-primary-container">route</span>
+          <span className="material-symbols-outlined text-[16px] text-primary-container">route</span>
           Lihat Seluruh Itinerary
         </button>
       </div>
 
       {/* 3. Islamic Prayer Quick Summary Card */}
-      <div className="rounded-xl bg-surface-container-lowest p-3 shadow-xs flex flex-col space-y-2 border border-surface-container/80">
+      <div className="rounded-2xl bg-surface-container-lowest p-3.5 shadow-xs flex flex-col space-y-2.5 border border-surface-container/80">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[15px] text-secondary">mosque</span>
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px] text-secondary">mosque</span>
             <div>
-              <h4 className="text-xs font-bold text-on-surface leading-tight">Jadwal Sholat Terdekat</h4>
-              <p className="text-[10px] text-on-surface-variant">Tokyo, Japan (JST)</p>
+              <h4 className="text-[14px] font-bold text-on-surface leading-tight">Jadwal Sholat Terdekat</h4>
+              <p className="text-[11.5px] text-on-surface-variant">Tokyo, Japan (JST)</p>
             </div>
           </div>
           <div className="flex flex-col items-end leading-tight">
-            <span className="text-[11px] text-primary font-bold">
+            <span className="text-[12.5px] text-primary font-extrabold">
               {prayers ? `${prayers.nextPrayer.name} (${prayers.nextPrayer.time})` : 'Ashar (15:20)'}
             </span>
-            <span className="text-[9.5px] text-on-surface-variant">Metode Muslim League</span>
+            <span className="text-[10.5px] text-on-surface-variant font-medium">Metode Muslim League</span>
           </div>
         </div>
 
         {/* Five Mini Prayer Badges */}
-        <div className="grid grid-cols-5 gap-1 pt-0.5">
-          <div className="flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg bg-surface-container-low text-center">
-            <span className="text-[9.5px] text-on-surface-variant font-medium">Subuh</span>
-            <span className="text-[11px] font-bold text-on-surface mt-0.5">{prayers?.fajr || '04:15'}</span>
+        <div className="grid grid-cols-5 gap-1.5 pt-0.5">
+          <div className="flex flex-col items-center justify-center py-2 px-1 rounded-lg bg-surface-container-low text-center">
+            <span className="text-[11px] text-on-surface-variant font-semibold">Subuh</span>
+            <span className="text-[12.5px] font-bold text-on-surface mt-0.5">{prayers?.fajr || '04:15'}</span>
           </div>
-          <div className="flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg bg-surface-container-low text-center">
-            <span className="text-[9.5px] text-on-surface-variant font-medium">Dzuhur</span>
-            <span className="text-[11px] font-bold text-on-surface mt-0.5">{prayers?.dhuhr || '11:52'}</span>
+          <div className="flex flex-col items-center justify-center py-2 px-1 rounded-lg bg-surface-container-low text-center">
+            <span className="text-[11px] text-on-surface-variant font-semibold">Dzuhur</span>
+            <span className="text-[12.5px] font-bold text-on-surface mt-0.5">{prayers?.dhuhr || '11:52'}</span>
           </div>
-          <div className="flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg bg-secondary-container text-on-secondary-container text-center shadow-xs">
-            <span className="text-[9.5px] font-bold uppercase tracking-wider">Ashar</span>
-            <span className="text-[11px] font-bold mt-0.5">{prayers?.asr || '15:20'}</span>
+          <div className="flex flex-col items-center justify-center py-2 px-1 rounded-lg bg-secondary-container text-on-secondary-container text-center shadow-xs">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider">Ashar</span>
+            <span className="text-[12.5px] font-black mt-0.5">{prayers?.asr || '15:20'}</span>
           </div>
-          <div className="flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg bg-surface-container-low text-center">
-            <span className="text-[9.5px] text-on-surface-variant font-medium">Maghrib</span>
-            <span className="text-[11px] font-bold text-on-surface mt-0.5">{prayers?.maghrib || '18:10'}</span>
+          <div className="flex flex-col items-center justify-center py-2 px-1 rounded-lg bg-surface-container-low text-center">
+            <span className="text-[11px] text-on-surface-variant font-semibold">Maghrib</span>
+            <span className="text-[12.5px] font-bold text-on-surface mt-0.5">{prayers?.maghrib || '18:10'}</span>
           </div>
-          <div className="flex flex-col items-center justify-center py-1.5 px-0.5 rounded-lg bg-surface-container-low text-center">
-            <span className="text-[9.5px] text-on-surface-variant font-medium">Isya</span>
-            <span className="text-[11px] font-bold text-on-surface mt-0.5">{prayers?.isha || '19:28'}</span>
+          <div className="flex flex-col items-center justify-center py-2 px-1 rounded-lg bg-surface-container-low text-center">
+            <span className="text-[11px] text-on-surface-variant font-semibold">Isya</span>
+            <span className="text-[12.5px] font-bold text-on-surface mt-0.5">{prayers?.isha || '19:28'}</span>
           </div>
         </div>
 
         {/* Quick Halal & Qibla Actions */}
-        <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+        <div className="grid grid-cols-2 gap-2 pt-0.5">
           <button
             onClick={() => onNavigateTab('ibadah')}
-            className="flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors text-[10.5px] font-semibold border border-surface-container"
+            className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors text-[11.5px] font-bold border border-surface-container"
           >
-            <span className="material-symbols-outlined text-[15px] text-primary">explore</span>
+            <span className="material-symbols-outlined text-[17px] text-primary">explore</span>
             <span>Kiblat 293° Barat Laut</span>
           </button>
           <button
             onClick={() => onNavigateTab('ibadah')}
-            className="flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors text-[10.5px] font-semibold border border-surface-container"
+            className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors text-[11.5px] font-bold border border-surface-container"
           >
-            <span className="material-symbols-outlined text-[15px] text-secondary">restaurant_menu</span>
+            <span className="material-symbols-outlined text-[17px] text-secondary">restaurant_menu</span>
             <span>Masjid & Halal Spot</span>
           </button>
         </div>
       </div>
 
       {/* 4. Budget & Financial Tracker Summary */}
-      <div className="rounded-xl bg-surface-container-lowest p-3 shadow-xs flex flex-col space-y-2 border border-surface-container/80">
+      <div className="rounded-2xl bg-surface-container-lowest p-3.5 shadow-xs flex flex-col space-y-2.5 border border-surface-container/80">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <div className="w-5.5 h-5.5 rounded-md bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
-              <span className="material-symbols-outlined text-[15px]">currency_yen</span>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
+              <span className="material-symbols-outlined text-[17px]">currency_yen</span>
             </div>
             <div>
-              <h4 className="text-[11.5px] font-bold text-on-surface leading-tight">Ringkasan Biaya</h4>
-              <span className="text-[9.5px] text-on-surface-variant">Kurs: ¥1 ≈ Rp {rate.toFixed(1)}</span>
+              <h4 className="text-[14px] font-bold text-on-surface leading-tight">Ringkasan Biaya</h4>
+              <span className="text-[11px] text-on-surface-variant font-medium">Kurs: ¥1 ≈ Rp {rate.toFixed(1)}</span>
             </div>
           </div>
           <button
             onClick={() => onNavigateTab('biaya')}
-            className="text-primary text-[10.5px] font-semibold hover:underline"
+            className="text-primary text-[12px] font-bold hover:underline"
           >
             Detail
           </button>
         </div>
 
-        <div className="space-y-1 bg-surface-container-low p-2 rounded-lg">
-          <div className="flex justify-between items-baseline text-[10.5px]">
-            <span className="text-on-surface-variant font-medium">Terpakai ({usagePercent}%)</span>
-            <span className="font-bold text-on-surface">
+        <div className="space-y-1.5 bg-surface-container-low p-2.5 rounded-xl">
+          <div className="flex justify-between items-baseline text-[12px]">
+            <span className="text-on-surface-variant font-semibold">Terpakai ({usagePercent}%)</span>
+            <span className="font-extrabold text-on-surface text-[13px]">
               Rp {formatRupiah(totalExpenseIdr)}{' '}
-              <span className="font-normal text-on-surface-variant text-[9.5px]">/ Rp 35jt</span>
+              <span className="font-normal text-on-surface-variant text-[11px]">/ Rp 35jt</span>
             </span>
           </div>
 
-          <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden flex">
+          <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden flex">
             <div className="h-full bg-primary-container" style={{ width: `${Math.min(usagePercent, 70)}%` }}></div>
             <div className="h-full bg-secondary-container" style={{ width: `${Math.max(0, usagePercent - 70)}%` }}></div>
           </div>
 
-          <div className="flex items-center justify-between pt-0.5 text-on-surface-variant text-[9.5px]">
-            <span>Sisa Saldo Kas:</span>
-            <span className="font-bold text-on-surface">
+          <div className="flex items-center justify-between pt-1 text-on-surface-variant text-[11.5px]">
+            <span className="font-medium">Sisa Saldo Kas:</span>
+            <span className="font-black text-on-surface text-[13px]">
               ¥ {formatJpy(remainingJpy)}{' '}
-              <span className="text-secondary font-semibold">(~ Rp {formatRupiah(remainingBudget)})</span>
+              <span className="text-secondary font-bold text-[11.5px]">(~ Rp {formatRupiah(remainingBudget)})</span>
             </span>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={onOpenAddExpense || (() => onNavigateTab('biaya'))}
-            className="h-7.5 px-2 rounded-lg bg-primary-container text-white text-[10.5px] font-semibold flex items-center justify-center gap-1 shadow-2xs active:scale-95 transition-transform"
+            className="h-9 px-3 rounded-xl bg-primary-container text-white text-[12px] font-bold flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition-transform"
           >
-            <span className="material-symbols-outlined text-[14px]">add_circle</span>
+            <span className="material-symbols-outlined text-[16px]">add_circle</span>
             Catat Pengeluaran
           </button>
           <button
             type="button"
             onClick={() => onNavigateTab('biaya')}
-            className="h-7.5 px-2 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface text-[10.5px] font-semibold flex items-center justify-center gap-1 border border-surface-container active:scale-95"
+            className="h-9 px-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface text-[12px] font-bold flex items-center justify-center gap-1.5 border border-surface-container active:scale-95"
           >
-            <span className="material-symbols-outlined text-[14px] text-secondary">sync_alt</span>
+            <span className="material-symbols-outlined text-[16px] text-secondary">sync_alt</span>
             Konversi Kurs
           </button>
         </div>
       </div>
 
       {/* 5. Preparation Progress Bar */}
-      <div className="rounded-xl bg-surface-container-lowest p-3 shadow-xs flex flex-col space-y-1.5 border border-surface-container/80">
+      <div className="rounded-2xl bg-surface-container-lowest p-3.5 shadow-xs flex flex-col space-y-2 border border-surface-container/80">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[16px] text-primary-container">checklist</span>
-            <span className="text-[11.5px] font-bold text-on-surface">Kesiapan Berangkat</span>
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px] text-primary-container">checklist</span>
+            <span className="text-[14px] font-bold text-on-surface">Kesiapan Berangkat</span>
           </div>
-          <span className="text-[10.5px] font-bold text-primary">
+          <span className="text-[12px] font-bold text-primary">
             {completedChecklist} / {totalChecklist} Selesai ({checklistPercent}%)
           </span>
         </div>
 
-        <div className="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
           <div
             className="h-full bg-primary-container rounded-full transition-all duration-500"
             style={{ width: `${checklistPercent}%` }}
@@ -319,79 +319,80 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
 
         <button
           onClick={() => onNavigateTab('bekal')}
-          className="text-center py-0.5 text-[10.5px] text-primary font-semibold hover:underline"
+          className="text-center py-1 text-[12px] text-primary font-bold hover:underline"
         >
           Buka Checklist & Dokumen Koper
         </button>
       </div>
 
       {/* 6. Quick Access Bento Grid */}
-      <div className="flex flex-col space-y-1.5 pt-0.5">
-        <span className="text-[10.5px] font-bold uppercase tracking-wider text-on-surface-variant">
+      <div className="flex flex-col space-y-2 pt-1">
+        <span className="text-[12px] font-bold uppercase tracking-wider text-on-surface-variant">
           Akses Cepat Teman Jalan
         </span>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2.5">
           <button
             onClick={() => onNavigateTab('itinerary')}
-            className="p-2.5 rounded-xl bg-surface-container-lowest shadow-2xs flex flex-col justify-between hover:bg-surface-container-low transition-all active:scale-[0.98] text-left border border-surface-container/80"
+            className="p-3 rounded-2xl bg-surface-container-lowest shadow-2xs flex flex-col justify-between hover:bg-surface-container-low transition-all active:scale-[0.98] text-left border border-surface-container/80"
           >
-            <div className="w-6.5 h-6.5 rounded-lg bg-primary-fixed text-primary flex items-center justify-center mb-1.5">
-              <span className="material-symbols-outlined text-[14px]">calendar_month</span>
+            <div className="w-8 h-8 rounded-xl bg-primary-fixed text-primary flex items-center justify-center mb-2">
+              <span className="material-symbols-outlined text-[18px]">calendar_month</span>
             </div>
-            <span className="text-[11px] font-bold text-on-surface leading-tight">Itinerary Lengkap</span>
-            <span className="text-[9px] text-on-surface-variant mt-0.5">Jadwal 7 Hari Tokyo-Kyoto</span>
+            <span className="text-[13px] font-bold text-on-surface leading-tight">Itinerary Lengkap</span>
+            <span className="text-[11px] text-on-surface-variant mt-0.5">Jadwal 7 Hari Tokyo-Kyoto</span>
           </button>
 
           <button
             onClick={() => onNavigateTab('biaya')}
-            className="p-2.5 rounded-xl bg-surface-container-lowest shadow-2xs flex flex-col justify-between hover:bg-surface-container-low transition-all active:scale-[0.98] text-left border border-surface-container/80"
+            className="p-3 rounded-2xl bg-surface-container-lowest shadow-2xs flex flex-col justify-between hover:bg-surface-container-low transition-all active:scale-[0.98] text-left border border-surface-container/80"
           >
-            <div className="w-6.5 h-6.5 rounded-lg bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center mb-1.5">
-              <span className="material-symbols-outlined text-[14px]">currency_exchange</span>
+            <div className="w-8 h-8 rounded-xl bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center mb-2">
+              <span className="material-symbols-outlined text-[18px]">currency_exchange</span>
             </div>
-            <span className="text-[11px] font-bold text-on-surface leading-tight">Konverter Kurs</span>
-            <span className="text-[9px] text-on-surface-variant mt-0.5">¥ JPY ➔ Rp IDR Instan</span>
+            <span className="text-[13px] font-bold text-on-surface leading-tight">Konverter Kurs</span>
+            <span className="text-[11px] text-on-surface-variant mt-0.5">¥ JPY ➔ Rp IDR Instan</span>
           </button>
 
           <button
             onClick={() => onNavigateTab('ibadah')}
-            className="p-2.5 rounded-xl bg-surface-container-lowest shadow-2xs flex flex-col justify-between hover:bg-surface-container-low transition-all active:scale-[0.98] text-left border border-surface-container/80"
+            className="p-3 rounded-2xl bg-surface-container-lowest shadow-2xs flex flex-col justify-between hover:bg-surface-container-low transition-all active:scale-[0.98] text-left border border-surface-container/80"
           >
-            <div className="w-6.5 h-6.5 rounded-lg bg-surface-container-high text-on-surface flex items-center justify-center mb-1.5">
-              <span className="material-symbols-outlined text-[14px]">compass_calibration</span>
+            <div className="w-8 h-8 rounded-xl bg-surface-container-high text-on-surface flex items-center justify-center mb-2">
+              <span className="material-symbols-outlined text-[18px]">compass_calibration</span>
             </div>
-            <span className="text-[11px] font-bold text-on-surface leading-tight">Kompas Kiblat</span>
-            <span className="text-[9px] text-on-surface-variant mt-0.5">Akurat dengan GPS</span>
+            <span className="text-[13px] font-bold text-on-surface leading-tight">Kompas Kiblat</span>
+            <span className="text-[11px] text-on-surface-variant mt-0.5">Akurat dengan GPS</span>
           </button>
 
           <button
             onClick={() => onNavigateTab('ibadah')}
-            className="p-2.5 rounded-xl bg-surface-container-lowest shadow-2xs flex flex-col justify-between hover:bg-surface-container-low transition-all active:scale-[0.98] text-left border border-surface-container/80"
+            className="p-3 rounded-2xl bg-surface-container-lowest shadow-2xs flex flex-col justify-between hover:bg-surface-container-low transition-all active:scale-[0.98] text-left border border-surface-container/80"
           >
-            <div className="w-6.5 h-6.5 rounded-lg bg-error-container text-primary-container flex items-center justify-center mb-1.5">
-              <span className="material-symbols-outlined text-[14px]">storefront</span>
+            <div className="w-8 h-8 rounded-xl bg-error-container text-primary-container flex items-center justify-center mb-2">
+              <span className="material-symbols-outlined text-[18px]">storefront</span>
             </div>
-            <span className="text-[11px] font-bold text-on-surface leading-tight">Masjid & Kuliner</span>
-            <span className="text-[9px] text-on-surface-variant mt-0.5">Direktori Halal Terverifikasi</span>
+            <span className="text-[13px] font-bold text-on-surface leading-tight">Masjid & Kuliner</span>
+            <span className="text-[11px] text-on-surface-variant mt-0.5">Direktori Halal</span>
           </button>
 
           <button
             onClick={() => onNavigateTab('bekal')}
-            className="col-span-2 p-2.5 rounded-xl bg-surface-container-lowest shadow-2xs flex items-center justify-between hover:bg-surface-container-low transition-all active:scale-[0.99] border border-surface-container/80"
+            className="col-span-2 p-3 rounded-2xl bg-surface-container-lowest shadow-2xs flex items-center justify-between hover:bg-surface-container-low transition-all active:scale-[0.99] border border-surface-container/80"
           >
-            <div className="flex items-center gap-2">
-              <div className="w-6.5 h-6.5 rounded-lg bg-surface-container-high text-on-surface-variant flex items-center justify-center">
-                <span className="material-symbols-outlined text-[14px]">luggage</span>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-surface-container-high text-on-surface-variant flex items-center justify-center">
+                <span className="material-symbols-outlined text-[18px]">luggage</span>
               </div>
               <div className="flex flex-col text-left leading-tight">
-                <span className="text-[11px] font-bold text-on-surface">Checklist & Bekal Koper</span>
-                <span className="text-[9px] text-on-surface-variant">Panduan pakaian & obat penting</span>
+                <span className="text-[13px] font-bold text-on-surface">Checklist & Bekal Koper</span>
+                <span className="text-[11px] text-on-surface-variant mt-0.5">Panduan pakaian & obat penting</span>
               </div>
             </div>
-            <span className="material-symbols-outlined text-[14px] text-on-surface-variant">chevron_right</span>
+            <span className="material-symbols-outlined text-[18px] text-on-surface-variant">chevron_right</span>
           </button>
         </div>
       </div>
     </div>
   );
+
 };

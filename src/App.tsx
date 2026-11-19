@@ -115,9 +115,10 @@ export function App() {
         onOpenSettings={() => setCurrentTab(currentTab === 'settings' ? 'beranda' : 'settings')}
       />
 
-      <main className="flex-1 w-full max-w-md mx-auto px-3 pt-[46px] pb-[56px] flex flex-col">
+      <main className="flex-1 w-full max-w-md mx-auto px-3 pt-[60px] pb-[76px] flex flex-col">
         {renderMainContent()}
       </main>
+
 
       {showNav && <BottomNav currentTab={currentTab} onTabChange={(tab) => setCurrentTab(tab)} />}
     </div>

@@ -145,47 +145,47 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
       )}
 
       {/* App Info Card */}
-      <div className="bg-surface-container-lowest rounded-xl p-3 shadow-xs border border-surface-container/80 flex items-center gap-2.5">
+      <div className="bg-surface-container-lowest rounded-2xl p-3.5 shadow-xs border border-surface-container/80 flex items-center gap-3">
         <img
           src="/LOGO TJR.png"
           alt="TEMAN TJR Logo"
-          className="w-10 h-10 rounded-xl object-cover border border-white shadow-2xs bg-[#a90008] shrink-0"
+          className="w-12 h-12 rounded-xl object-cover border border-white shadow-2xs bg-[#a90008] shrink-0"
         />
         <div className="flex-1 min-w-0">
-          <h2 className="text-[12.5px] font-bold text-on-surface">TEMAN TJR (Official)</h2>
-          <p className="text-[10px] text-on-surface-variant">
+          <h2 className="text-[15px] font-bold text-on-surface">TEMAN TJR (Official)</h2>
+          <p className="text-[12px] text-on-surface-variant">
             Teman Perjalanan Dalam Genggaman • Versi 2.0
           </p>
-          <span className="inline-block mt-0.5 px-1.5 py-0.2 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[8.5px] font-bold uppercase">
+          <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold uppercase">
             Aktivasi Terverifikasi
           </span>
         </div>
       </div>
 
       {/* Backup & Restore Section */}
-      <div className="bg-surface-container-lowest rounded-xl p-3 shadow-xs border border-surface-container/80 space-y-2">
-        <div className="flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-primary text-[15px]">cloud_sync</span>
-          <h3 className="text-[12px] font-bold text-on-surface">Cadangan Data (Backup & Restore)</h3>
+      <div className="bg-surface-container-lowest rounded-2xl p-3.5 shadow-xs border border-surface-container/80 space-y-2.5">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary text-[18px]">cloud_sync</span>
+          <h3 className="text-[14px] font-bold text-on-surface">Cadangan Data (Backup & Restore)</h3>
         </div>
-        <p className="text-[10px] text-on-surface-variant leading-relaxed">
+        <p className="text-[12.5px] text-on-surface-variant leading-relaxed">
           Semua catatan perjalanan, itinerary, dan anggaran Anda tersimpan secara mandiri di penyimpanan lokal perangkat.
         </p>
 
-        <div className="grid grid-cols-2 gap-1.5 pt-0.5">
+        <div className="grid grid-cols-2 gap-2 pt-1">
           <button
             onClick={handleExportBackup}
-            className="h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-[11px] font-semibold text-on-surface flex items-center justify-center gap-1 transition-colors border border-surface-container active:scale-98"
+            className="h-10 rounded-xl bg-surface-container hover:bg-surface-container-high text-[12px] font-bold text-on-surface flex items-center justify-center gap-1.5 transition-colors border border-surface-container active:scale-98"
           >
-            <span className="material-symbols-outlined text-[13px] text-primary">download</span>
+            <span className="material-symbols-outlined text-[17px] text-primary">download</span>
             Unduh Backup (.json)
           </button>
 
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-[11px] font-semibold text-on-surface flex items-center justify-center gap-1 transition-colors border border-surface-container active:scale-98"
+            className="h-10 rounded-xl bg-surface-container hover:bg-surface-container-high text-[12px] font-bold text-on-surface flex items-center justify-center gap-1.5 transition-colors border border-surface-container active:scale-98"
           >
-            <span className="material-symbols-outlined text-[13px] text-secondary">upload_file</span>
+            <span className="material-symbols-outlined text-[17px] text-secondary">upload_file</span>
             Pulihkan Data
           </button>
           <input
@@ -199,42 +199,43 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
       </div>
 
       {/* Internal Management / Admin Access */}
-      <div className="bg-surface-container-lowest rounded-xl p-3 shadow-xs border border-surface-container/80 space-y-2">
-        <div className="flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-primary text-[15px]">admin_panel_settings</span>
-          <h3 className="text-[12px] font-bold text-on-surface">Admin & Tim Internal TJR</h3>
+      <div className="bg-surface-container-lowest rounded-2xl p-3.5 shadow-xs border border-surface-container/80 space-y-2.5">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary text-[18px]">admin_panel_settings</span>
+          <h3 className="text-[14px] font-bold text-on-surface">Admin & Tim Internal TJR</h3>
         </div>
-        <p className="text-[10px] text-on-surface-variant leading-relaxed">
+        <p className="text-[12.5px] text-on-surface-variant leading-relaxed">
           Kelola direktori masjid, template itinerary, dan kode aktivasi pelanggan (Khusus Staf Teman Jalan Ryan).
         </p>
 
         <button
           onClick={onOpenAdmin}
-          className="w-full h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-[11px] font-semibold text-primary flex items-center justify-center gap-1 transition-colors border border-surface-container active:scale-98"
+          className="w-full h-10 rounded-xl bg-surface-container hover:bg-surface-container-high text-[12.5px] font-bold text-primary flex items-center justify-center gap-1.5 transition-colors border border-surface-container active:scale-98"
         >
-          <span className="material-symbols-outlined text-[13px]">key</span>
+          <span className="material-symbols-outlined text-[17px]">key</span>
           Buka Dashboard Admin Internal (/admin)
         </button>
       </div>
 
       {/* Danger Zone: Reset & Deactivate */}
-      <div className="bg-surface-container-lowest rounded-xl p-3 shadow-xs border border-surface-container/80 space-y-2">
-        <div className="flex items-center gap-1.5 text-error">
-          <span className="material-symbols-outlined text-[15px]">warning</span>
-          <h3 className="text-[12px] font-bold">Zona Pengaturan Perangkat</h3>
+      <div className="bg-surface-container-lowest rounded-2xl p-3.5 shadow-xs border border-surface-container/80 space-y-2.5">
+        <div className="flex items-center gap-2 text-error">
+          <span className="material-symbols-outlined text-[18px]">warning</span>
+          <h3 className="text-[14px] font-bold">Zona Pengaturan Perangkat</h3>
         </div>
-        <p className="text-[10px] text-on-surface-variant leading-relaxed">
+        <p className="text-[12.5px] text-on-surface-variant leading-relaxed">
           Keluar dari aplikasi pada perangkat ini atau hapus aktivasi jika Anda berganti perangkat baru.
         </p>
 
         <button
           onClick={handleDeactivate}
-          className="w-full h-8 rounded-lg bg-error-container text-on-error-container text-[11px] font-bold flex items-center justify-center gap-1 hover:brightness-95 transition-all active:scale-98"
+          className="w-full h-10 rounded-xl bg-error-container text-on-error-container text-[12.5px] font-bold flex items-center justify-center gap-1.5 hover:brightness-95 transition-all active:scale-98"
         >
-          <span className="material-symbols-outlined text-[13px]">logout</span>
+          <span className="material-symbols-outlined text-[17px]">logout</span>
           Reset Aktivasi Perangkat
         </button>
       </div>
+
     </div>
   );
 };
