@@ -10,12 +10,40 @@ import { BekalScreen } from './features/checklist/BekalScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
 import { AdminScreen } from './features/admin/AdminScreen';
 
+const APP_BUILD_ID = '2026.11.20-build5';
+
 export function App() {
   const [isReady, setIsReady] = useState(false);
   const [currentTab, setCurrentTab] = useState<string>('beranda');
   const [openAddExpenseInBudget, setOpenAddExpenseInBudget] = useState(false);
 
   useEffect(() => {
+    // Listen for PWA install prompt
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      (window as any).deferredPwaPrompt = e;
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+
+    // Auto-purge stale cache if new build version
+    const lastBuild = localStorage.getItem('tjr_last_build');
+    if (lastBuild && lastBuild !== APP_BUILD_ID) {
+      localStorage.setItem('tjr_last_build', APP_BUILD_ID);
+      if ('caches' in window) {
+        caches.keys().then((keys) => {
+          Promise.all(keys.map((k) => caches.delete(k))).then(() => {
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then((regs) => {
+                regs.forEach((r) => r.update());
+              });
+            }
+          });
+        });
+      }
+    } else if (!lastBuild) {
+      localStorage.setItem('tjr_last_build', APP_BUILD_ID);
+    }
+
     async function init() {
       await initializeDatabaseSeed();
       setIsReady(true);
@@ -26,6 +54,10 @@ export function App() {
     if (window.location.hash === '#admin') {
       setCurrentTab('admin');
     }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+    };
   }, []);
 
   // Loading state

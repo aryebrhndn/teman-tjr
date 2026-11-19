@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { db } from '../../database/dexie';
 import { deactivateDevice } from '../../services/activation.service';
 
@@ -11,6 +11,102 @@ interface SettingsScreenProps {
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, onOpenAdmin, onBack }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
+  const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
+  const [showGuideModal, setShowGuideModal] = useState<boolean>(false);
+
+  // Check if PWA is already installed or running in standalone mode
+  const [isInstalled, setIsInstalled] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return (
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone === true ||
+        document.referrer.includes('android-app://')
+      );
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const checkInstalled = () => {
+      const isStandalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone === true ||
+        document.referrer.includes('android-app://');
+      if (isStandalone) {
+        setIsInstalled(true);
+      }
+    };
+
+    checkInstalled();
+
+    // Listen for the official browser app installed event
+    const handleAppInstalled = () => {
+      setIsInstalled(true);
+      setShowSuccessModal(true);
+      (window as any).deferredPwaPrompt = null;
+    };
+
+    window.addEventListener('appinstalled', handleAppInstalled);
+    return () => {
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallPWA = async () => {
+    const prompt = (window as any).deferredPwaPrompt;
+    if (prompt) {
+      try {
+        prompt.prompt();
+        const choiceResult = await prompt.userChoice;
+        if (choiceResult && choiceResult.outcome === 'accepted') {
+          setIsInstalled(true);
+          setShowSuccessModal(true);
+          (window as any).deferredPwaPrompt = null;
+        }
+      } catch (e) {
+        console.log('Error triggering PWA prompt:', e);
+        setShowGuideModal(true);
+      }
+    } else {
+      // If direct prompt is not supported (e.g. iOS Safari or already triggered), open the guide modal
+      setShowGuideModal(true);
+    }
+  };
+
+  const handleForceUpdate = async () => {
+    setIsUpdating(true);
+    try {
+      // 1. Purge all caches in CacheStorage
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map((name) => caches.delete(name)));
+      }
+
+      // 2. Unregister existing Service Workers so a clean fresh one is installed
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const reg of registrations) {
+          await reg.unregister();
+        }
+      }
+
+      // 3. Mark update timestamp in localStorage
+      localStorage.setItem('tjr_last_build', '2026.11.20-build5');
+
+      setFeedback('Cache lama dibersihkan! Memuat versi terbaru...');
+
+      // 4. Force hard reload bypassing cache
+      setTimeout(() => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('tjr_update', Date.now().toString());
+        window.location.href = url.toString();
+      }, 700);
+    } catch (err: any) {
+      alert('Gagal membersihkan cache: ' + err.message);
+      setIsUpdating(false);
+    }
+  };
 
   const handleExportBackup = async () => {
     try {
@@ -116,7 +212,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
 
   const handleDeactivate = async () => {
     const confirm = window.confirm(
-      'Apakah Anda yakin ingin mereset aktivasi pada perangkat ini? Anda harus memasukkan kode aktivasi kembali untuk mengakses aplikasi.'
+      'Apakah Anda yakin ingin mereset catatan data pada perangkat ini? Data lokal akan kembali ke setelan awal.'
     );
     if (!confirm) return;
 
@@ -125,7 +221,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
   };
 
   return (
-    <div className="flex flex-col w-full space-y-2.5">
+    <div className="flex flex-col w-full space-y-2.5 pb-6">
       {/* Top Header */}
       <div className="flex items-center justify-between">
         <button
@@ -135,7 +231,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
           <span className="material-symbols-outlined text-[16px]">arrow_back</span>
           Kembali ke Beranda
         </button>
-        <span className="text-[11.5px] font-bold text-on-surface">Pengaturan & Backup</span>
+        <span className="text-[11.5px] font-bold text-on-surface">Pengaturan & Aplikasi</span>
       </div>
 
       {feedback && (
@@ -149,17 +245,108 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         <img
           src="/LOGO TJR.png"
           alt="Teman TJR Logo"
-          className="w-9 h-9 rounded-xl object-cover border border-white shadow-2xs bg-[#a90008] shrink-0"
+          className="w-10 h-10 rounded-xl object-cover border border-white shadow-2xs bg-[#a90008] shrink-0"
         />
         <div className="flex-1 min-w-0">
-          <h2 className="text-[14px] font-extrabold text-on-surface">Teman TJR</h2>
-          <p className="text-[11px] text-on-surface-variant font-medium mt-0.5">
-            Teman Perjalanan Dalam Genggaman • Versi 2.0
+          <h2 className="text-[14.5px] font-extrabold text-on-surface leading-snug">Teman TJR</h2>
+          <p className="text-[10.5px] text-on-surface-variant font-medium mt-0.5">
+            Teman Perjalanan Dalam Genggaman • Versi 2.0 (Build 5)
           </p>
-          <span className="inline-block mt-1 px-2 py-0.2 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[9.5px] font-bold uppercase">
-            Akses Langsung Siap
+          <div className="flex items-center gap-1.5 mt-1">
+            <span className="inline-block px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[9.5px] font-bold uppercase">
+              Akses Langsung Aktif
+            </span>
+            {isInstalled && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 text-[9.5px] font-bold">
+                <span className="material-symbols-outlined text-[12px]">check_circle</span>
+                PWA Terpasang
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 1. PWA Installation Section */}
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-primary text-[18px]">install_mobile</span>
+            <h3 className="text-[13px] font-bold text-on-surface">Pemasangan Aplikasi (PWA)</h3>
+          </div>
+          {isInstalled ? (
+            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 text-[9.5px] font-bold flex items-center gap-1">
+              <span className="material-symbols-outlined text-[12px]">verified</span>
+              Terpasang di HP
+            </span>
+          ) : (
+            <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 text-[9.5px] font-bold">
+              Tersedia untuk Diunduh
+            </span>
+          )}
+        </div>
+
+        {isInstalled ? (
+          <div className="bg-emerald-500/5 rounded-lg p-2.5 border border-emerald-500/20 space-y-2">
+            <p className="text-[11px] text-on-surface-variant leading-relaxed">
+              ✅ <strong>Teman TJR sudah terpasang</strong> sebagai aplikasi mandiri di Layar Utama HP Anda. Anda dapat membukanya kapan saja seperti aplikasi resmi tanpa perlu membuka browser.
+            </p>
+            <button
+              onClick={() => setShowSuccessModal(true)}
+              className="w-full h-8.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors active:scale-98"
+            >
+              <span className="material-symbols-outlined text-[15px]">verified</span>
+              Cek Status & Info Aplikasi PWA
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-[11px] text-on-surface-variant leading-relaxed">
+              Pasang <strong>Teman TJR</strong> langsung ke Layar Utama (Home Screen) HP Anda untuk akses instan satu sentuhan tanpa perlu membuka browser lagi.
+            </p>
+            <button
+              onClick={handleInstallPWA}
+              className="w-full h-9 rounded-lg bg-primary hover:brightness-105 text-on-primary text-[11.5px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-98"
+            >
+              <span className="material-symbols-outlined text-[17px]">download</span>
+              Pasang Aplikasi ke Layar Utama (Install PWA)
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* 2. Auto-Update & Manual Update Button Section */}
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-secondary text-[18px]">sync</span>
+            <h3 className="text-[13px] font-bold text-on-surface">Pembaruan Aplikasi (Auto-Update)</h3>
+          </div>
+          <span className="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[9.5px] font-bold">
+            Otomatis & Seketika
           </span>
         </div>
+
+        <p className="text-[11px] text-on-surface-variant leading-relaxed">
+          Aplikasi otomatis memeriksa update terbaru dari developer. Namun jika tampilan atau fitur di HP Anda masih tertahan di versi lama, tekan tombol di bawah untuk <strong>membersihkan cache browser & menerapkan pembaruan seketika</strong>.
+        </p>
+
+        <button
+          onClick={handleForceUpdate}
+          disabled={isUpdating}
+          className="w-full h-9 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary border border-primary/20 text-[11.5px] font-bold flex items-center justify-center gap-1.5 active:scale-98 transition-all disabled:opacity-60"
+        >
+          {isUpdating ? (
+            <>
+              <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
+              Membersihkan Cache & Memperbarui...
+            </>
+          ) : (
+            <>
+              <span className="material-symbols-outlined text-[16px]">browser_updated</span>
+              Periksa & Terapkan Pembaruan Sekarang
+            </>
+          )}
+        </button>
       </div>
 
       {/* Backup & Restore Section */}
@@ -235,6 +422,91 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
           Setel Ulang Data Perangkat
         </button>
       </div>
+
+      {/* MODAL 1: PWA Installation Success Notification Popup */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-surface rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-surface-container flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+            <div className="w-13 h-13 rounded-full bg-emerald-100 flex items-center justify-center mb-3 border-2 border-emerald-400">
+              <span className="material-symbols-outlined text-[30px] text-emerald-600">verified</span>
+            </div>
+            <h3 className="text-[15.5px] font-black text-on-surface">Aplikasi Berhasil Dipasang! 🎉</h3>
+            <p className="text-[11px] text-on-surface-variant mt-1.5 leading-relaxed">
+              <strong>Teman TJR</strong> kini telah tersimpan di <strong>Layar Utama HP</strong> Anda. Anda dapat membuka jadwal perjalanan, rincian biaya, dan checklist koper langsung dari ikon aplikasi di HP kapan saja, bahkan saat offline tanpa internet!
+            </p>
+            <div className="w-full mt-3.5 p-2.5 rounded-xl bg-surface-container-low border border-surface-container text-left space-y-1.5 text-[10.5px] text-on-surface-variant">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-[15px]">offline_bolt</span>
+                <span>Siap diakses cepat kapan saja tanpa kuota internet</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-secondary text-[15px]">fullscreen</span>
+                <span>Tampilan aplikasi penuh tanpa address bar browser</span>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowSuccessModal(false)}
+              className="w-full mt-4 h-9.5 rounded-xl bg-primary text-on-primary text-[12px] font-extrabold hover:brightness-105 active:scale-98 transition-all shadow-xs"
+            >
+              Mantap, Mengerti!
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: Manual PWA Installation Guide Popup */}
+      {showGuideModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-surface rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-surface-container flex flex-col text-left animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-3 border-b border-surface-container">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-[20px]">install_mobile</span>
+                <h3 className="text-[13.5px] font-black text-on-surface">Cara Pasang ke Layar Utama</h3>
+              </div>
+              <button
+                onClick={() => setShowGuideModal(false)}
+                className="w-7 h-7 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface"
+              >
+                <span className="material-symbols-outlined text-[16px]">close</span>
+              </button>
+            </div>
+
+            <div className="space-y-2.5 mt-3 text-[11px] text-on-surface-variant">
+              <div className="p-3 rounded-xl bg-surface-container-low border border-surface-container">
+                <p className="font-bold text-on-surface flex items-center gap-1.5 mb-1.5 text-[11.5px]">
+                  <span className="material-symbols-outlined text-[16px] text-emerald-600">phone_android</span>
+                  Pengguna Android (Google Chrome)
+                </p>
+                <ol className="list-decimal list-inside space-y-1 pl-1 text-[10.5px]">
+                  <li>Ketuk tombol menu titik tiga (<strong>⋮</strong>) di kanan atas browser.</li>
+                  <li>Pilih opsi <strong>"Tambahkan ke Layar Utama"</strong> atau <strong>"Install Aplikasi"</strong>.</li>
+                  <li>Ketuk <strong>"Install"</strong> pada jendela yang muncul.</li>
+                </ol>
+              </div>
+
+              <div className="p-3 rounded-xl bg-surface-container-low border border-surface-container">
+                <p className="font-bold text-on-surface flex items-center gap-1.5 mb-1.5 text-[11.5px]">
+                  <span className="material-symbols-outlined text-[16px] text-blue-600">phone_iphone</span>
+                  Pengguna iPhone / iPad (Safari)
+                </p>
+                <ol className="list-decimal list-inside space-y-1 pl-1 text-[10.5px]">
+                  <li>Buka link ini di browser <strong>Safari</strong>.</li>
+                  <li>Ketuk tombol <strong>Bagikan (Share)</strong> ikon kotak berpanah ke atas di bawah layar.</li>
+                  <li>Gulir ke bawah dan pilih <strong>"Tambah ke Layar Utama" (Add to Home Screen)</strong>.</li>
+                  <li>Ketuk <strong>"Tambah"</strong> di pojok kanan atas.</li>
+                </ol>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowGuideModal(false)}
+              className="w-full mt-3.5 h-9 rounded-xl bg-primary text-on-primary text-[11.5px] font-extrabold hover:brightness-105 active:scale-98 transition-all"
+            >
+              Tutup Panduan
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
