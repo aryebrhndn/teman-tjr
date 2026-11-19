@@ -115,9 +115,10 @@ export function App() {
         onOpenSettings={() => setCurrentTab(currentTab === 'settings' ? 'beranda' : 'settings')}
       />
 
-      <main className="flex-1 w-full max-w-xl mx-auto px-4 pt-[84px] pb-[88px] flex flex-col">
+      <main className="flex-1 w-full max-w-xl md:max-w-md mx-auto px-4 md:px-3 pt-[76px] md:pt-[58px] pb-[82px] md:pb-[62px] flex flex-col transition-all">
         {renderMainContent()}
       </main>
+
 
 
 

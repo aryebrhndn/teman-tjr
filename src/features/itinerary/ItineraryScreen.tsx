@@ -106,48 +106,48 @@ export const ItineraryScreen: React.FC = () => {
   const totalDestinations = days.reduce((acc, day) => acc + day.items.length, 0);
 
   return (
-    <div className="flex flex-col w-full space-y-4">
+    <div className="flex flex-col w-full space-y-4 md:space-y-2.5 transition-all">
       {/* Trip Overview Header Card - Refined & Clear */}
-      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-xs border border-surface-container/80 relative overflow-hidden">
+      <div className="bg-surface-container-lowest rounded-2xl md:rounded-xl p-4 sm:p-5 md:p-3 shadow-xs border border-surface-container/80 relative overflow-hidden">
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-primary-fixed text-primary text-[12px] font-bold">
-                <span className="material-symbols-outlined text-[15px]">luggage</span>
+            <div className="flex items-center gap-2 mb-2 md:mb-1 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 md:gap-1 px-3 py-1 md:px-2 md:py-0.5 rounded-lg md:rounded-md bg-primary-fixed text-primary text-[12px] md:text-[10px] font-bold">
+                <span className="material-symbols-outlined text-[15px] md:text-[12px]">luggage</span>
                 7 HARI TOUR
               </span>
-              <span className="text-[13px] text-on-surface-variant font-medium truncate">
+              <span className="text-[13px] md:text-[10.5px] text-on-surface-variant font-medium truncate">
                 12 - 19 Apr 2025 • 2 Traveler
               </span>
             </div>
-            <h1 className="text-[17px] sm:text-[18px] font-black text-on-surface tracking-tight leading-snug">
+            <h1 className="text-[17px] sm:text-[18px] md:text-[14px] font-black text-on-surface tracking-tight leading-snug">
               {trip?.name || 'Jelajah Tokyo, Kyoto & Osaka 2025'}
             </h1>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 md:gap-1.5 shrink-0">
             <button
               onClick={() => setShowAddDay(true)}
-              className="h-9 px-3.5 rounded-xl bg-primary-container text-white text-[13px] font-bold flex items-center gap-1.5 active:scale-95 shadow-2xs hover:bg-primary transition-all"
+              className="h-9 md:h-7.5 px-3.5 md:px-2.5 rounded-xl md:rounded-lg bg-primary-container text-white text-[13px] md:text-[11px] font-bold flex items-center gap-1.5 md:gap-1 active:scale-95 shadow-2xs hover:bg-primary transition-all"
             >
-              <span className="material-symbols-outlined text-[17px]">add</span>
+              <span className="material-symbols-outlined text-[17px] md:text-[14px]">add</span>
               <span>Tambah</span>
             </button>
             <button
               onClick={() => alert('Fitur Ekspor PDF & JSON siap digunakan offline!')}
               title="Ekspor Jadwal"
-              className="h-9 px-3 rounded-xl bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 text-[13px] font-bold active:scale-95 transition-all"
+              className="h-9 md:h-7.5 px-3 md:px-2 rounded-xl md:rounded-lg bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 md:gap-1 text-[13px] md:text-[11px] font-bold active:scale-95 transition-all"
             >
-              <span className="material-symbols-outlined text-[17px]">picture_as_pdf</span>
+              <span className="material-symbols-outlined text-[17px] md:text-[14px]">picture_as_pdf</span>
               <span className="hidden xs:inline">Ekspor</span>
             </button>
           </div>
         </div>
 
         {/* Integrated Quick Progress Info */}
-        <div className="mt-3 pt-3 border-t border-surface-container/70 flex items-center justify-between text-[13px]">
-          <div className="flex items-center gap-2.5">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary-fixed text-on-secondary-fixed font-bold text-[12px]">
-              <span className="material-symbols-outlined text-[15px]">train</span> JR Pass Aktif
+        <div className="mt-3 md:mt-2 pt-3 md:pt-2 border-t border-surface-container/70 flex items-center justify-between text-[13px] md:text-[10.5px]">
+          <div className="flex items-center gap-2.5 md:gap-1.5">
+            <span className="inline-flex items-center gap-1.5 md:gap-1 px-2.5 py-1 md:px-2 md:py-0.5 rounded-lg md:rounded-md bg-secondary-fixed text-on-secondary-fixed font-bold text-[12px] md:text-[10px]">
+              <span className="material-symbols-outlined text-[15px] md:text-[12px]">train</span> JR Pass Aktif
             </span>
             <span className="text-on-surface-variant font-semibold">
               • {totalDestinations} Destinasi Halal
@@ -155,7 +155,7 @@ export const ItineraryScreen: React.FC = () => {
           </div>
           <div className="text-right">
             <span className="text-on-surface-variant font-medium">Est. </span>
-            <span className="text-primary font-black text-[15px]">
+            <span className="text-primary font-black text-[15px] md:text-[12px]">
               ¥{new Intl.NumberFormat('ja-JP').format(totalCostJpy)}
             </span>
           </div>
@@ -164,7 +164,7 @@ export const ItineraryScreen: React.FC = () => {
 
 
       {/* Day-by-Day Feed */}
-      <div className="flex flex-col space-y-2.5">
+      <div className="flex flex-col space-y-2.5 md:space-y-2">
         {days.map((day) => {
           const isExpanded = !!expandedDays[day.id];
           const dayCost = day.items.reduce((s, i) => s + (i.estimated_cost || 0), 0);
@@ -172,39 +172,39 @@ export const ItineraryScreen: React.FC = () => {
           return (
             <div
               key={day.id}
-              className="bg-surface-container-lowest rounded-2xl p-3 shadow-xs transition-all duration-200 border border-surface-container/80"
+              className="bg-surface-container-lowest rounded-2xl md:rounded-xl p-3 md:p-2.5 shadow-xs transition-all duration-200 border border-surface-container/80"
             >
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-primary-container text-white flex flex-col items-center justify-center shrink-0 shadow-xs">
-                    <span className="text-[8px] uppercase tracking-wider leading-none">Day</span>
-                    <span className="text-[14px] font-black leading-none mt-0.5">
+              <div className="flex items-start justify-between gap-2 mb-2 md:mb-1.5">
+                <div className="flex items-center gap-2.5 md:gap-2 min-w-0">
+                  <div className="w-9 h-9 md:w-7.5 md:h-7.5 rounded-xl md:rounded-lg bg-primary-container text-white flex flex-col items-center justify-center shrink-0 shadow-xs">
+                    <span className="text-[8px] md:text-[7px] uppercase tracking-wider leading-none">Day</span>
+                    <span className="text-[14px] md:text-[12px] font-black leading-none mt-0.5">
                       {String(day.day_number).padStart(2, '0')}
                     </span>
                   </div>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] text-on-surface-variant font-medium">{day.date}</span>
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface text-[10.5px] font-bold">
+                    <div className="flex items-center gap-2 md:gap-1">
+                      <span className="text-[11px] md:text-[9.5px] text-on-surface-variant font-medium">{day.date}</span>
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface text-[10.5px] md:text-[9px] font-bold">
                         {day.city || 'Tokyo'}
                       </span>
                     </div>
-                    <h2 className="text-[13.5px] font-bold text-on-surface mt-0.5 truncate leading-snug">
+                    <h2 className="text-[13.5px] md:text-[12px] font-bold text-on-surface mt-0.5 truncate leading-snug">
                       {day.title}
                     </h2>
                   </div>
                 </div>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed text-[10.5px] font-bold shrink-0">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed text-[10.5px] md:text-[9px] font-bold shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span> Siap
                 </span>
               </div>
 
               {/* Quick stops overview */}
-              <div className="bg-surface-container-low/80 rounded-xl px-2.5 py-1.5 mb-2.5 flex items-center gap-1.5 text-on-surface text-[11.5px] overflow-x-auto">
+              <div className="bg-surface-container-low/80 rounded-xl md:rounded-lg px-2.5 py-1.5 md:px-2 md:py-1 mb-2.5 md:mb-1.5 flex items-center gap-1.5 text-on-surface text-[11.5px] md:text-[9.5px] overflow-x-auto">
                 {day.items.slice(0, 3).map((item, idx) => (
                   <React.Fragment key={item.id}>
                     {idx > 0 && (
-                      <span className="material-symbols-outlined text-[13px] text-outline shrink-0">
+                      <span className="material-symbols-outlined text-[13px] md:text-[11px] text-outline shrink-0">
                         arrow_forward
                       </span>
                     )}
@@ -216,24 +216,24 @@ export const ItineraryScreen: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between pt-0.5">
-                <div className="flex items-center gap-2.5 text-[11.5px] text-on-surface-variant font-medium">
+                <div className="flex items-center gap-2.5 md:gap-2 text-[11.5px] md:text-[9.5px] text-on-surface-variant font-medium">
                   <span className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[14px]">checklist</span>
+                    <span className="material-symbols-outlined text-[14px] md:text-[12px]">checklist</span>
                     {day.items.length} Aktivitas
                   </span>
                   <span>•</span>
                   <span className="flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[14px]">payments</span>
+                    <span className="material-symbols-outlined text-[14px] md:text-[12px]">payments</span>
                     ≈ ¥{new Intl.NumberFormat('ja-JP').format(dayCost)}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => toggleDayExpand(day.id)}
-                    className="h-7 px-2.5 rounded-lg bg-surface-container text-[11.5px] text-primary font-bold flex items-center gap-0.5 hover:bg-surface-container-high transition-colors active:scale-95"
+                    className="h-7 md:h-6 px-2.5 md:px-2 rounded-lg md:rounded-md bg-surface-container text-[11.5px] md:text-[9.5px] text-primary font-bold flex items-center gap-0.5 hover:bg-surface-container-high transition-colors active:scale-95"
                   >
                     Detail
-                    <span className="material-symbols-outlined text-[14px]">
+                    <span className="material-symbols-outlined text-[14px] md:text-[12px]">
                       {isExpanded ? 'expand_less' : 'expand_more'}
                     </span>
                   </button>
@@ -242,12 +242,12 @@ export const ItineraryScreen: React.FC = () => {
 
               {/* Expandable Activities Drawer */}
               {isExpanded && (
-                <div className="mt-3 pt-2.5 space-y-2 border-t border-surface-container/70 animate-in fade-in">
+                <div className="mt-3 md:mt-2 pt-2.5 md:pt-2 space-y-2 md:space-y-1.5 border-t border-surface-container/70 animate-in fade-in">
                   {day.items.map((item) => (
                     <div
                       key={item.id}
                       onClick={() => handleToggleItemComplete(item.id, item.completed)}
-                      className={`flex items-start gap-2.5 p-2.5 rounded-xl cursor-pointer transition-colors ${
+                      className={`flex items-start gap-2.5 md:gap-2 p-2.5 md:p-2 rounded-xl md:rounded-lg cursor-pointer transition-colors ${
                         item.completed
                           ? 'bg-surface-container-low/60 line-through opacity-70'
                           : 'bg-surface-container-low hover:bg-surface-container'
@@ -256,31 +256,31 @@ export const ItineraryScreen: React.FC = () => {
                       <button
                         type="button"
                         aria-label="Toggle Complete"
-                        className={`w-5 h-5 rounded-md flex items-center justify-center mt-0.5 shrink-0 transition-colors ${
+                        className={`w-5 h-5 md:w-4 md:h-4 rounded-md md:rounded flex items-center justify-center mt-0.5 shrink-0 transition-colors ${
                           item.completed
                             ? 'bg-primary-container text-white'
                             : 'border-[1.5px] border-outline-variant bg-white'
                         }`}
                       >
                         {item.completed && (
-                          <span className="material-symbols-outlined text-[14px]">check</span>
+                          <span className="material-symbols-outlined text-[14px] md:text-[11px]">check</span>
                         )}
                       </button>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <p className="text-[13px] font-bold text-on-surface leading-tight">{item.title}</p>
+                        <div className="flex items-center gap-1.5 md:gap-1 flex-wrap">
+                          <p className="text-[13px] md:text-[11px] font-bold text-on-surface leading-tight">{item.title}</p>
                           {item.is_halal_spot && (
-                            <span className="px-1.5 py-0.5 rounded bg-primary-fixed text-primary text-[10px] font-bold uppercase">
+                            <span className="px-1.5 py-0.5 rounded bg-primary-fixed text-primary text-[10px] md:text-[8.5px] font-bold uppercase">
                               Halal
                             </span>
                           )}
                         </div>
-                        <p className="text-[11.5px] text-on-surface-variant mt-0.5 leading-tight">
+                        <p className="text-[11.5px] md:text-[9.5px] text-on-surface-variant mt-0.5 leading-tight">
                           {item.start_time} • {item.notes || item.location}
                         </p>
                       </div>
                       {item.estimated_cost ? (
-                        <span className="text-[12px] font-extrabold text-primary shrink-0">
+                        <span className="text-[12px] md:text-[10px] font-extrabold text-primary shrink-0">
                           ¥{new Intl.NumberFormat('ja-JP').format(item.estimated_cost)}
                         </span>
                       ) : null}
@@ -289,9 +289,9 @@ export const ItineraryScreen: React.FC = () => {
 
                   <button
                     onClick={() => setShowAddItem(day.id)}
-                    className="w-full h-9 rounded-xl bg-surface-container-high text-[12px] font-bold text-primary hover:bg-surface-container transition-colors flex items-center justify-center gap-1.5 mt-2"
+                    className="w-full h-9 md:h-7.5 rounded-xl md:rounded-lg bg-surface-container-high text-[12px] md:text-[10.5px] font-bold text-primary hover:bg-surface-container transition-colors flex items-center justify-center gap-1.5 mt-2 md:mt-1.5"
                   >
-                    <span className="material-symbols-outlined text-[16px]">add</span>
+                    <span className="material-symbols-outlined text-[16px] md:text-[13px]">add</span>
                     Tambah Aktivitas
                   </button>
                 </div>
