@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { db, type Expense, type Budget } from '../../database/dexie';
 
 interface BudgetScreenProps {
@@ -10,6 +10,9 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
   const [rate, setRate] = useState<number>(105.0);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [budget, setBudget] = useState<Budget | null>(null);
+
+  const jpyInputRef = useRef<HTMLInputElement>(null);
+  const idrInputRef = useRef<HTMLInputElement>(null);
 
   // Converter state
   const [jpyVal, setJpyVal] = useState<string>('10000');
@@ -193,19 +196,24 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
               </div>
             </div>
 
-            {/* Value & Symbol - Sejajar di Kanan, Berdampingan Rapi */}
-            <div className="flex-1 flex items-center justify-end gap-1.5 min-w-0">
-              <span className="text-[15px] font-bold text-on-surface-variant shrink-0 select-none">
+            {/* Value & Symbol - Sejajar di Kanan, Berdampingan Menempel Sempurna */}
+            <div
+              onClick={() => jpyInputRef.current?.focus()}
+              className="flex-1 flex items-center justify-end gap-1 min-w-0 cursor-text"
+            >
+              <span className="text-[15px] font-black text-on-surface-variant shrink-0 select-none">
                 ¥
               </span>
               <input
+                ref={jpyInputRef}
                 type="text"
                 inputMode="numeric"
                 value={formatWithDots(jpyVal)}
                 onChange={(e) => handleJpyChange(e.target.value)}
                 readOnly={!isJpyToIdr}
                 placeholder="0"
-                className="w-full max-w-[170px] bg-transparent text-right text-[18px] sm:text-[19px] font-black text-on-surface tracking-tight focus:outline-none"
+                style={{ width: `${Math.max(1, (formatWithDots(jpyVal) || '0').length + 0.3)}ch` }}
+                className="bg-transparent text-right text-[18px] sm:text-[19px] font-black text-on-surface tabular-nums tracking-tight focus:outline-none shrink-0"
               />
             </div>
           </div>
@@ -236,19 +244,24 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
               </div>
             </div>
 
-            {/* Value & Symbol - Sejajar di Kanan, Berdampingan Rapi */}
-            <div className="flex-1 flex items-center justify-end gap-1.5 min-w-0">
-              <span className="text-[15px] font-bold text-primary shrink-0 select-none">
+            {/* Value & Symbol - Sejajar di Kanan, Berdampingan Menempel Sempurna */}
+            <div
+              onClick={() => idrInputRef.current?.focus()}
+              className="flex-1 flex items-center justify-end gap-1 min-w-0 cursor-text"
+            >
+              <span className="text-[15px] font-black text-primary shrink-0 select-none">
                 Rp
               </span>
               <input
+                ref={idrInputRef}
                 type="text"
                 inputMode="numeric"
                 value={formatWithDots(idrVal)}
                 onChange={(e) => handleIdrChange(e.target.value)}
                 readOnly={isJpyToIdr}
                 placeholder="0"
-                className="w-full max-w-[170px] bg-transparent text-right text-[18px] sm:text-[19px] font-black text-primary tracking-tight focus:outline-none"
+                style={{ width: `${Math.max(1, (formatWithDots(idrVal) || '0').length + 0.3)}ch` }}
+                className="bg-transparent text-right text-[18px] sm:text-[19px] font-black text-primary tabular-nums tracking-tight focus:outline-none shrink-0"
               />
             </div>
           </div>
