@@ -1,0 +1,19 @@
+{
+  "name": "TEMAN TJR",
+  "short_name": "TEMAN TJR",
+  "description": "Teman Perjalanan Dalam Genggaman - Official Companion App",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf9f7",
+  "theme_color": "#a90008",
+  "icons": [
+    {
+      "src": "/LOGO TJR.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
