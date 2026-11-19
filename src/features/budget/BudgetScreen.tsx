@@ -122,119 +122,119 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
   const formatJpy = (num: number) => new Intl.NumberFormat('ja-JP').format(Math.round(num));
 
   return (
-    <div className="flex flex-col w-full space-y-4">
+    <div className="flex flex-col w-full space-y-2.5">
       {/* Mode Switcher Pill */}
-      <div className="p-1.5 rounded-2xl bg-surface-container-high flex items-center justify-between shadow-2xs">
+      <div className="p-1 rounded-xl bg-surface-container-high flex items-center justify-between shadow-2xs">
         <button
           onClick={() => setActiveTab('overview')}
-          className={`flex-1 py-2.5 px-3 rounded-xl text-[13.5px] font-bold text-center transition-all flex items-center justify-center gap-2 ${
+          className={`flex-1 py-1.5 px-2.5 rounded-lg text-[12px] font-bold text-center transition-all flex items-center justify-center gap-1.5 ${
             activeTab === 'overview'
               ? 'bg-surface-container-lowest text-primary-container shadow-2xs'
               : 'text-on-surface-variant'
           }`}
         >
-          <span className="material-symbols-outlined text-[18px]">pie_chart</span>
+          <span className="material-symbols-outlined text-[16px]">pie_chart</span>
           Ringkasan Biaya
         </button>
         <button
           onClick={() => setActiveTab('converter')}
-          className={`flex-1 py-2.5 px-3 rounded-xl text-[13.5px] font-bold text-center transition-all flex items-center justify-center gap-2 ${
+          className={`flex-1 py-1.5 px-2.5 rounded-lg text-[12px] font-bold text-center transition-all flex items-center justify-center gap-1.5 ${
             activeTab === 'converter'
               ? 'bg-surface-container-lowest text-primary-container shadow-2xs'
               : 'text-on-surface-variant'
           }`}
         >
-          <span className="material-symbols-outlined text-[18px]">currency_exchange</span>
+          <span className="material-symbols-outlined text-[16px]">currency_exchange</span>
           Konverter Kurs JPY-IDR
         </button>
       </div>
 
       {/* SECTION 1: Quick Currency Converter Box */}
-      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-xs border border-surface-container/80">
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80">
 
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-secondary-container"></span>
-            <span className="text-[11.5px] font-bold uppercase tracking-wider text-on-surface-variant">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
+            <span className="text-[10.5px] font-bold uppercase tracking-wider text-on-surface-variant">
               Konversi Instan Saat Belanja
             </span>
           </div>
           <button
             onClick={handleEditRate}
-            className="text-primary text-[12px] font-bold flex items-center gap-1 hover:underline"
+            className="text-primary text-[11px] font-bold flex items-center gap-1 hover:underline"
           >
-            <span className="material-symbols-outlined text-[15px]">tune</span>
+            <span className="material-symbols-outlined text-[13px]">tune</span>
             Atur Kurs
           </button>
         </div>
 
         {/* Converter Form */}
-        <div className="grid grid-cols-1 gap-2.5 relative">
+        <div className="grid grid-cols-1 gap-2 relative">
           {/* JPY Block */}
-          <div className="bg-surface-container-low rounded-xl p-3 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-sm">
+          <div className="bg-surface-container-low rounded-lg p-2.5 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-xs">
                 🇯🇵
               </div>
               <div>
-                <span className="text-on-surface-variant text-[11px] block leading-none font-medium">Yen Jepang</span>
-                <span className="text-xs font-black text-on-surface mt-0.5 block leading-none">JPY</span>
+                <span className="text-on-surface-variant text-[10px] block leading-none font-medium">Yen Jepang</span>
+                <span className="text-[11px] font-black text-on-surface mt-0.5 block leading-none">JPY</span>
               </div>
             </div>
             <div className="flex items-center text-right">
-              <span className="text-lg font-black text-on-surface mr-1">¥</span>
+              <span className="text-base font-black text-on-surface mr-1">¥</span>
               <input
                 type="number"
                 value={jpyVal}
                 onChange={(e) => handleJpyChange(e.target.value)}
                 readOnly={!isJpyToIdr}
-                className="w-32 bg-transparent text-right text-lg font-black text-on-surface focus:outline-none"
+                className="w-28 bg-transparent text-right text-base font-black text-on-surface focus:outline-none"
               />
             </div>
           </div>
 
           {/* Swap Button */}
-          <div className="flex justify-center -my-3 z-10">
+          <div className="flex justify-center -my-2.5 z-10">
             <button
               aria-label="Tukar Posisi"
               onClick={() => setIsJpyToIdr(!isJpyToIdr)}
-              className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container shadow-xs flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
+              className="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container shadow-xs flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
             >
-              <span className="material-symbols-outlined text-[18px]">sync_alt</span>
+              <span className="material-symbols-outlined text-[16px]">sync_alt</span>
             </button>
           </div>
 
           {/* IDR Block */}
-          <div className="bg-surface-container-low rounded-xl p-3 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-sm">
+          <div className="bg-surface-container-low rounded-lg p-2.5 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-xs">
                 🇮🇩
               </div>
               <div>
-                <span className="text-on-surface-variant text-[11px] block leading-none font-medium">Rupiah Indonesia</span>
-                <span className="text-xs font-black text-on-surface mt-0.5 block leading-none">IDR</span>
+                <span className="text-on-surface-variant text-[10px] block leading-none font-medium">Rupiah Indonesia</span>
+                <span className="text-[11px] font-black text-on-surface mt-0.5 block leading-none">IDR</span>
               </div>
             </div>
             <div className="flex items-center text-right">
-              <span className="text-lg font-black text-on-surface mr-1">Rp</span>
+              <span className="text-base font-black text-on-surface mr-1">Rp</span>
               <input
                 type="number"
                 value={idrVal}
                 onChange={(e) => handleIdrChange(e.target.value)}
                 readOnly={isJpyToIdr}
-                className="w-36 bg-transparent text-right text-lg font-black text-primary focus:outline-none"
+                className="w-32 bg-transparent text-right text-base font-black text-primary focus:outline-none"
               />
             </div>
           </div>
         </div>
 
         {/* Quick Presets */}
-        <div className="flex items-center gap-1.5 mt-3 overflow-x-auto pb-0.5">
+        <div className="flex items-center gap-1 mt-2.5 overflow-x-auto pb-0.5">
           {[1000, 3000, 5000, 10000, 30000].map((amt) => (
             <button
               key={amt}
               onClick={() => setPresetJpy(amt)}
-              className="px-2.5 py-1 rounded-lg bg-surface-container text-on-surface text-[11px] font-bold hover:bg-primary-container hover:text-white transition-colors shrink-0 active:scale-95"
+              className="px-2 py-0.5 rounded bg-surface-container text-on-surface text-[10px] font-bold hover:bg-primary-container hover:text-white transition-colors shrink-0 active:scale-95"
             >
               ¥ {new Intl.NumberFormat('ja-JP').format(amt)}
             </button>
@@ -242,14 +242,14 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
         </div>
 
         {/* Rate footer */}
-        <div className="mt-3 pt-2 flex items-center justify-between text-on-surface-variant text-[11.5px] border-t border-surface-container/70">
-          <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[15px] text-secondary">verified_user</span>
+        <div className="mt-2.5 pt-1.5 flex items-center justify-between text-on-surface-variant text-[10.5px] border-t border-surface-container/70">
+          <div className="flex items-center gap-1">
+            <span className="material-symbols-outlined text-[13px] text-secondary">verified_user</span>
             <span>
               Kurs acuan: <strong className="text-on-surface">1 JPY = Rp {rate.toFixed(2)}</strong>
             </span>
           </div>
-          <span className="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[10.5px] font-semibold">
+          <span className="px-1.5 py-0.2 rounded bg-surface-container-high text-on-surface-variant text-[9.5px] font-semibold">
             Offline Siap
           </span>
         </div>

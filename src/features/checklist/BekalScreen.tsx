@@ -79,34 +79,34 @@ export const BekalScreen: React.FC = () => {
   });
 
   return (
-    <div className="flex flex-col w-full space-y-4">
+    <div className="flex flex-col w-full space-y-2.5">
       {/* Header Card */}
-      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-xs border border-surface-container/80">
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-[22px]">luggage</span>
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary-fixed flex items-center justify-center text-primary">
+              <span className="material-symbols-outlined text-[18px]">luggage</span>
             </div>
             <div>
-              <h2 className="text-[16px] font-bold text-on-surface">Checklist & Bekal Koper</h2>
-              <span className="text-[13px] text-on-surface-variant font-medium">Panduan persiapan matang ke Jepang</span>
+              <h2 className="text-[13.5px] font-bold text-on-surface">Checklist & Bekal Koper</h2>
+              <span className="text-[11px] text-on-surface-variant font-medium">Panduan persiapan matang ke Jepang</span>
             </div>
           </div>
-          <span className="px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[11.5px] font-bold">
+          <span className="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold">
             H - 14 Hari
           </span>
         </div>
 
 
         {/* Progress Gauge */}
-        <div className="bg-surface-container-low rounded-xl p-3 space-y-2 mt-2">
-          <div className="flex justify-between items-center text-[12px]">
+        <div className="bg-surface-container-low rounded-lg p-2.5 space-y-1.5 mt-1.5">
+          <div className="flex justify-between items-center text-[11px]">
             <span className="text-on-surface-variant font-medium">Progress Kelengkapan</span>
-            <span className="font-bold text-primary text-[12.5px]">
+            <span className="font-bold text-primary text-[11.5px]">
               {completedCount} dari {totalCount} Selesai ({percent}%)
             </span>
           </div>
-          <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
             <div
               className="h-full bg-primary-container rounded-full transition-all duration-300"
               style={{ width: `${percent}%` }}
@@ -115,9 +115,9 @@ export const BekalScreen: React.FC = () => {
         </div>
 
         {/* Season Selector */}
-        <div className="pt-2.5 flex items-center justify-between">
-          <span className="text-[12px] text-on-surface-variant font-semibold">Musim Perjalanan:</span>
-          <div className="flex gap-1.5">
+        <div className="pt-2 flex items-center justify-between">
+          <span className="text-[11px] text-on-surface-variant font-semibold">Musim Perjalanan:</span>
+          <div className="flex gap-1">
             {[
               { id: 'spring', label: '🌸 Semi' },
               { id: 'summer', label: '☀️ Panas' },
@@ -127,7 +127,7 @@ export const BekalScreen: React.FC = () => {
               <button
                 key={s.id}
                 onClick={() => setSelectedSeason(s.id as any)}
-                className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-colors ${
+                className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-colors ${
                   selectedSeason === s.id
                     ? 'bg-primary-container text-white shadow-2xs'
                     : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
@@ -141,12 +141,12 @@ export const BekalScreen: React.FC = () => {
       </div>
 
       {/* Category Filter Pills */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 -mx-1 px-1">
+      <div className="flex items-center gap-1 overflow-x-auto pb-0.5 -mx-1 px-1">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`h-8 px-3 rounded-full text-[11.5px] font-medium flex items-center whitespace-nowrap transition-colors ${
+            className={`h-7 px-2.5 rounded-full text-[10.5px] font-medium flex items-center whitespace-nowrap transition-colors ${
               selectedCategory === cat
                 ? 'bg-primary-container text-white shadow-2xs font-semibold'
                 : 'bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container border border-surface-container'
@@ -158,11 +158,11 @@ export const BekalScreen: React.FC = () => {
       </div>
 
       {/* Checklist Feed */}
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {filteredItems.map((item) => (
           <div
             key={item.id}
-            className={`p-3 rounded-xl border flex items-center justify-between gap-3 transition-colors ${
+            className={`p-2.5 rounded-lg border flex items-center justify-between gap-2.5 transition-colors ${
               item.completed
                 ? 'bg-surface-container-low/60 border-surface-container opacity-75'
                 : 'bg-surface-container-lowest border-surface-container shadow-xs'
@@ -170,35 +170,35 @@ export const BekalScreen: React.FC = () => {
           >
             <div
               onClick={() => handleToggle(item.id, item.completed)}
-              className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
+              className="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer"
             >
               <button
                 type="button"
                 aria-label="Toggle Complete"
-                className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors ${
+                className={`w-4.5 h-4.5 rounded flex items-center justify-center shrink-0 transition-colors ${
                   item.completed
                     ? 'bg-primary-container text-white'
                     : 'border-[1.5px] border-outline-variant bg-white'
                 }`}
               >
-                {item.completed && <span className="material-symbols-outlined text-[14px]">check</span>}
+                {item.completed && <span className="material-symbols-outlined text-[12px]">check</span>}
               </button>
               <div className="flex flex-col min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <span
-                    className={`text-[13.5px] font-semibold ${
+                    className={`text-[12px] font-semibold ${
                       item.completed ? 'line-through text-on-surface-variant' : 'text-on-surface'
                     }`}
                   >
                     {item.title}
                   </span>
                   {item.is_priority && (
-                    <span className="px-2 py-0.5 rounded bg-error-container text-on-error-container text-[10px] font-bold">
+                    <span className="px-1.5 py-0.2 rounded bg-error-container text-on-error-container text-[9px] font-bold">
                       Prioritas
                     </span>
                   )}
                 </div>
-                <span className="text-[11.5px] text-on-surface-variant mt-0.5">
+                <span className="text-[10px] text-on-surface-variant mt-0.5">
                   {categoryTranslations[item.category] || item.category}
                 </span>
               </div>
@@ -210,7 +210,7 @@ export const BekalScreen: React.FC = () => {
                 onClick={() => handleDelete(item.id)}
                 className="text-on-surface-variant/60 hover:text-error transition-colors p-1"
               >
-                <span className="material-symbols-outlined text-[18px]">delete</span>
+                <span className="material-symbols-outlined text-[16px]">delete</span>
               </button>
             )}
           </div>
@@ -220,9 +220,9 @@ export const BekalScreen: React.FC = () => {
       {/* Add Item Button */}
       <button
         onClick={() => setShowAddModal(true)}
-        className="w-full h-10 rounded-xl bg-surface-container hover:bg-surface-container-high text-[12.5px] font-bold text-primary flex items-center justify-center gap-1.5 transition-colors border border-dashed border-outline-variant active:scale-98"
+        className="w-full h-8.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-[11.5px] font-bold text-primary flex items-center justify-center gap-1 transition-colors border border-dashed border-outline-variant active:scale-98"
       >
-        <span className="material-symbols-outlined text-[16px]">add</span>
+        <span className="material-symbols-outlined text-[15px]">add</span>
         Tambah Perlengkapan Kustom
       </button>
 

@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { initializeDatabaseSeed } from './database/seed';
-import { checkActivationStatus } from './services/activation.service';
 import { Header } from './components/layout/Header';
 import { BottomNav } from './components/layout/BottomNav';
-import { ActivationScreen } from './features/activation/ActivationScreen';
 import { HomeScreen } from './features/dashboard/HomeScreen';
 import { ItineraryScreen } from './features/itinerary/ItineraryScreen';
 import { BudgetScreen } from './features/budget/BudgetScreen';
@@ -13,15 +11,14 @@ import { SettingsScreen } from './features/settings/SettingsScreen';
 import { AdminScreen } from './features/admin/AdminScreen';
 
 export function App() {
-  const [isActivated, setIsActivated] = useState<boolean | null>(null);
+  const [isReady, setIsReady] = useState(false);
   const [currentTab, setCurrentTab] = useState<string>('beranda');
   const [openAddExpenseInBudget, setOpenAddExpenseInBudget] = useState(false);
 
   useEffect(() => {
     async function init() {
       await initializeDatabaseSeed();
-      const receipt = await checkActivationStatus();
-      setIsActivated(!!receipt);
+      setIsReady(true);
     }
     init();
 
@@ -32,31 +29,19 @@ export function App() {
   }, []);
 
   // Loading state
-  if (isActivated === null) {
+  if (!isReady) {
     return (
       <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-4">
         <img
           src="/LOGO TJR.png"
-          alt="TEMAN TJR Logo"
-          className="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-md bg-[#a90008] animate-pulse"
+          alt="Teman TJR Logo"
+          className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-md bg-[#a90008] animate-pulse"
         />
         <p className="mt-4 text-xs font-semibold text-on-surface-variant flex items-center gap-2">
           <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
-          Memuat TEMAN TJR...
+          Memuat Teman TJR...
         </p>
       </div>
-    );
-  }
-
-  // If not activated, render activation screen
-  if (!isActivated) {
-    return (
-      <ActivationScreen
-        onActivated={() => {
-          setIsActivated(true);
-          setCurrentTab('beranda');
-        }}
-      />
     );
   }
 
@@ -87,7 +72,10 @@ export function App() {
       case 'settings':
         return (
           <SettingsScreen
-            onDeactivated={() => setIsActivated(false)}
+            onDeactivated={() => {
+              // Reset local data reload
+              window.location.reload();
+            }}
             onOpenAdmin={() => setCurrentTab('admin')}
             onBack={() => setCurrentTab('beranda')}
           />
@@ -115,11 +103,9 @@ export function App() {
         onOpenSettings={() => setCurrentTab(currentTab === 'settings' ? 'beranda' : 'settings')}
       />
 
-      <main className="flex-1 w-full max-w-xl mx-auto px-4 pt-[84px] pb-[88px] flex flex-col">
+      <main className="flex-1 w-full max-w-md mx-auto px-3.5 pt-[62px] pb-[66px] flex flex-col">
         {renderMainContent()}
       </main>
-
-
 
       {showNav && <BottomNav currentTab={currentTab} onTabChange={(tab) => setCurrentTab(tab)} />}
     </div>
