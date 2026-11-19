@@ -121,12 +121,12 @@ export const PrayerScreen: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col w-full space-y-2.5">
+    <div className="flex flex-col w-full space-y-4">
       {/* Location & Method Header Bar */}
-      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs flex flex-col gap-2 border border-surface-container/80">
+      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-2.5 border border-surface-container/80">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="material-symbols-outlined text-primary-container text-[20px] shrink-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="material-symbols-outlined text-primary-container text-[22px] shrink-0">
               location_on
             </span>
             <div className="relative inline-block">
@@ -134,7 +134,7 @@ export const PrayerScreen: React.FC = () => {
                 id="city-selector"
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
-                className="appearance-none bg-surface-container-low text-[13.5px] font-bold text-on-surface pl-2.5 pr-7 py-1 rounded-lg focus:outline-none cursor-pointer border border-surface-container"
+                className="appearance-none bg-surface-container-low text-[14.5px] font-bold text-on-surface pl-3 pr-8 py-1.5 rounded-xl focus:outline-none cursor-pointer border border-surface-container"
               >
                 {Object.values(JAPAN_CITIES).map((c) => (
                   <option key={c.id} value={c.id}>
@@ -142,29 +142,30 @@ export const PrayerScreen: React.FC = () => {
                   </option>
                 ))}
               </select>
-              <span className="material-symbols-outlined pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+              <span className="material-symbols-outlined pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">
                 expand_more
               </span>
             </div>
           </div>
-          <span className="px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10.5px] uppercase font-bold tracking-wider">
+          <span className="px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[11.5px] uppercase font-bold tracking-wider">
             JST (UTC+9)
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-y-1 text-on-surface-variant text-[12px] pt-0.5">
-          <div className="flex items-center gap-1.5 font-medium">
-            <span className="material-symbols-outlined text-[16px] text-primary">calendar_month</span>
+        <div className="flex flex-wrap items-center justify-between gap-y-1 text-on-surface-variant text-[13px] pt-1">
+          <div className="flex items-center gap-2 font-medium">
+            <span className="material-symbols-outlined text-[18px] text-primary">calendar_month</span>
             <span>Rabu, 13 April 2025</span>
             <span className="text-outline-variant">•</span>
-            <span className="text-primary-container font-bold">14 Syawal 1446 H</span>
+            <span className="text-primary-container font-extrabold">14 Syawal 1446 H</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-medium">
+          <div className="flex items-center gap-1.5 text-[12px] font-semibold">
             <span className="w-2 h-2 rounded-full bg-secondary"></span>
             <span>Japan Islamic Trust (Offline)</span>
           </div>
         </div>
       </div>
+
 
       {/* Card 1: Waktu Sholat Utama & Countdown Card */}
       <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs flex flex-col gap-3 border border-surface-container/80">

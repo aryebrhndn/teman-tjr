@@ -79,23 +79,24 @@ export const BekalScreen: React.FC = () => {
   });
 
   return (
-    <div className="flex flex-col w-full space-y-3">
+    <div className="flex flex-col w-full space-y-4">
       {/* Header Card */}
-      <div className="bg-surface-container-lowest rounded-2xl p-3.5 shadow-xs border border-surface-container/80">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-primary-fixed flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-[20px]">luggage</span>
+      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-xs border border-surface-container/80">
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary">
+              <span className="material-symbols-outlined text-[22px]">luggage</span>
             </div>
             <div>
-              <h2 className="text-[14.5px] font-bold text-on-surface">Checklist & Bekal Koper</h2>
-              <span className="text-[12px] text-on-surface-variant font-medium">Panduan persiapan matang ke Jepang</span>
+              <h2 className="text-[16px] font-bold text-on-surface">Checklist & Bekal Koper</h2>
+              <span className="text-[13px] text-on-surface-variant font-medium">Panduan persiapan matang ke Jepang</span>
             </div>
           </div>
-          <span className="px-2.5 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10.5px] font-bold">
+          <span className="px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[11.5px] font-bold">
             H - 14 Hari
           </span>
         </div>
+
 
         {/* Progress Gauge */}
         <div className="bg-surface-container-low rounded-xl p-3 space-y-2 mt-2">

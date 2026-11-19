@@ -122,35 +122,36 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
   const formatJpy = (num: number) => new Intl.NumberFormat('ja-JP').format(Math.round(num));
 
   return (
-    <div className="flex flex-col w-full space-y-3">
+    <div className="flex flex-col w-full space-y-4">
       {/* Mode Switcher Pill */}
-      <div className="p-1 rounded-2xl bg-surface-container-high flex items-center justify-between shadow-2xs">
+      <div className="p-1.5 rounded-2xl bg-surface-container-high flex items-center justify-between shadow-2xs">
         <button
           onClick={() => setActiveTab('overview')}
-          className={`flex-1 py-2 px-3 rounded-xl text-[12.5px] font-bold text-center transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-2.5 px-3 rounded-xl text-[13.5px] font-bold text-center transition-all flex items-center justify-center gap-2 ${
             activeTab === 'overview'
               ? 'bg-surface-container-lowest text-primary-container shadow-2xs'
               : 'text-on-surface-variant'
           }`}
         >
-          <span className="material-symbols-outlined text-[17px]">pie_chart</span>
+          <span className="material-symbols-outlined text-[18px]">pie_chart</span>
           Ringkasan Biaya
         </button>
         <button
           onClick={() => setActiveTab('converter')}
-          className={`flex-1 py-2 px-3 rounded-xl text-[12.5px] font-bold text-center transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-2.5 px-3 rounded-xl text-[13.5px] font-bold text-center transition-all flex items-center justify-center gap-2 ${
             activeTab === 'converter'
               ? 'bg-surface-container-lowest text-primary-container shadow-2xs'
               : 'text-on-surface-variant'
           }`}
         >
-          <span className="material-symbols-outlined text-[17px]">currency_exchange</span>
+          <span className="material-symbols-outlined text-[18px]">currency_exchange</span>
           Konverter Kurs JPY-IDR
         </button>
       </div>
 
       {/* SECTION 1: Quick Currency Converter Box */}
-      <div className="bg-surface-container-lowest rounded-2xl p-3.5 shadow-xs border border-surface-container/80">
+      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-xs border border-surface-container/80">
+
         <div className="flex items-center justify-between mb-2.5">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-secondary-container"></span>

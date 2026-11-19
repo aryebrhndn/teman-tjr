@@ -106,61 +106,62 @@ export const ItineraryScreen: React.FC = () => {
   const totalDestinations = days.reduce((acc, day) => acc + day.items.length, 0);
 
   return (
-    <div className="flex flex-col w-full space-y-2.5">
+    <div className="flex flex-col w-full space-y-4">
       {/* Trip Overview Header Card - Refined & Clear */}
-      <div className="bg-surface-container-lowest rounded-2xl p-3.5 shadow-xs border border-surface-container/80 relative overflow-hidden">
-        <div className="flex items-start justify-between gap-2">
+      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-xs border border-surface-container/80 relative overflow-hidden">
+        <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary-fixed text-primary text-[11px] font-bold">
-                <span className="material-symbols-outlined text-[13px]">luggage</span>
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-primary-fixed text-primary text-[12px] font-bold">
+                <span className="material-symbols-outlined text-[15px]">luggage</span>
                 7 HARI TOUR
               </span>
-              <span className="text-[12px] text-on-surface-variant font-medium truncate">
+              <span className="text-[13px] text-on-surface-variant font-medium truncate">
                 12 - 19 Apr 2025 • 2 Traveler
               </span>
             </div>
-            <h1 className="text-[15px] font-bold text-on-surface tracking-tight leading-tight truncate">
+            <h1 className="text-[17px] sm:text-[18px] font-black text-on-surface tracking-tight leading-snug">
               {trip?.name || 'Jelajah Tokyo, Kyoto & Osaka 2025'}
             </h1>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => setShowAddDay(true)}
-              className="h-8 px-3 rounded-xl bg-primary-container text-white text-[12px] font-bold flex items-center gap-1 active:scale-95 shadow-2xs hover:bg-primary transition-all"
+              className="h-9 px-3.5 rounded-xl bg-primary-container text-white text-[13px] font-bold flex items-center gap-1.5 active:scale-95 shadow-2xs hover:bg-primary transition-all"
             >
-              <span className="material-symbols-outlined text-[15px]">add</span>
+              <span className="material-symbols-outlined text-[17px]">add</span>
               <span>Tambah</span>
             </button>
             <button
               onClick={() => alert('Fitur Ekspor PDF & JSON siap digunakan offline!')}
               title="Ekspor Jadwal"
-              className="h-8 px-2.5 rounded-xl bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center gap-1 text-[12px] font-bold active:scale-95 transition-all"
+              className="h-9 px-3 rounded-xl bg-surface-container text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 text-[13px] font-bold active:scale-95 transition-all"
             >
-              <span className="material-symbols-outlined text-[15px]">picture_as_pdf</span>
+              <span className="material-symbols-outlined text-[17px]">picture_as_pdf</span>
               <span className="hidden xs:inline">Ekspor</span>
             </button>
           </div>
         </div>
 
         {/* Integrated Quick Progress Info */}
-        <div className="mt-2.5 pt-2.5 border-t border-surface-container/70 flex items-center justify-between text-[11.5px]">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-secondary-fixed text-on-secondary-fixed font-bold text-[11px]">
-              <span className="material-symbols-outlined text-[13px]">train</span> JR Pass Aktif
+        <div className="mt-3 pt-3 border-t border-surface-container/70 flex items-center justify-between text-[13px]">
+          <div className="flex items-center gap-2.5">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary-fixed text-on-secondary-fixed font-bold text-[12px]">
+              <span className="material-symbols-outlined text-[15px]">train</span> JR Pass Aktif
             </span>
-            <span className="text-on-surface-variant font-medium">
+            <span className="text-on-surface-variant font-semibold">
               • {totalDestinations} Destinasi Halal
             </span>
           </div>
           <div className="text-right">
-            <span className="text-on-surface-variant">Est. </span>
-            <span className="text-primary font-black text-[13px]">
+            <span className="text-on-surface-variant font-medium">Est. </span>
+            <span className="text-primary font-black text-[15px]">
               ¥{new Intl.NumberFormat('ja-JP').format(totalCostJpy)}
             </span>
           </div>
         </div>
       </div>
+
 
       {/* Day-by-Day Feed */}
       <div className="flex flex-col space-y-2.5">
