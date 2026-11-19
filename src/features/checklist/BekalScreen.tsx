@@ -79,34 +79,34 @@ export const BekalScreen: React.FC = () => {
   });
 
   return (
-    <div className="flex flex-col w-full space-y-4 md:space-y-2.5 transition-all">
+    <div className="flex flex-col w-full space-y-4">
       {/* Header Card */}
-      <div className="bg-surface-container-lowest rounded-2xl md:rounded-xl p-4 sm:p-5 md:p-3 shadow-xs border border-surface-container/80">
-        <div className="flex items-center justify-between mb-2.5 md:mb-1.5">
-          <div className="flex items-center gap-2.5 md:gap-2">
-            <div className="w-10 h-10 md:w-8 md:h-8 rounded-xl md:rounded-lg bg-primary-fixed flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-[22px] md:text-[17px]">luggage</span>
+      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-xs border border-surface-container/80">
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-primary-fixed flex items-center justify-center text-primary">
+              <span className="material-symbols-outlined text-[22px]">luggage</span>
             </div>
             <div>
-              <h2 className="text-[16px] md:text-[13.5px] font-bold text-on-surface">Checklist & Bekal Koper</h2>
-              <span className="text-[13px] md:text-[10.5px] text-on-surface-variant font-medium">Panduan persiapan matang ke Jepang</span>
+              <h2 className="text-[16px] font-bold text-on-surface">Checklist & Bekal Koper</h2>
+              <span className="text-[13px] text-on-surface-variant font-medium">Panduan persiapan matang ke Jepang</span>
             </div>
           </div>
-          <span className="px-3 py-1 md:px-2 md:py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[11.5px] md:text-[9.5px] font-bold">
+          <span className="px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[11.5px] font-bold">
             H - 14 Hari
           </span>
         </div>
 
 
         {/* Progress Gauge */}
-        <div className="bg-surface-container-low rounded-xl md:rounded-lg p-3 md:p-2 space-y-2 md:space-y-1.5 mt-2 md:mt-1">
-          <div className="flex justify-between items-center text-[12px] md:text-[10px]">
+        <div className="bg-surface-container-low rounded-xl p-3 space-y-2 mt-2">
+          <div className="flex justify-between items-center text-[12px]">
             <span className="text-on-surface-variant font-medium">Progress Kelengkapan</span>
-            <span className="font-bold text-primary text-[12.5px] md:text-[10.5px]">
+            <span className="font-bold text-primary text-[12.5px]">
               {completedCount} dari {totalCount} Selesai ({percent}%)
             </span>
           </div>
-          <div className="w-full h-2 md:h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
             <div
               className="h-full bg-primary-container rounded-full transition-all duration-300"
               style={{ width: `${percent}%` }}
@@ -115,9 +115,9 @@ export const BekalScreen: React.FC = () => {
         </div>
 
         {/* Season Selector */}
-        <div className="pt-2.5 md:pt-1.5 flex items-center justify-between">
-          <span className="text-[12px] md:text-[10px] text-on-surface-variant font-semibold">Musim Perjalanan:</span>
-          <div className="flex gap-1.5 md:gap-1">
+        <div className="pt-2.5 flex items-center justify-between">
+          <span className="text-[12px] text-on-surface-variant font-semibold">Musim Perjalanan:</span>
+          <div className="flex gap-1.5">
             {[
               { id: 'spring', label: '🌸 Semi' },
               { id: 'summer', label: '☀️ Panas' },
@@ -127,7 +127,7 @@ export const BekalScreen: React.FC = () => {
               <button
                 key={s.id}
                 onClick={() => setSelectedSeason(s.id as any)}
-                className={`px-2 py-1 md:px-1.5 md:py-0.5 rounded-lg md:rounded-md text-[11px] md:text-[9.5px] font-bold transition-colors ${
+                className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-colors ${
                   selectedSeason === s.id
                     ? 'bg-primary-container text-white shadow-2xs'
                     : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
@@ -141,12 +141,12 @@ export const BekalScreen: React.FC = () => {
       </div>
 
       {/* Category Filter Pills */}
-      <div className="flex items-center gap-1.5 md:gap-1 overflow-x-auto pb-0.5 -mx-1 px-1">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 -mx-1 px-1">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`h-8 md:h-6.5 px-3 md:px-2 rounded-full text-[11.5px] md:text-[9.5px] font-medium flex items-center whitespace-nowrap transition-colors ${
+            className={`h-8 px-3 rounded-full text-[11.5px] font-medium flex items-center whitespace-nowrap transition-colors ${
               selectedCategory === cat
                 ? 'bg-primary-container text-white shadow-2xs font-semibold'
                 : 'bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container border border-surface-container'
@@ -158,11 +158,11 @@ export const BekalScreen: React.FC = () => {
       </div>
 
       {/* Checklist Feed */}
-      <div className="space-y-2 md:space-y-1.5">
+      <div className="space-y-2">
         {filteredItems.map((item) => (
           <div
             key={item.id}
-            className={`p-3 md:p-2 rounded-xl md:rounded-lg border flex items-center justify-between gap-3 md:gap-2 transition-colors ${
+            className={`p-3 rounded-xl border flex items-center justify-between gap-3 transition-colors ${
               item.completed
                 ? 'bg-surface-container-low/60 border-surface-container opacity-75'
                 : 'bg-surface-container-lowest border-surface-container shadow-xs'
@@ -170,35 +170,35 @@ export const BekalScreen: React.FC = () => {
           >
             <div
               onClick={() => handleToggle(item.id, item.completed)}
-              className="flex items-center gap-3 md:gap-2 flex-1 min-w-0 cursor-pointer"
+              className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
             >
               <button
                 type="button"
                 aria-label="Toggle Complete"
-                className={`w-5 h-5 md:w-4 md:h-4 rounded-md md:rounded flex items-center justify-center shrink-0 transition-colors ${
+                className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors ${
                   item.completed
                     ? 'bg-primary-container text-white'
                     : 'border-[1.5px] border-outline-variant bg-white'
                 }`}
               >
-                {item.completed && <span className="material-symbols-outlined text-[14px] md:text-[11px]">check</span>}
+                {item.completed && <span className="material-symbols-outlined text-[14px]">check</span>}
               </button>
               <div className="flex flex-col min-w-0">
-                <div className="flex items-center gap-2 md:gap-1 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span
-                    className={`text-[13.5px] md:text-[11.5px] font-semibold ${
+                    className={`text-[13.5px] font-semibold ${
                       item.completed ? 'line-through text-on-surface-variant' : 'text-on-surface'
                     }`}
                   >
                     {item.title}
                   </span>
                   {item.is_priority && (
-                    <span className="px-2 py-0.5 md:px-1.5 md:py-0.2 rounded bg-error-container text-on-error-container text-[10px] md:text-[8.5px] font-bold">
+                    <span className="px-2 py-0.5 rounded bg-error-container text-on-error-container text-[10px] font-bold">
                       Prioritas
                     </span>
                   )}
                 </div>
-                <span className="text-[11.5px] md:text-[9.5px] text-on-surface-variant mt-0.5">
+                <span className="text-[11.5px] text-on-surface-variant mt-0.5">
                   {categoryTranslations[item.category] || item.category}
                 </span>
               </div>
@@ -210,7 +210,7 @@ export const BekalScreen: React.FC = () => {
                 onClick={() => handleDelete(item.id)}
                 className="text-on-surface-variant/60 hover:text-error transition-colors p-1"
               >
-                <span className="material-symbols-outlined text-[18px] md:text-[15px]">delete</span>
+                <span className="material-symbols-outlined text-[18px]">delete</span>
               </button>
             )}
           </div>
@@ -220,9 +220,9 @@ export const BekalScreen: React.FC = () => {
       {/* Add Item Button */}
       <button
         onClick={() => setShowAddModal(true)}
-        className="w-full h-10 md:h-8 rounded-xl md:rounded-lg bg-surface-container hover:bg-surface-container-high text-[12.5px] md:text-[11px] font-bold text-primary flex items-center justify-center gap-1.5 transition-colors border border-dashed border-outline-variant active:scale-98"
+        className="w-full h-10 rounded-xl bg-surface-container hover:bg-surface-container-high text-[12.5px] font-bold text-primary flex items-center justify-center gap-1.5 transition-colors border border-dashed border-outline-variant active:scale-98"
       >
-        <span className="material-symbols-outlined text-[16px] md:text-[14px]">add</span>
+        <span className="material-symbols-outlined text-[16px]">add</span>
         Tambah Perlengkapan Kustom
       </button>
 
