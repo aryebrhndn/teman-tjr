@@ -6,9 +6,17 @@
   NODE_VERSION = "20"
   NETLIFY_ENABLE_DRAWER = "false"
 
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
