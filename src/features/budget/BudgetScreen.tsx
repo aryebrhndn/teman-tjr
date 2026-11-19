@@ -41,21 +41,37 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
     loadData();
   }, []);
 
-  // Sync calculation
+  // Helper for thousand separator dots (Indonesian standard: 10.000, 1.050.000)
+  const formatWithDots = (val: string | number): string => {
+    if (!val && val !== 0) return '';
+    const clean = val.toString().replace(/\D/g, '');
+    if (!clean) return '';
+    return new Intl.NumberFormat('id-ID').format(Number(clean));
+  };
+
+  const parseDigits = (val: string): number => {
+    const clean = val.replace(/\D/g, '');
+    return clean ? parseInt(clean, 10) : 0;
+  };
+
+  // Sync calculation with dot formatting support
   const handleJpyChange = (val: string) => {
-    setJpyVal(val);
-    const num = parseFloat(val) || 0;
-    setIdrVal(Math.round(num * rate).toString());
+    const num = parseDigits(val);
+    setJpyVal(num > 0 ? num.toString() : '');
+    const converted = num > 0 ? Math.round(num * rate) : 0;
+    setIdrVal(converted > 0 ? converted.toString() : '');
   };
 
   const handleIdrChange = (val: string) => {
-    setIdrVal(val);
-    const num = parseFloat(val) || 0;
-    setJpyVal(Math.round(num / rate).toString());
+    const num = parseDigits(val);
+    setIdrVal(num > 0 ? num.toString() : '');
+    const converted = num > 0 ? Math.round(num / rate) : 0;
+    setJpyVal(converted > 0 ? converted.toString() : '');
   };
 
   const setPresetJpy = (amount: number) => {
-    handleJpyChange(amount.toString());
+    setJpyVal(amount.toString());
+    setIdrVal(Math.round(amount * rate).toString());
   };
 
   const handleEditRate = async () => {
@@ -69,8 +85,9 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
         updated_at: new Date().toISOString(),
       });
       // Recalculate
-      const num = parseFloat(jpyVal) || 0;
-      setIdrVal(Math.round(num * newRate).toString());
+      const num = parseDigits(jpyVal);
+      const converted = num > 0 ? Math.round(num * newRate) : 0;
+      setIdrVal(converted > 0 ? converted.toString() : '');
     }
   };
 
@@ -123,134 +140,140 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
 
   return (
     <div className="flex flex-col w-full space-y-3.5 sm:space-y-4">
-      {/* Mode Switcher Pill */}
+      {/* Mode Switcher Pill - Minimalis 1 Baris */}
       <div className="p-1 rounded-2xl bg-surface-container-high flex items-center justify-between shadow-2xs">
         <button
           onClick={() => setActiveTab('overview')}
-          className={`flex-1 py-2 px-2.5 rounded-xl text-[11.5px] sm:text-[12px] font-bold text-center transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-2 px-3 rounded-xl text-[12px] font-bold text-center transition-all ${
             activeTab === 'overview'
-              ? 'bg-surface-container-lowest text-primary-container shadow-2xs'
+              ? 'bg-surface-container-lowest text-primary shadow-2xs'
               : 'text-on-surface-variant'
           }`}
         >
-          <span className="material-symbols-outlined text-[16px]">pie_chart</span>
           Ringkasan Biaya
         </button>
         <button
           onClick={() => setActiveTab('converter')}
-          className={`flex-1 py-2 px-2.5 rounded-xl text-[11.5px] sm:text-[12px] font-bold text-center transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-2 px-3 rounded-xl text-[12px] font-bold text-center transition-all ${
             activeTab === 'converter'
-              ? 'bg-surface-container-lowest text-primary-container shadow-2xs'
+              ? 'bg-surface-container-lowest text-primary shadow-2xs'
               : 'text-on-surface-variant'
           }`}
         >
-          <span className="material-symbols-outlined text-[16px]">currency_exchange</span>
-          Konverter Kurs JPY-IDR
+          Konverter Kurs
         </button>
       </div>
 
-      {/* SECTION 1: Quick Currency Converter Box */}
-      <div className="bg-surface-container-lowest rounded-2xl p-3.5 sm:p-4 shadow-xs border border-surface-container/80">
-
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
-            <span className="text-[10.5px] font-bold uppercase tracking-wider text-on-surface-variant">
-              Konversi Instan Saat Belanja
-            </span>
-          </div>
+      {/* SECTION 1: Quick Currency Converter Box - Bersih, Seimbang & Presisi */}
+      <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-xs border border-surface-container/80">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[12.5px] font-bold text-on-surface">
+            Konverter Kurs
+          </span>
           <button
             onClick={handleEditRate}
-            className="text-primary text-[11px] font-bold flex items-center gap-1 hover:underline"
+            className="text-primary text-[11px] font-bold hover:underline"
           >
-            <span className="material-symbols-outlined text-[13px]">tune</span>
             Atur Kurs
           </button>
         </div>
 
         {/* Converter Form */}
-        <div className="grid grid-cols-1 gap-2.5 relative">
+        <div className="flex flex-col gap-2 relative">
           {/* JPY Block */}
-          <div className="bg-surface-container-low rounded-xl p-3 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-sm">
-                🇯🇵
+          <div className="bg-surface-container-low rounded-xl px-3.5 py-3 flex items-center justify-between gap-3 border border-surface-container/60">
+            {/* Flag & Currency Code */}
+            <div className="flex items-center gap-2.5 shrink-0">
+              <div className="w-7 h-7 rounded-full bg-white border border-surface-container-high flex items-center justify-center shrink-0 shadow-2xs overflow-hidden">
+                <div className="w-3.5 h-3.5 rounded-full bg-[#bc002d]"></div>
               </div>
-              <div>
-                <span className="text-on-surface-variant text-[10.5px] block leading-none font-medium">Yen Jepang</span>
-                <span className="text-[12px] font-black text-on-surface mt-1 block leading-none">JPY</span>
+              <div className="flex flex-col justify-center leading-none">
+                <span className="font-extrabold text-[14px] text-on-surface tracking-tight">JPY</span>
+                <span className="text-[10px] text-on-surface-variant font-medium mt-0.5">Yen Jepang</span>
               </div>
             </div>
-            <div className="flex items-center text-right">
-              <span className="text-lg font-black text-on-surface mr-1.5">¥</span>
+
+            {/* Value & Symbol - Sejajar di Kanan, Berdampingan Rapi */}
+            <div className="flex-1 flex items-center justify-end gap-1.5 min-w-0">
+              <span className="text-[15px] font-bold text-on-surface-variant shrink-0 select-none">
+                ¥
+              </span>
               <input
-                type="number"
-                value={jpyVal}
+                type="text"
+                inputMode="numeric"
+                value={formatWithDots(jpyVal)}
                 onChange={(e) => handleJpyChange(e.target.value)}
                 readOnly={!isJpyToIdr}
-                className="w-32 bg-transparent text-right text-lg font-black text-on-surface focus:outline-none"
+                placeholder="0"
+                className="w-full max-w-[170px] bg-transparent text-right text-[18px] sm:text-[19px] font-black text-on-surface tracking-tight focus:outline-none"
               />
             </div>
           </div>
 
-          {/* Swap Button */}
-          <div className="flex justify-center -my-3 z-10">
+          {/* Swap Button di Tengah */}
+          <div className="flex justify-center -my-2.5 z-10">
             <button
-              aria-label="Tukar Posisi"
+              type="button"
+              aria-label="Tukar Posisi Mata Uang"
               onClick={() => setIsJpyToIdr(!isJpyToIdr)}
-              className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container shadow-xs flex items-center justify-center hover:scale-105 active:scale-95 transition-transform border border-secondary/40"
+              className="w-7.5 h-7.5 rounded-full bg-surface-container-highest hover:bg-secondary-container text-on-surface hover:text-on-secondary-container shadow-xs flex items-center justify-center active:scale-95 transition-all border border-surface-container"
             >
-              <span className="material-symbols-outlined text-[17px]">sync_alt</span>
+              <span className="material-symbols-outlined text-[17px]">swap_vert</span>
             </button>
           </div>
 
           {/* IDR Block */}
-          <div className="bg-surface-container-low rounded-xl p-3 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-sm">
-                🇮🇩
+          <div className="bg-surface-container-low rounded-xl px-3.5 py-3 flex items-center justify-between gap-3 border border-surface-container/60">
+            {/* Flag & Currency Code */}
+            <div className="flex items-center gap-2.5 shrink-0">
+              <div className="w-7 h-7 rounded-full border border-surface-container-high flex flex-col shrink-0 shadow-2xs overflow-hidden">
+                <div className="w-full h-1/2 bg-[#d80027]"></div>
+                <div className="w-full h-1/2 bg-white"></div>
               </div>
-              <div>
-                <span className="text-on-surface-variant text-[10.5px] block leading-none font-medium">Rupiah Indonesia</span>
-                <span className="text-[12px] font-black text-on-surface mt-1 block leading-none">IDR</span>
+              <div className="flex flex-col justify-center leading-none">
+                <span className="font-extrabold text-[14px] text-on-surface tracking-tight">IDR</span>
+                <span className="text-[10px] text-on-surface-variant font-medium mt-0.5">Rupiah</span>
               </div>
             </div>
-            <div className="flex items-center text-right">
-              <span className="text-lg font-black text-on-surface mr-1.5">Rp</span>
+
+            {/* Value & Symbol - Sejajar di Kanan, Berdampingan Rapi */}
+            <div className="flex-1 flex items-center justify-end gap-1.5 min-w-0">
+              <span className="text-[15px] font-bold text-primary shrink-0 select-none">
+                Rp
+              </span>
               <input
-                type="number"
-                value={idrVal}
+                type="text"
+                inputMode="numeric"
+                value={formatWithDots(idrVal)}
                 onChange={(e) => handleIdrChange(e.target.value)}
                 readOnly={isJpyToIdr}
-                className="w-36 bg-transparent text-right text-lg font-black text-primary focus:outline-none"
+                placeholder="0"
+                className="w-full max-w-[170px] bg-transparent text-right text-[18px] sm:text-[19px] font-black text-primary tracking-tight focus:outline-none"
               />
             </div>
           </div>
         </div>
 
-        {/* Quick Presets */}
+        {/* Quick Presets dengan Pemisah Titik Ribuan */}
         <div className="flex items-center gap-1.5 mt-3 overflow-x-auto pb-0.5">
           {[1000, 3000, 5000, 10000, 30000].map((amt) => (
             <button
               key={amt}
               onClick={() => setPresetJpy(amt)}
-              className="h-7.5 px-2.5 rounded-lg bg-surface-container text-on-surface text-[11px] font-bold hover:bg-primary-container hover:text-white transition-colors shrink-0 active:scale-95"
+              className="h-7 px-2.5 rounded-lg bg-surface-container text-on-surface text-[11px] font-bold hover:bg-primary hover:text-white transition-colors shrink-0 active:scale-95"
             >
-              ¥ {new Intl.NumberFormat('ja-JP').format(amt)}
+              ¥{new Intl.NumberFormat('id-ID').format(amt)}
             </button>
           ))}
         </div>
 
-        {/* Rate footer */}
-        <div className="mt-3 pt-2 flex items-center justify-between text-on-surface-variant text-[11px] border-t border-surface-container/70">
-          <div className="flex items-center gap-1">
-            <span className="material-symbols-outlined text-[14px] text-secondary">verified_user</span>
-            <span>
-              Kurs acuan: <strong className="text-on-surface">1 JPY = Rp {rate.toFixed(2)}</strong>
-            </span>
-          </div>
-          <span className="px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-[10px] font-bold">
-            Offline Siap
+        {/* Minimal Rate Footer */}
+        <div className="mt-2.5 pt-2 flex items-center justify-between text-on-surface-variant text-[11px] border-t border-surface-container/70">
+          <span>
+            1 JPY = <strong className="text-on-surface">Rp {rate.toFixed(2)}</strong>
+          </span>
+          <span className="text-[10px] font-semibold text-on-surface-variant/80">
+            Siap Offline
           </span>
         </div>
       </div>

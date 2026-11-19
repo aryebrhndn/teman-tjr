@@ -92,7 +92,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
       }
 
       // 3. Mark update timestamp in localStorage
-      localStorage.setItem('tjr_last_build', '2026.11.20-build7');
+      localStorage.setItem('tjr_last_build', '2026.11.20-build8');
 
       setFeedback('Cache lama dibersihkan! Memuat versi terbaru...');
 
