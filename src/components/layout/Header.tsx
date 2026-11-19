@@ -24,7 +24,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, onOpenSettings }) =>
         <div className="w-[70%] bg-[#fec300]"></div>
       </div>
 
-      <div className="h-[52px] px-3.5 max-w-md mx-auto flex items-center justify-between">
+      <div className="h-[54px] px-4 max-w-xl mx-auto flex items-center justify-between">
         {/* Brand & Slogan */}
         <div className="flex items-center gap-2">
           <img
