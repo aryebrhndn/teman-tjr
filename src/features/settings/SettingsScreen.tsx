@@ -221,27 +221,27 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
   };
 
   return (
-    <div className="flex flex-col w-full space-y-2.5 pb-6">
+    <div className="flex flex-col w-full space-y-3.5 sm:space-y-4 pb-6">
       {/* Top Header */}
       <div className="flex items-center justify-between">
         <button
           onClick={onBack}
-          className="flex items-center gap-1 text-[11.5px] font-bold text-primary hover:underline"
+          className="flex items-center gap-1 text-[11px] sm:text-[11.5px] font-bold text-primary hover:underline"
         >
           <span className="material-symbols-outlined text-[16px]">arrow_back</span>
           Kembali ke Beranda
         </button>
-        <span className="text-[11.5px] font-bold text-on-surface">Pengaturan & Aplikasi</span>
+        <span className="text-[11px] sm:text-[11.5px] font-bold text-on-surface">Pengaturan & Aplikasi</span>
       </div>
 
       {feedback && (
-        <div className="p-2.5 bg-surface-container rounded-lg text-primary-container text-[11.5px] font-bold text-center animate-in fade-in">
+        <div className="p-3 bg-surface-container rounded-xl text-primary-container text-[11.5px] font-bold text-center animate-in fade-in">
           {feedback}
         </div>
       )}
 
       {/* App Info Card */}
-      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 flex items-center gap-3">
+      <div className="bg-surface-container-lowest rounded-2xl p-3.5 sm:p-4 shadow-xs border border-surface-container/80 flex items-center gap-3">
         <img
           src="/LOGO TJR.png"
           alt="Teman TJR Logo"

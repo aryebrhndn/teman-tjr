@@ -10,7 +10,7 @@ import { BekalScreen } from './features/checklist/BekalScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
 import { AdminScreen } from './features/admin/AdminScreen';
 
-const APP_BUILD_ID = '2026.11.20-build5';
+const APP_BUILD_ID = '2026.11.20-build6';
 
 export function App() {
   const [isReady, setIsReady] = useState(false);
@@ -135,7 +135,7 @@ export function App() {
         onOpenSettings={() => setCurrentTab(currentTab === 'settings' ? 'beranda' : 'settings')}
       />
 
-      <main className="flex-1 w-full max-w-xl mx-auto px-4 pt-[64px] pb-[72px] flex flex-col">
+      <main className="flex-1 w-full max-w-xl mx-auto px-3.5 sm:px-4 pt-[66px] sm:pt-[70px] pb-[76px] sm:pb-[82px] flex flex-col">
         {renderMainContent()}
       </main>
 

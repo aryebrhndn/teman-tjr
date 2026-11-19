@@ -24,19 +24,19 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, onOpenSettings }) =>
         <div className="w-[70%] bg-[#fec300]"></div>
       </div>
 
-      <div className="h-[54px] px-4 max-w-xl mx-auto flex items-center justify-between">
+      <div className="h-[54px] px-3.5 sm:px-4 max-w-xl mx-auto flex items-center justify-between">
         {/* Brand & Slogan */}
         <div className="flex items-center gap-2">
           <img
             src="/LOGO TJR.png"
             alt="Teman TJR Logo"
-            className="w-7.5 h-7.5 rounded-full object-cover border border-white/90 shadow-2xs bg-[#a90008] shrink-0"
+            className="w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full object-cover border border-white/90 shadow-2xs bg-[#a90008] shrink-0"
           />
           <div className="flex flex-col justify-center leading-none">
-            <span className="font-extrabold text-[14.5px] text-white tracking-tight leading-none">
+            <span className="font-extrabold text-[13.5px] sm:text-[14.5px] text-white tracking-tight leading-none">
               Teman TJR
             </span>
-            <span className="text-[9.5px] text-white/90 flex items-center gap-1 mt-0.5 font-medium tracking-tight leading-none">
+            <span className="text-[9px] sm:text-[9.5px] text-white/90 flex items-center gap-1 mt-0.5 font-medium tracking-tight leading-none whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-[#fec300] inline-block shrink-0"></span>
               Teman Perjalanan Dalam Genggaman
             </span>
@@ -52,7 +52,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, onOpenSettings }) =>
             aria-label="Pengaturan"
             title="Pengaturan"
             onClick={onOpenSettings}
-            className="w-8 h-8 flex items-center justify-center rounded-full text-white hover:bg-white/20 transition-all active:scale-95"
+            className="w-8 h-8 sm:w-8.5 sm:h-8.5 flex items-center justify-center rounded-full text-white hover:bg-white/20 transition-all active:scale-95"
           >
             <span className="material-symbols-outlined text-[19px]">settings</span>
           </button>

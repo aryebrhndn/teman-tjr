@@ -121,9 +121,9 @@ export const PrayerScreen: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col w-full space-y-2.5">
+    <div className="flex flex-col w-full space-y-3.5 sm:space-y-4">
       {/* Location & Method Header Bar */}
-      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs flex flex-col gap-2 border border-surface-container/80">
+      <div className="bg-surface-container-lowest rounded-2xl p-3.5 sm:p-4 shadow-xs flex flex-col gap-2.5 border border-surface-container/80">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
             <span className="material-symbols-outlined text-primary-container text-[18px] shrink-0">

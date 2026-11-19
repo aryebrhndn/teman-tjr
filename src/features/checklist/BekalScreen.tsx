@@ -79,9 +79,9 @@ export const BekalScreen: React.FC = () => {
   });
 
   return (
-    <div className="flex flex-col w-full space-y-2.5">
+    <div className="flex flex-col w-full space-y-3.5 sm:space-y-4">
       {/* Header Card */}
-      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80">
+      <div className="bg-surface-container-lowest rounded-2xl p-3.5 sm:p-4 shadow-xs border border-surface-container/80">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary-fixed flex items-center justify-center text-primary">

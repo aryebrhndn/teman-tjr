@@ -122,12 +122,12 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
   const formatJpy = (num: number) => new Intl.NumberFormat('ja-JP').format(Math.round(num));
 
   return (
-    <div className="flex flex-col w-full space-y-2.5">
+    <div className="flex flex-col w-full space-y-3.5 sm:space-y-4">
       {/* Mode Switcher Pill */}
-      <div className="p-1 rounded-xl bg-surface-container-high flex items-center justify-between shadow-2xs">
+      <div className="p-1 rounded-2xl bg-surface-container-high flex items-center justify-between shadow-2xs">
         <button
           onClick={() => setActiveTab('overview')}
-          className={`flex-1 py-1.5 px-2.5 rounded-lg text-[12px] font-bold text-center transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-2 px-2.5 rounded-xl text-[11.5px] sm:text-[12px] font-bold text-center transition-all flex items-center justify-center gap-1.5 ${
             activeTab === 'overview'
               ? 'bg-surface-container-lowest text-primary-container shadow-2xs'
               : 'text-on-surface-variant'
@@ -138,7 +138,7 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
         </button>
         <button
           onClick={() => setActiveTab('converter')}
-          className={`flex-1 py-1.5 px-2.5 rounded-lg text-[12px] font-bold text-center transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-2 px-2.5 rounded-xl text-[11.5px] sm:text-[12px] font-bold text-center transition-all flex items-center justify-center gap-1.5 ${
             activeTab === 'converter'
               ? 'bg-surface-container-lowest text-primary-container shadow-2xs'
               : 'text-on-surface-variant'
@@ -150,7 +150,7 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
       </div>
 
       {/* SECTION 1: Quick Currency Converter Box */}
-      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80">
+      <div className="bg-surface-container-lowest rounded-2xl p-3.5 sm:p-4 shadow-xs border border-surface-container/80">
 
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1.5">
