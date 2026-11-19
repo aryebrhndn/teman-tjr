@@ -123,43 +123,44 @@ export const PrayerScreen: React.FC = () => {
   return (
     <div className="flex flex-col w-full space-y-3.5 sm:space-y-4">
       {/* Location & Method Header Bar */}
-      <div className="bg-surface-container-lowest rounded-2xl p-3.5 sm:p-4 shadow-xs flex flex-col gap-2.5 border border-surface-container/80">
+      <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-xs flex flex-col gap-2.5 border border-surface-container/80">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="material-symbols-outlined text-primary-container text-[18px] shrink-0">
-              location_on
-            </span>
-            <div className="relative inline-block">
-              <select
-                id="city-selector"
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                className="appearance-none bg-surface-container-low text-[13px] font-bold text-on-surface pl-2.5 pr-7 py-1 rounded-lg focus:outline-none cursor-pointer border border-surface-container"
-              >
-                {Object.values(JAPAN_CITIES).map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-              <span className="material-symbols-outlined pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[17px]">
-                expand_more
-              </span>
-            </div>
-          </div>
-          <span className="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10px] uppercase font-bold tracking-wider">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[17px] text-primary">location_on</span>
+            Lokasi Waktu Sholat
+          </span>
+          <span className="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10.5px] font-bold tracking-wide shrink-0">
             JST (UTC+9)
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-y-1 text-on-surface-variant text-[11px] pt-0.5">
+        {/* Full width dropdown to prevent horizontal overlap */}
+        <div className="relative w-full">
+          <select
+            id="city-selector"
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+            className="w-full appearance-none bg-surface-container-low text-[13.5px] font-bold text-on-surface pl-3 pr-9 py-2.5 rounded-xl focus:outline-none cursor-pointer border border-surface-container shadow-2xs"
+          >
+            {Object.values(JAPAN_CITIES).map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name} ({c.sublabel})
+              </option>
+            ))}
+          </select>
+          <span className="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+            expand_more
+          </span>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-on-surface-variant text-[12px] pt-1.5 border-t border-surface-container/70">
           <div className="flex items-center gap-1.5 font-medium">
             <span className="material-symbols-outlined text-[15px] text-primary">calendar_month</span>
             <span>Rabu, 13 April 2025</span>
             <span className="text-outline-variant">•</span>
-            <span className="text-primary-container font-extrabold">14 Syawal 1446 H</span>
+            <span className="text-primary font-bold">14 Syawal 1446 H</span>
           </div>
-          <div className="flex items-center gap-1 text-[10px] font-semibold">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-secondary">
             <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
             <span>Japan Islamic Trust (Offline)</span>
           </div>
@@ -168,8 +169,8 @@ export const PrayerScreen: React.FC = () => {
 
 
       {/* Card 1: Waktu Sholat Utama & Countdown Card */}
-      <div className="bg-surface-container-lowest rounded-xl p-3 shadow-xs flex flex-col gap-2.5 border border-surface-container/80">
-        <div className="relative overflow-hidden bg-primary-container rounded-lg p-3 text-white shadow-xs">
+      <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-xs flex flex-col gap-3 border border-surface-container/80">
+        <div className="relative overflow-hidden bg-primary-container rounded-xl p-3.5 text-white shadow-xs">
           {/* Decorative Islamic Geometry Accent */}
           <div className="absolute -right-4 -bottom-4 opacity-10 pointer-events-none text-white">
             <svg fill="currentColor" height="90" viewBox="0 0 100 100" width="90">
@@ -180,70 +181,55 @@ export const PrayerScreen: React.FC = () => {
 
           <div className="flex justify-between items-start relative z-10">
             <div>
-              <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-white text-[9px] font-bold tracking-wide uppercase">
+              <span className="px-2 py-0.5 rounded-full bg-white/20 text-white text-[9.5px] font-bold tracking-wide uppercase">
                 WAKTU BERIKUTNYA
               </span>
-              <h2 className="text-xl mt-0.5 font-extrabold tracking-tight">
+              <h2 className="text-xl mt-1 font-extrabold tracking-tight">
                 {prayers?.nextPrayer.name.toUpperCase() || 'ASHAR'}
               </h2>
             </div>
             <div className="text-right">
-              <span className="text-[10px] opacity-90 block">Adzan JST</span>
-              <span className="text-lg font-black tracking-tight">
+              <span className="text-[10.5px] opacity-90 block">Adzan JST</span>
+              <span className="text-xl font-black tracking-tight">
                 {prayers?.nextPrayer.time || '15:20'}
               </span>
             </div>
           </div>
 
-          <div className="mt-2 pt-1.5 bg-white/10 rounded-lg px-2.5 py-1.5 flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-1">
-              <span className="material-symbols-outlined text-[15px] text-secondary-container">
+          <div className="mt-2.5 pt-2 bg-white/10 rounded-lg px-3 py-1.5 flex items-center justify-between relative z-10">
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px] text-secondary-container">
                 hourglass_top
               </span>
-              <span className="text-[11.5px] font-semibold">Menuju Masuk Waktu</span>
+              <span className="text-[12px] font-semibold">Menuju Masuk Waktu</span>
             </div>
-            <div className="text-sm font-bold tracking-wider font-mono text-secondary-container">
+            <div className="text-[13px] font-bold tracking-wider font-mono text-secondary-container">
               {formatTimer(tickerSeconds)}
             </div>
           </div>
         </div>
 
-        {/* 5 Daily Prayer Cards */}
-        <div className="grid grid-cols-5 gap-1">
-          <div className="bg-surface-container-low rounded-lg p-1.5 flex flex-col items-center text-center opacity-70">
-            <span className="text-[10px] text-on-surface-variant font-medium">Subuh</span>
-            <span className="text-[11.5px] font-bold text-on-surface my-0.5">{prayers?.fajr || '04:15'}</span>
-            <span className="text-[8.5px] px-1 py-0.2 rounded bg-surface-container-high text-on-surface-variant font-semibold">
-              Selesai
-            </span>
+        {/* 5 Daily Prayer Cards - Clear, legible, no cramped text */}
+        <div className="grid grid-cols-5 gap-1.5 pt-0.5">
+          <div className="bg-surface-container-low rounded-xl py-2 px-1 flex flex-col items-center text-center opacity-75 min-w-0">
+            <span className="text-[11px] text-on-surface-variant font-medium">Subuh</span>
+            <span className="text-[12.5px] font-extrabold text-on-surface mt-0.5">{prayers?.fajr || '04:15'}</span>
           </div>
-          <div className="bg-surface-container-low rounded-lg p-1.5 flex flex-col items-center text-center opacity-70">
-            <span className="text-[10px] text-on-surface-variant font-medium">Dzuhur</span>
-            <span className="text-[11.5px] font-bold text-on-surface my-0.5">{prayers?.dhuhr || '11:52'}</span>
-            <span className="text-[8.5px] px-1 py-0.2 rounded bg-surface-container-high text-on-surface-variant font-semibold">
-              Selesai
-            </span>
+          <div className="bg-surface-container-low rounded-xl py-2 px-1 flex flex-col items-center text-center opacity-75 min-w-0">
+            <span className="text-[11px] text-on-surface-variant font-medium">Dzuhur</span>
+            <span className="text-[12.5px] font-extrabold text-on-surface mt-0.5">{prayers?.dhuhr || '11:52'}</span>
           </div>
-          <div className="bg-secondary-fixed rounded-lg p-1.5 flex flex-col items-center text-center shadow-2xs">
-            <span className="text-[10px] text-on-secondary-fixed font-bold">Ashar</span>
-            <span className="text-[11.5px] font-extrabold text-on-secondary-fixed my-0.5">{prayers?.asr || '15:20'}</span>
-            <span className="text-[8.5px] px-1 py-0.2 rounded bg-primary-container text-white font-bold">
-              Nanti
-            </span>
+          <div className="bg-secondary-container rounded-xl py-2 px-1 flex flex-col items-center text-center shadow-xs border border-secondary min-w-0">
+            <span className="text-[11px] text-on-secondary-container font-black uppercase">Ashar</span>
+            <span className="text-[12.5px] font-black text-on-secondary-container mt-0.5">{prayers?.asr || '15:20'}</span>
           </div>
-          <div className="bg-surface-container-low rounded-lg p-1.5 flex flex-col items-center text-center">
-            <span className="text-[10px] text-on-surface-variant font-medium">Maghrib</span>
-            <span className="text-[11.5px] font-bold text-on-surface my-0.5">{prayers?.maghrib || '18:10'}</span>
-            <span className="text-[8.5px] px-1 py-0.2 rounded bg-surface-container-high text-on-surface-variant font-semibold">
-              18:10
-            </span>
+          <div className="bg-surface-container-low rounded-xl py-2 px-1 flex flex-col items-center text-center min-w-0">
+            <span className="text-[11px] text-on-surface-variant font-medium">Maghrib</span>
+            <span className="text-[12.5px] font-extrabold text-on-surface mt-0.5">{prayers?.maghrib || '18:10'}</span>
           </div>
-          <div className="bg-surface-container-low rounded-lg p-1.5 flex flex-col items-center text-center">
-            <span className="text-[10px] text-on-surface-variant font-medium">Isya</span>
-            <span className="text-[11.5px] font-bold text-on-surface my-0.5">{prayers?.isha || '19:28'}</span>
-            <span className="text-[8.5px] px-1 py-0.2 rounded bg-surface-container-high text-on-surface-variant font-semibold">
-              19:28
-            </span>
+          <div className="bg-surface-container-low rounded-xl py-2 px-1 flex flex-col items-center text-center min-w-0">
+            <span className="text-[11px] text-on-surface-variant font-medium">Isya</span>
+            <span className="text-[12.5px] font-extrabold text-on-surface mt-0.5">{prayers?.isha || '19:28'}</span>
           </div>
         </div>
       </div>

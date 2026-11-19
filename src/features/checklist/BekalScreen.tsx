@@ -115,9 +115,9 @@ export const BekalScreen: React.FC = () => {
         </div>
 
         {/* Season Selector */}
-        <div className="pt-2 flex items-center justify-between">
-          <span className="text-[11px] text-on-surface-variant font-semibold">Musim Perjalanan:</span>
-          <div className="flex gap-1">
+        <div className="pt-2.5 border-t border-surface-container/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span className="text-[11.5px] text-on-surface-variant font-semibold">Musim Perjalanan:</span>
+          <div className="grid grid-cols-4 gap-1.5 sm:flex sm:gap-1.5">
             {[
               { id: 'spring', label: '🌸 Semi' },
               { id: 'summer', label: '☀️ Panas' },
@@ -127,7 +127,7 @@ export const BekalScreen: React.FC = () => {
               <button
                 key={s.id}
                 onClick={() => setSelectedSeason(s.id as any)}
-                className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-colors ${
+                className={`py-1.5 px-2 rounded-lg text-[11px] font-bold text-center transition-colors ${
                   selectedSeason === s.id
                     ? 'bg-primary-container text-white shadow-2xs'
                     : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
@@ -141,14 +141,14 @@ export const BekalScreen: React.FC = () => {
       </div>
 
       {/* Category Filter Pills */}
-      <div className="flex items-center gap-1 overflow-x-auto pb-0.5 -mx-1 px-1">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 -mx-1 px-1">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`h-7 px-2.5 rounded-full text-[10.5px] font-medium flex items-center whitespace-nowrap transition-colors ${
+            className={`h-7.5 px-3 rounded-full text-[11px] font-semibold flex items-center whitespace-nowrap transition-colors ${
               selectedCategory === cat
-                ? 'bg-primary-container text-white shadow-2xs font-semibold'
+                ? 'bg-primary-container text-white shadow-2xs'
                 : 'bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container border border-surface-container'
             }`}
           >
@@ -158,11 +158,11 @@ export const BekalScreen: React.FC = () => {
       </div>
 
       {/* Checklist Feed */}
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         {filteredItems.map((item) => (
           <div
             key={item.id}
-            className={`p-2.5 rounded-lg border flex items-center justify-between gap-2.5 transition-colors ${
+            className={`p-3 rounded-xl border flex items-center justify-between gap-3 transition-colors ${
               item.completed
                 ? 'bg-surface-container-low/60 border-surface-container opacity-75'
                 : 'bg-surface-container-lowest border-surface-container shadow-xs'
@@ -170,35 +170,35 @@ export const BekalScreen: React.FC = () => {
           >
             <div
               onClick={() => handleToggle(item.id, item.completed)}
-              className="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer"
+              className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
             >
               <button
                 type="button"
                 aria-label="Toggle Complete"
-                className={`w-4.5 h-4.5 rounded flex items-center justify-center shrink-0 transition-colors ${
+                className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors ${
                   item.completed
                     ? 'bg-primary-container text-white'
                     : 'border-[1.5px] border-outline-variant bg-white'
                 }`}
               >
-                {item.completed && <span className="material-symbols-outlined text-[12px]">check</span>}
+                {item.completed && <span className="material-symbols-outlined text-[14px]">check</span>}
               </button>
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span
-                    className={`text-[12px] font-semibold ${
+                    className={`text-[13px] font-bold ${
                       item.completed ? 'line-through text-on-surface-variant' : 'text-on-surface'
                     }`}
                   >
                     {item.title}
                   </span>
                   {item.is_priority && (
-                    <span className="px-1.5 py-0.2 rounded bg-error-container text-on-error-container text-[9px] font-bold">
+                    <span className="px-1.5 py-0.5 rounded bg-error-container text-on-error-container text-[9.5px] font-bold">
                       Prioritas
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] text-on-surface-variant mt-0.5">
+                <span className="text-[11px] text-on-surface-variant mt-0.5">
                   {categoryTranslations[item.category] || item.category}
                 </span>
               </div>
@@ -220,9 +220,9 @@ export const BekalScreen: React.FC = () => {
       {/* Add Item Button */}
       <button
         onClick={() => setShowAddModal(true)}
-        className="w-full h-8.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-[11.5px] font-bold text-primary flex items-center justify-center gap-1 transition-colors border border-dashed border-outline-variant active:scale-98"
+        className="w-full h-9.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-[12px] font-bold text-primary flex items-center justify-center gap-1.5 transition-colors border border-dashed border-outline-variant active:scale-98"
       >
-        <span className="material-symbols-outlined text-[15px]">add</span>
+        <span className="material-symbols-outlined text-[16px]">add</span>
         Tambah Perlengkapan Kustom
       </button>
 

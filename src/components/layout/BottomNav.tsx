@@ -16,7 +16,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 bg-[#ffffff]/98 backdrop-blur-xl border-t border-surface-container shadow-sm pb-safe">
-      <div className="flex justify-around items-center h-[54px] sm:h-[56px] max-w-xl mx-auto px-1 sm:px-2">
+      <div className="flex justify-around items-center h-[56px] max-w-xl mx-auto px-1 sm:px-2">
         {tabs.map((tab) => {
           const isActive = currentTab === tab.id;
           return (
@@ -30,13 +30,13 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
               }`}
             >
               <span
-                className={`material-symbols-outlined text-[18px] sm:text-[20px] transition-transform ${
+                className={`material-symbols-outlined text-[20px] sm:text-[21px] transition-transform ${
                   isActive ? "font-variation-settings: 'FILL' 1" : ''
                 }`}
               >
                 {tab.icon}
               </span>
-              <span className={`text-[9.5px] sm:text-[10px] tracking-tight mt-0.5 ${isActive ? 'font-bold' : 'font-medium'}`}>
+              <span className={`text-[10.5px] tracking-tight mt-0.5 ${isActive ? 'font-black' : 'font-semibold'}`}>
                 {tab.label}
               </span>
             </button>
