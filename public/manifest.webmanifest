@@ -10,10 +10,16 @@
   "theme_color": "#a90008",
   "icons": [
     {
-      "src": "/LOGO TJR.png",
+      "src": "/og-image.png",
       "sizes": "192x192 512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-tjr.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
