@@ -10,7 +10,7 @@ import { BekalScreen } from './features/checklist/BekalScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
 import { AdminScreen } from './features/admin/AdminScreen';
 
-const APP_BUILD_ID = '2026.11.20-build17';
+const APP_BUILD_ID = '2026.11.20-build18';
 
 export function App() {
   const [isReady, setIsReady] = useState(false);

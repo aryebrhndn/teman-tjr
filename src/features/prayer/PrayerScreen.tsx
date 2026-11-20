@@ -108,23 +108,35 @@ export const PrayerScreen: React.FC = () => {
 
   const todayDateHijri = (() => {
     try {
-      return (
-        new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', {
-          timeZone: 'Asia/Tokyo',
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
-        }).format(new Date()) + ' H'
-      );
+      const raw = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', {
+        timeZone: 'Asia/Tokyo',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }).format(new Date());
+      return raw.endsWith('H') ? raw : `${raw} H`;
     } catch {
-      return '1448 H';
+      return '10 Jumadilakhir 1448 H';
     }
   })();
 
-  // Live timer interval
+  const formatJstClock = () => {
+    return new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Tokyo',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).format(new Date());
+  };
+
+  const [currentJstTime, setCurrentJstTime] = useState<string>(formatJstClock);
+
+  // Live timer interval (updates countdown and live JST clock)
   useEffect(() => {
     const timer = setInterval(() => {
       setTickerSeconds((prev) => (prev > 0 ? prev - 1 : 0));
+      setCurrentJstTime(formatJstClock());
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -317,7 +329,7 @@ export const PrayerScreen: React.FC = () => {
           </span>
         </div>
 
-        {/* Dynamic Date & On-Device Offline Calculation Info */}
+        {/* Dynamic Date & Live Current Time (Hours, Minutes, Seconds) */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-on-surface-variant text-[12px] pt-1.5 border-t border-surface-container/70">
           <div className="flex items-center gap-1.5 font-medium flex-wrap">
             <span className="material-symbols-outlined text-[15px] text-primary shrink-0">calendar_month</span>
@@ -325,9 +337,10 @@ export const PrayerScreen: React.FC = () => {
             <span className="text-outline-variant">•</span>
             <span className="text-primary font-bold">{todayDateHijri}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-secondary shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
-            <span>Dihitung di perangkat (Offline)</span>
+          <div className="flex items-center gap-1.5 text-[12px] font-bold text-on-surface shrink-0 tabular-nums">
+            <span className="material-symbols-outlined text-[15px] text-primary shrink-0">schedule</span>
+            <span className="font-mono tracking-wider">{currentJstTime}</span>
+            <span className="text-[10.5px] font-semibold text-primary">JST</span>
           </div>
         </div>
 
