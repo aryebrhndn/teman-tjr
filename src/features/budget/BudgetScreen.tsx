@@ -19,13 +19,21 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
   const [idrVal, setIdrVal] = useState<string>('1050000');
   const [isJpyToIdr, setIsJpyToIdr] = useState<boolean>(true);
 
-  // Add expense modal
+  // Add expense modal state
   const [showAddModal, setShowAddModal] = useState<boolean>(!!initialOpenAddExpense);
   const [expName, setExpName] = useState('');
   const [expAmount, setExpAmount] = useState('');
   const [expCurrency, setExpCurrency] = useState<'JPY' | 'IDR'>('JPY');
   const [expCategory, setExpCategory] = useState<Expense['category']>('Food');
   const [expNotes, setExpNotes] = useState('');
+
+  // Edit expense modal state
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+
+  // Edit budget ceiling modal state
+  const [showEditBudgetModal, setShowEditBudgetModal] = useState(false);
+  const [budgetAmountInput, setBudgetAmountInput] = useState('');
+  const [budgetNameInput, setBudgetNameInput] = useState('');
 
   async function loadData() {
     const allExpenses = await db.expenses.orderBy('expense_date').reverse().toArray();
@@ -94,6 +102,39 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
     }
   };
 
+  // --- BUDGET CEILING HANDLERS ---
+  const handleOpenEditBudget = () => {
+    setBudgetAmountInput(formatWithDots(budget?.amount || 35000000));
+    setBudgetNameInput(budget?.name || 'Trip Musim Semi Tokyo-Kyoto');
+    setShowEditBudgetModal(true);
+  };
+
+  const handleSaveBudgetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanAmount = parseDigits(budgetAmountInput);
+    if (cleanAmount <= 0) return;
+
+    if (budget) {
+      await db.budgets.update(budget.id, {
+        amount: cleanAmount,
+        name: budgetNameInput.trim() || 'Trip Musim Semi Tokyo-Kyoto',
+      });
+    } else {
+      await db.budgets.add({
+        id: 'budget-1',
+        trip_id: 'trip-1',
+        name: budgetNameInput.trim() || 'Trip Musim Semi Tokyo-Kyoto',
+        amount: cleanAmount,
+        currency: 'IDR',
+        created_at: new Date().toISOString(),
+      });
+    }
+
+    setShowEditBudgetModal(false);
+    loadData();
+  };
+
+  // --- EXPENSE ADD / EDIT / DELETE HANDLERS ---
   const handleAddExpenseSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!expName.trim() || !expAmount) return;
@@ -111,7 +152,7 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
       category: expCategory,
       original_amount: amountNum,
       original_currency: expCurrency,
-      exchange_rate: rate, // Snapshot of exchange rate at transaction time
+      exchange_rate: rate,
       converted_idr: convertedIdr,
       expense_date: new Date().toISOString().split('T')[0],
       notes: expNotes,
@@ -122,6 +163,49 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
     setExpAmount('');
     setExpNotes('');
     setShowAddModal(false);
+    loadData();
+  };
+
+  const handleOpenEditExpense = (exp: Expense) => {
+    setEditingExpense(exp);
+    setExpName(exp.name);
+    setExpAmount(exp.original_amount.toString());
+    setExpCurrency(exp.original_currency);
+    setExpCategory(exp.category);
+    setExpNotes(exp.notes || '');
+  };
+
+  const handleEditExpenseSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingExpense || !expName.trim() || !expAmount) return;
+
+    const amountNum = parseFloat(expAmount) || 0;
+    let convertedIdr = amountNum;
+    if (expCurrency === 'JPY') {
+      convertedIdr = Math.round(amountNum * rate);
+    }
+
+    await db.expenses.update(editingExpense.id, {
+      name: expName.trim(),
+      category: expCategory,
+      original_amount: amountNum,
+      original_currency: expCurrency,
+      converted_idr: convertedIdr,
+      notes: expNotes,
+      location_name: expNotes || 'Tokyo/Kyoto Spot',
+    });
+
+    setEditingExpense(null);
+    setExpName('');
+    setExpAmount('');
+    setExpNotes('');
+    loadData();
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    if (!window.confirm('Hapus transaksi pengeluaran ini? Saldo kas akan dikembalikan.')) return;
+    await db.expenses.delete(id);
+    setEditingExpense(null);
     loadData();
   };
 
@@ -295,118 +379,118 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
       {activeTab === 'overview' && (
         <>
           {/* SECTION 2: Budget Card Overview */}
-          <div className="bg-surface-container-lowest rounded-xl p-3 shadow-xs relative overflow-hidden border border-surface-container/80">
-            <div className="flex items-center justify-between mb-2">
+          <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-xs relative overflow-hidden border border-surface-container/80">
+            <div className="flex items-center justify-between mb-3">
               <div>
-                <span className="text-on-surface-variant text-[9px] uppercase tracking-wider block font-bold">
+                <span className="text-on-surface-variant text-[9.5px] uppercase tracking-wider block font-bold">
                   Buku Anggaran Traveling
                 </span>
-                <h2 className="text-[13px] font-bold text-on-surface leading-tight">
-                  Trip Musim Semi Tokyo-Kyoto
+                <h2 className="text-[14px] font-bold text-on-surface leading-tight mt-0.5">
+                  {budget?.name || 'Trip Musim Semi Tokyo-Kyoto'}
                 </h2>
               </div>
-              <span className="px-2 py-0.5 rounded-full bg-primary-fixed text-primary text-[9px] font-bold">
-                Aktif
-              </span>
+              <button
+                onClick={handleOpenEditBudget}
+                className="h-8 px-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary text-[11px] font-bold flex items-center gap-1 transition-colors active:scale-95 border border-surface-container shadow-2xs"
+              >
+                <span className="material-symbols-outlined text-[14px]">edit</span>
+                <span>Atur Plafon</span>
+              </button>
             </div>
 
             {/* Balances */}
-            <div className="bg-surface-container-low rounded-lg p-2.5 mb-2.5">
-              <span className="text-[10px] text-on-surface-variant block">Sisa Saldo Aman</span>
-              <div className="flex items-baseline justify-between mt-0.5">
-                <div className="text-base font-bold text-on-surface tracking-tight">
+            <div className="bg-surface-container-low rounded-xl p-3 mb-3 border border-surface-container/60">
+              <span className="text-[10.5px] text-on-surface-variant font-medium block">Sisa Saldo Kas Aman</span>
+              <div className="flex items-baseline justify-between mt-1 flex-wrap gap-1">
+                <div className="text-[18px] sm:text-[20px] font-black text-on-surface tracking-tight">
                   Rp {formatRupiah(remainingBudget)}
                 </div>
-                <div className="text-[10.5px] font-semibold text-on-surface-variant">
-                  Setara ¥ {formatJpy(remainingJpy)}
+                <div className="text-[12px] font-bold text-secondary">
+                  Setara ≈ ¥ {formatJpy(remainingJpy)}
                 </div>
               </div>
 
-              {/* Multi-Segment Bar */}
-              <div className="mt-2">
-                <div className="flex items-center justify-between text-[10px] mb-1">
+              {/* Progress Bar & Plafon Info */}
+              <div className="mt-3 pt-2 border-t border-surface-container/60">
+                <div className="flex items-center justify-between text-[11px] mb-1.5">
                   <span className="text-on-surface-variant font-medium">
                     Terpakai:{' '}
                     <strong className="text-primary font-bold">
                       Rp {formatRupiah(totalExpenseIdr)} ({usagePercent}%)
                     </strong>
                   </span>
-                  <span className="text-on-surface-variant">
-                    Plafon: <strong>Rp {formatRupiah(totalBudget)}</strong>
-                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-on-surface-variant">Plafon:</span>
+                    <button
+                      onClick={handleOpenEditBudget}
+                      className="font-extrabold text-on-surface hover:text-primary transition-colors underline decoration-dotted cursor-pointer"
+                      title="Klik untuk ubah plafon anggaran"
+                    >
+                      Rp {formatRupiah(totalBudget)}
+                    </button>
+                  </div>
                 </div>
-                <div className="w-full h-2 rounded-full bg-surface-container-highest overflow-hidden flex">
-                  <div className="h-full bg-primary-container" style={{ width: '28%' }} title="Food"></div>
-                  <div className="h-full bg-secondary-container" style={{ width: '32%' }} title="Transport"></div>
-                  <div className="h-full bg-surface-tint" style={{ width: '16%' }} title="Attraction"></div>
-                  <div className="h-full bg-outline" style={{ width: '14%' }} title="Shopping"></div>
-                  <div className="h-full bg-tertiary-container" style={{ width: '10%' }} title="Other"></div>
+                <div className="w-full h-2 rounded-full bg-surface-container-highest overflow-hidden">
+                  <div
+                    className="h-full bg-primary-container rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(100, usagePercent)}%` }}
+                  ></div>
                 </div>
               </div>
             </div>
 
             {/* Daily pills */}
-            <div className="grid grid-cols-2 gap-1.5">
-              <div className="p-2 rounded-lg bg-surface-container/70">
-                <span className="text-[9px] text-on-surface-variant block">Rata-rata Terpakai</span>
-                <span className="text-[11px] font-bold text-on-surface mt-0.5 block">
-                  Rp {formatRupiah(totalExpenseIdr / 4)} <span className="text-[9px] font-normal">/hari</span>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-2.5 rounded-xl bg-surface-container-low">
+                <span className="text-[9.5px] text-on-surface-variant font-medium block">Rata-rata Terpakai</span>
+                <span className="text-[12px] font-bold text-on-surface mt-0.5 block">
+                  Rp {formatRupiah(totalExpenseIdr / 4)} <span className="text-[9.5px] font-normal text-on-surface-variant">/hari</span>
                 </span>
               </div>
-              <div className="p-2 rounded-lg bg-surface-container/70">
-                <span className="text-[9px] text-on-surface-variant block">Estimasi Sisa Kuota</span>
-                <span className="text-[11px] font-bold text-secondary mt-0.5 block">
-                  ¥ {formatJpy(remainingJpy / 4)} <span className="text-[9px] font-normal">/hari</span>
+              <div className="p-2.5 rounded-xl bg-surface-container-low">
+                <span className="text-[9.5px] text-on-surface-variant font-medium block">Estimasi Sisa Kuota</span>
+                <span className="text-[12px] font-bold text-secondary mt-0.5 block">
+                  ¥ {formatJpy(remainingJpy / 4)} <span className="text-[9.5px] font-normal text-on-surface-variant">/hari</span>
                 </span>
               </div>
             </div>
           </div>
 
           {/* SECTION 3: Kategori Pengeluaran */}
-          <div className="bg-surface-container-lowest rounded-xl p-3 shadow-xs border border-surface-container/80">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px] text-primary">donut_large</span>
-                <h3 className="text-xs font-bold text-on-surface">Alokasi & Realisasi</h3>
-              </div>
-              <span className="text-[10px] text-on-surface-variant">5 Kategori Aktif</span>
+          <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-xs border border-surface-container/80">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[13px] font-bold text-on-surface">Rincian Per Kategori</span>
+              <span className="text-[11px] text-on-surface-variant font-medium">Berdasarkan Transaksi</span>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {[
-                { label: 'Kuliner & Halal Food', cat: 'Food', icon: 'restaurant', color: 'primary', tag: 'Halal' },
-                { label: 'Transport (JR / Suica IC)', cat: 'Transportation', icon: 'train', color: 'secondary' },
-                { label: 'Tiket Wisata & Atraksi', cat: 'Attraction', icon: 'confirmation_number', color: 'surface' },
-                { label: 'Belanja & Oleh-oleh', cat: 'Shopping', icon: 'shopping_bag', color: 'outline' },
-                { label: 'Locker & Lainnya', cat: 'Other', icon: 'local_convenience_store', color: 'tertiary' },
+                { label: 'Kuliner & Halal Food', cat: 'Food', icon: 'restaurant' },
+                { label: 'Transportasi (JR / Bus)', cat: 'Transportation', icon: 'directions_subway' },
+                { label: 'Tiket Wisata & Atraksi', cat: 'Attraction', icon: 'confirmation_number' },
+                { label: 'Belanja & Oleh-oleh', cat: 'Shopping', icon: 'shopping_bag' },
+                { label: 'Lainnya (Locker, dll)', cat: 'Other', icon: 'local_convenience_store' },
               ].map((item) => {
                 const totalCat = categoryTotals[item.cat] || 0;
                 const catPercent = totalExpenseIdr > 0 ? Math.round((totalCat / totalExpenseIdr) * 100) : 0;
                 return (
-                  <div key={item.cat} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-primary-fixed text-primary flex items-center justify-center shrink-0">
+                  <div key={item.cat} className="flex items-center justify-between py-1 border-b border-surface-container/50 last:border-none">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-surface-container text-on-surface flex items-center justify-center shrink-0">
                         <span className="material-symbols-outlined text-[16px]">{item.icon}</span>
                       </div>
                       <div>
-                        <div className="flex items-center gap-1">
-                          <span className="text-[11px] font-bold text-on-surface">{item.label}</span>
-                          {item.tag && (
-                            <span className="px-1 py-0.2 rounded-full bg-primary-fixed text-primary text-[8px] font-bold uppercase">
-                              {item.tag}
-                            </span>
-                          )}
-                        </div>
+                        <span className="text-[12px] font-bold text-on-surface block leading-tight">{item.label}</span>
                         <span className="text-[10px] text-on-surface-variant">
                           ¥ {formatJpy(totalCat / rate)}
                         </span>
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-[11px] font-bold text-on-surface block">
+                      <span className="text-[12px] font-bold text-on-surface block leading-tight">
                         Rp {formatRupiah(totalCat)}
                       </span>
-                      <span className="text-[9px] text-on-surface-variant">{catPercent}% total</span>
+                      <span className="text-[9.5px] text-on-surface-variant font-medium">{catPercent}% total</span>
                     </div>
                   </div>
                 );
@@ -414,107 +498,183 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
             </div>
           </div>
 
-          {/* SECTION 4: Transaksi Terbaru */}
-          <div className="bg-surface-container-lowest rounded-xl p-3 shadow-xs border border-surface-container/80">
-            <div className="flex items-center justify-between mb-2">
+          {/* SECTION 4: Riwayat Pengeluaran (Bisa Tambah, Ubah, Hapus) */}
+          <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-xs border border-surface-container/80">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[16px] text-primary">history</span>
-                <h3 className="text-xs font-bold text-on-surface">Transaksi Terbaru</h3>
+                <span className="material-symbols-outlined text-[17px] text-primary">history</span>
+                <h3 className="text-[13px] font-bold text-on-surface">Riwayat Pengeluaran</h3>
               </div>
-              <span className="text-[10px] text-on-surface-variant">{expenses.length} Transaksi</span>
+              <span className="text-[11px] text-on-surface-variant font-medium">{expenses.length} Transaksi</span>
             </div>
 
-            <div className="space-y-1.5">
-              {expenses.map((exp) => (
-                <div key={exp.id} className="p-2 rounded-lg bg-surface-container-low flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined text-[15px]">payments</span>
+            {expenses.length === 0 ? (
+              <div className="p-4 text-center rounded-xl bg-surface-container-low text-[11.5px] text-on-surface-variant">
+                Belum ada catatan pengeluaran. Ketuk tombol <strong>"+ Catat Pengeluaran Baru"</strong> di bawah untuk menambah.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {expenses.map((exp) => (
+                  <div
+                    key={exp.id}
+                    onClick={() => handleOpenEditExpense(exp)}
+                    className="p-3 rounded-xl bg-surface-container-low hover:bg-surface-container flex items-center justify-between cursor-pointer transition-colors border border-surface-container/60"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <div className="w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-[16px]">payments</span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[12.5px] font-bold text-on-surface block leading-tight truncate">
+                          {exp.name}
+                        </span>
+                        <span className="text-[10.5px] text-on-surface-variant leading-tight block mt-0.5">
+                          {exp.expense_date} • {exp.notes || exp.category}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-[11px] font-bold text-on-surface block leading-tight">{exp.name}</span>
-                      <span className="text-[9.5px] text-on-surface-variant leading-tight">
-                        {exp.expense_date} • {exp.notes || exp.category}
+
+                    <div className="text-right shrink-0 flex items-center gap-2 ml-2">
+                      <div>
+                        <span className="text-[12.5px] font-black text-on-surface block leading-tight">
+                          -¥ {formatJpy(exp.original_currency === 'JPY' ? exp.original_amount : exp.converted_idr / rate)}
+                        </span>
+                        <span className="text-[10px] text-on-surface-variant leading-tight block mt-0.5 font-medium">
+                          Rp {formatRupiah(exp.converted_idr)}
+                        </span>
+                      </div>
+                      <span className="material-symbols-outlined text-[16px] text-on-surface-variant/70">
+                        edit
                       </span>
                     </div>
                   </div>
-                  <div className="text-right shrink-0">
-                    <span className="text-[11px] font-bold text-on-surface block leading-tight">
-                      -¥ {formatJpy(exp.original_currency === 'JPY' ? exp.original_amount : exp.converted_idr / rate)}
-                    </span>
-                    <span className="text-[9.5px] text-on-surface-variant leading-tight">
-                      Rp {formatRupiah(exp.converted_idr)}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Omotenashi Tip Box */}
-          <div className="p-2.5 rounded-xl bg-secondary-fixed/30 flex items-start gap-2 border border-secondary-fixed/50">
-            <span className="material-symbols-outlined text-secondary text-[18px] mt-0.5 shrink-0">
-              lightbulb
-            </span>
-            <div>
-              <span className="text-[11px] font-bold text-on-secondary-fixed-variant block">
-                Tips Hemat Teman Jalan:
-              </span>
-              <p className="text-[10px] text-on-surface-variant mt-0.5 leading-relaxed">
-                Bawalah selalu paspor fisik Anda untuk fasilitas <em>Tax-Free (10%)</em> di toko ritel seperti Don Quijote atau Matsumoto Kiyoshi dengan minimum belanja ¥5.000!
-              </p>
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </>
       )}
 
       {/* Sticky Bottom CTA: Catat Pengeluaran Baru */}
-      <div className="sticky bottom-14 z-30 flex justify-center pt-1">
+      <div className="sticky bottom-16 z-30 flex justify-center pt-1">
         <button
           onClick={() => setShowAddModal(true)}
-          className="h-8.5 px-4 bg-primary-container text-white rounded-full shadow-md flex items-center justify-center gap-1.5 text-[11px] font-bold hover:brightness-110 active:scale-95 transition-all"
+          className="h-9 px-4 bg-primary-container text-white rounded-full shadow-md flex items-center justify-center gap-1.5 text-[11.5px] font-bold hover:brightness-110 active:scale-95 transition-all"
         >
           <span className="material-symbols-outlined text-[16px]">add_circle</span>
           Catat Pengeluaran Baru
         </button>
       </div>
 
-      {/* Modal: Tambah Pengeluaran */}
+      {/* MODAL 1: Atur Plafon Anggaran */}
+      {showEditBudgetModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-surface rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-surface-container space-y-3.5">
+            <h3 className="text-[14px] font-extrabold text-on-surface">Atur Plafon Anggaran Perjalanan</h3>
+            <form onSubmit={handleSaveBudgetSubmit} className="space-y-3">
+              <div>
+                <label className="text-[11px] font-bold text-on-surface block mb-1">Nama Anggaran / Catatan Trip</label>
+                <input
+                  type="text"
+                  value={budgetNameInput}
+                  onChange={(e) => setBudgetNameInput(e.target.value)}
+                  placeholder="Misal: Trip Musim Semi Tokyo-Kyoto"
+                  className="w-full h-9 px-3 rounded-xl bg-surface-container-low text-[12px] border border-surface-container focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-on-surface block mb-1">Nominal Plafon (Rupiah - IDR)</label>
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-xs font-bold text-on-surface-variant">Rp</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    required
+                    value={budgetAmountInput}
+                    onChange={(e) => setBudgetAmountInput(formatWithDots(e.target.value))}
+                    placeholder="35.000.000"
+                    className="w-full h-10 pl-10 pr-3 rounded-xl bg-surface-container-low text-[14px] font-bold border border-surface-container focus:outline-none"
+                  />
+                </div>
+                <div className="mt-1 text-[11px] text-secondary font-semibold">
+                  Setara ≈ ¥ {formatJpy(Math.round(parseDigits(budgetAmountInput) / rate))} JPY (Kurs: Rp {rate.toFixed(1)})
+                </div>
+              </div>
+
+              {/* Quick Presets */}
+              <div>
+                <span className="text-[10.5px] font-bold text-on-surface-variant block mb-1">Pilihan Cepat Plafon:</span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {[15000000, 25000000, 35000000, 50000000, 75000000].map((amt) => (
+                    <button
+                      key={amt}
+                      type="button"
+                      onClick={() => setBudgetAmountInput(formatWithDots(amt))}
+                      className="h-7 px-2.5 rounded-lg bg-surface-container text-on-surface text-[10.5px] font-bold hover:bg-primary hover:text-white transition-colors active:scale-95"
+                    >
+                      Rp {amt / 1000000} Jt
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEditBudgetModal(false)}
+                  className="flex-1 h-9.5 rounded-xl bg-surface-container text-[12px] font-bold text-on-surface"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 h-9.5 rounded-xl bg-primary-container text-[12px] font-bold text-white shadow-2xs"
+                >
+                  Simpan Plafon
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: Tambah Pengeluaran Baru */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-4">
-            <h3 className="text-sm font-bold text-on-surface">Catat Pengeluaran Baru</h3>
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-surface rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-surface-container space-y-3.5">
+            <h3 className="text-[14px] font-extrabold text-on-surface">Catat Pengeluaran Baru</h3>
             <form onSubmit={handleAddExpenseSubmit} className="space-y-3">
               <div>
-                <label className="text-xs font-semibold text-on-surface block mb-1">Nama Transaksi</label>
+                <label className="text-[11px] font-bold text-on-surface block mb-1">Nama Transaksi</label>
                 <input
                   type="text"
                   required
                   value={expName}
                   onChange={(e) => setExpName(e.target.value)}
-                  placeholder="Misal: Makan Siang Sushi Halal"
-                  className="w-full h-10 px-3 rounded-xl bg-surface-container-low text-xs border border-surface-container focus:outline-none"
+                  placeholder="Misal: Makan Siang Halal Ramen Shinjuku"
+                  className="w-full h-9 px-3 rounded-xl bg-surface-container-low text-[12px] border border-surface-container focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-xs font-semibold text-on-surface block mb-1">Nominal</label>
+                  <label className="text-[11px] font-bold text-on-surface block mb-1">Nominal</label>
                   <input
                     type="number"
                     required
                     value={expAmount}
                     onChange={(e) => setExpAmount(e.target.value)}
                     placeholder="1500"
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low text-xs border border-surface-container focus:outline-none"
+                    className="w-full h-9 px-3 rounded-xl bg-surface-container-low text-[12px] border border-surface-container focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-on-surface block mb-1">Mata Uang</label>
+                  <label className="text-[11px] font-bold text-on-surface block mb-1">Mata Uang</label>
                   <select
                     value={expCurrency}
                     onChange={(e) => setExpCurrency(e.target.value as 'JPY' | 'IDR')}
-                    className="w-full h-10 px-3 rounded-xl bg-surface-container-low text-xs border border-surface-container focus:outline-none"
+                    className="w-full h-9 px-2 rounded-xl bg-surface-container-low text-[12px] border border-surface-container focus:outline-none"
                   >
                     <option value="JPY">JPY (¥)</option>
                     <option value="IDR">IDR (Rp)</option>
@@ -523,11 +683,11 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-on-surface block mb-1">Kategori</label>
+                <label className="text-[11px] font-bold text-on-surface block mb-1">Kategori</label>
                 <select
                   value={expCategory}
                   onChange={(e) => setExpCategory(e.target.value as Expense['category'])}
-                  className="w-full h-10 px-3 rounded-xl bg-surface-container-low text-xs border border-surface-container focus:outline-none"
+                  className="w-full h-9 px-2 rounded-xl bg-surface-container-low text-[12px] border border-surface-container focus:outline-none"
                 >
                   <option value="Food">Kuliner / Halal Food</option>
                   <option value="Transportation">Transportasi (JR / Metro / Bus)</option>
@@ -539,13 +699,13 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-on-surface block mb-1">Catatan / Lokasi</label>
+                <label className="text-[11px] font-bold text-on-surface block mb-1">Catatan / Lokasi</label>
                 <input
                   type="text"
                   value={expNotes}
                   onChange={(e) => setExpNotes(e.target.value)}
                   placeholder="Misal: Stasiun Shinjuku / Don Quijote"
-                  className="w-full h-10 px-3 rounded-xl bg-surface-container-low text-xs border border-surface-container focus:outline-none"
+                  className="w-full h-9 px-3 rounded-xl bg-surface-container-low text-[12px] border border-surface-container focus:outline-none"
                 />
               </div>
 
@@ -553,15 +713,113 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 h-10 rounded-xl bg-surface-container text-xs font-semibold text-on-surface"
+                  className="flex-1 h-9.5 rounded-xl bg-surface-container text-[12px] font-bold text-on-surface"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 h-10 rounded-xl bg-primary-container text-xs font-semibold text-white"
+                  className="flex-1 h-9.5 rounded-xl bg-primary-container text-[12px] font-bold text-white shadow-2xs"
                 >
                   Simpan Transaksi
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: Edit / Hapus Transaksi Pengeluaran */}
+      {editingExpense && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-surface rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-surface-container space-y-3.5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[14px] font-extrabold text-on-surface">Edit Transaksi Pengeluaran</h3>
+              <button
+                type="button"
+                onClick={() => handleDeleteExpense(editingExpense.id)}
+                className="text-error hover:underline text-[11px] font-bold flex items-center gap-1"
+              >
+                <span className="material-symbols-outlined text-[14px]">delete</span>
+                Hapus
+              </button>
+            </div>
+
+            <form onSubmit={handleEditExpenseSubmit} className="space-y-3">
+              <div>
+                <label className="text-[11px] font-bold text-on-surface block mb-1">Nama Transaksi</label>
+                <input
+                  type="text"
+                  required
+                  value={expName}
+                  onChange={(e) => setExpName(e.target.value)}
+                  className="w-full h-9 px-3 rounded-xl bg-surface-container-low text-[12px] border border-surface-container focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[11px] font-bold text-on-surface block mb-1">Nominal</label>
+                  <input
+                    type="number"
+                    required
+                    value={expAmount}
+                    onChange={(e) => setExpAmount(e.target.value)}
+                    className="w-full h-9 px-3 rounded-xl bg-surface-container-low text-[12px] border border-surface-container focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold text-on-surface block mb-1">Mata Uang</label>
+                  <select
+                    value={expCurrency}
+                    onChange={(e) => setExpCurrency(e.target.value as 'JPY' | 'IDR')}
+                    className="w-full h-9 px-2 rounded-xl bg-surface-container-low text-[12px] border border-surface-container focus:outline-none"
+                  >
+                    <option value="JPY">JPY (¥)</option>
+                    <option value="IDR">IDR (Rp)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-on-surface block mb-1">Kategori</label>
+                <select
+                  value={expCategory}
+                  onChange={(e) => setExpCategory(e.target.value as Expense['category'])}
+                  className="w-full h-9 px-2 rounded-xl bg-surface-container-low text-[12px] border border-surface-container focus:outline-none"
+                >
+                  <option value="Food">Kuliner / Halal Food</option>
+                  <option value="Transportation">Transportasi (JR / Metro / Bus)</option>
+                  <option value="Attraction">Tiket Wisata & Atraksi</option>
+                  <option value="Shopping">Belanja & Oleh-oleh</option>
+                  <option value="Accommodation">Akomodasi / Hotel</option>
+                  <option value="Other">Lainnya (Locker, Minuman, dll)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-on-surface block mb-1">Catatan / Lokasi</label>
+                <input
+                  type="text"
+                  value={expNotes}
+                  onChange={(e) => setExpNotes(e.target.value)}
+                  className="w-full h-9 px-3 rounded-xl bg-surface-container-low text-[12px] border border-surface-container focus:outline-none"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingExpense(null)}
+                  className="flex-1 h-9.5 rounded-xl bg-surface-container text-[12px] font-bold text-on-surface"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 h-9.5 rounded-xl bg-primary-container text-[12px] font-bold text-white shadow-2xs"
+                >
+                  Simpan Perubahan
                 </button>
               </div>
             </form>

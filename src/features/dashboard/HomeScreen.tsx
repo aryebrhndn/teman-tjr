@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { db, type Trip, type Expense, type ChecklistItem } from '../../database/dexie';
+import { db, type Trip, type Expense, type ChecklistItem, type Budget } from '../../database/dexie';
 import { getJapanPrayerTimes, type DailyPrayers } from '../../services/prayer.service';
 
 interface HomeScreenProps {
@@ -9,6 +9,7 @@ interface HomeScreenProps {
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAddExpense }) => {
   const [trip, setTrip] = useState<Trip | null>(null);
+  const [budget, setBudget] = useState<Budget | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [prayers, setPrayers] = useState<DailyPrayers | null>(null);
@@ -19,6 +20,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
       const allTrips = await db.trips.toArray();
       if (allTrips.length > 0) {
         setTrip(allTrips[0]);
+      }
+
+      const allBudgets = await db.budgets.toArray();
+      if (allBudgets.length > 0) {
+        setBudget(allBudgets[0]);
       }
 
       const allExpenses = await db.expenses.toArray();
@@ -44,7 +50,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
     return () => clearInterval(interval);
   }, []);
 
-  const totalBudget = 35000000;
+  const totalBudget = budget?.amount || 35000000;
   const totalExpenseIdr = expenses.reduce((acc, curr) => acc + curr.converted_idr, 0);
   const remainingBudget = Math.max(0, totalBudget - totalExpenseIdr);
   const remainingJpy = Math.round(remainingBudget / rate);
