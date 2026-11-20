@@ -59,7 +59,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
 
   return (
     <div className="flex flex-col w-full space-y-3.5 sm:space-y-4">
-      {/* Top Greeting & Context Status */}
+      {/* Top Greeting & Status */}
       <div className="flex items-center justify-between pt-0.5 pb-0.5">
         <div className="flex flex-col leading-tight">
           <div className="flex items-center gap-1.5">
@@ -69,7 +69,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
             <span className="inline-flex text-base">🌸</span>
           </div>
           <p className="text-[12px] text-on-surface-variant font-medium mt-0.5">
-            {trip ? trip.name : 'Tokyo & Kyoto Trip • Musim Semi 2025'}
+            {trip ? trip.name : 'Tokyo, Kyoto & Osaka 2025'}
           </p>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface text-[11px] font-bold shadow-2xs border border-surface-container shrink-0">
@@ -78,88 +78,60 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
         </div>
       </div>
 
-      {/* 1. Travel Countdown Card (Hero Card) */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-tertiary to-inverse-surface text-inverse-on-surface p-4 shadow-xs">
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <svg className="w-full h-full object-cover" fill="none" viewBox="0 0 400 240" xmlns="http://www.w3.org/2000/svg">
-            <path d="M-20 220C50 160 120 250 200 190C280 130 350 220 420 170V240H-20V220Z" fill="white" />
-            <path d="M120 140L170 60L220 140H120Z" fill="white" opacity="0.8" />
-            <circle cx="170" cy="50" fill="#a90008" opacity="0.6" r="28" />
-          </svg>
-        </div>
-
-        <div className="relative z-10 flex flex-col space-y-3">
+      {/* 1. Clean Trip Hero Card (Tanpa Tiket Pesawat Palsu) */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1b1c1d] to-[#2b2d30] text-white p-4 sm:p-5 shadow-xs border border-surface-container/20">
+        <div className="relative z-10 flex flex-col space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-bold shadow-2xs">
-              <span className="material-symbols-outlined text-[14px]">flight_takeoff</span>
+              <span className="material-symbols-outlined text-[14px]">event</span>
               H - 14 Hari Menuju Berangkat
             </span>
-            <span className="text-[10.5px] text-surface-variant/90 tracking-wider uppercase font-bold">
-              Spring Tour
+            <span className="text-[10.5px] text-white/60 tracking-wider uppercase font-semibold">
+              Musim Semi
             </span>
           </div>
 
-          <div className="space-y-0.5">
-            <h3 className="text-[16px] font-extrabold text-white tracking-tight leading-snug">
-              Petualanganmu makin dekat!
+          <div>
+            <h3 className="text-[17px] font-extrabold text-white tracking-tight leading-snug">
+              {trip?.name || 'Jelajah Tokyo, Kyoto & Osaka 2025'}
             </h3>
-            <p className="text-[12px] text-surface-dim flex items-center gap-1.5 font-medium">
-              <span className="material-symbols-outlined text-[15px] text-secondary-fixed">calendar_today</span>
-              12 April 2025 • CGK ➔ HND (GA874)
+            <p className="text-[12px] text-white/80 flex items-center gap-1.5 font-medium mt-1">
+              <span className="material-symbols-outlined text-[15px] text-secondary">calendar_today</span>
+              12 - 19 April 2025 • 7 Hari Perjalanan
             </p>
-          </div>
-
-          {/* Quick Flight Route Chip */}
-          <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/10 backdrop-blur-md">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-primary-container text-white flex items-center justify-center font-black text-[11px] shrink-0">
-                GA
-              </div>
-              <div className="flex flex-col leading-tight min-w-0">
-                <span className="text-[12.5px] text-white font-bold truncate">Garuda Indonesia</span>
-                <span className="text-[10.5px] text-surface-variant mt-0.5">Non-stop • 7j 25m</span>
-              </div>
-            </div>
-            <button
-              onClick={() => onNavigateTab('itinerary')}
-              className="inline-flex items-center gap-1 h-8 px-3 rounded-full bg-white text-on-surface text-[11px] font-bold hover:bg-surface-container-high transition-colors shadow-2xs active:scale-95 shrink-0 ml-2"
-            >
-              Atur Detail
-              <span className="material-symbols-outlined text-[13px]">arrow_forward</span>
-            </button>
           </div>
         </div>
       </div>
 
-      {/* 2. Today's Itinerary Quick Card */}
+      {/* 2. Today's Itinerary Highlight */}
       <div className="rounded-2xl bg-surface-container-lowest p-4 shadow-xs flex flex-col space-y-3 border border-surface-container/80">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-primary-container"></span>
-            <span className="text-[14px] font-bold text-on-surface">Sorotan Hari Ini</span>
+            <span className="text-[13.5px] font-bold text-on-surface">Sorotan Hari Ini</span>
           </div>
           <span className="px-2.5 py-0.5 rounded-md bg-primary-fixed text-primary text-[10.5px] font-bold">
             Hari 1 • Tokyo
           </span>
         </div>
 
-        <div className="relative overflow-hidden rounded-xl bg-surface-container-low p-3 flex gap-3 items-center">
-          <div className="w-11 h-11 rounded-xl overflow-hidden shrink-0 bg-primary-fixed/25 flex items-center justify-center text-primary-container">
-            <span className="material-symbols-outlined text-[22px]">park</span>
+        <div className="rounded-xl bg-surface-container-low p-3 flex gap-3 items-center">
+          <div className="w-10 h-10 rounded-xl bg-primary-fixed/30 flex items-center justify-center text-primary-container shrink-0">
+            <span className="material-symbols-outlined text-[20px]">park</span>
           </div>
-          <div className="flex flex-col min-w-0 flex-1 space-y-0.5 leading-tight">
-            <div className="flex items-center gap-1.5">
+          <div className="flex flex-col min-w-0 flex-1 leading-tight">
+            <div className="flex items-center gap-1.5 mb-0.5">
               <span className="px-1.5 py-0.2 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold">
                 14:30 JST
               </span>
-              <span className="text-[11.5px] text-on-surface-variant font-semibold truncate">
-                Shinjuku & Shibuya
+              <span className="text-[11px] text-on-surface-variant font-medium truncate">
+                Shinjuku
               </span>
             </div>
-            <h4 className="text-[14px] font-bold text-on-surface truncate">
+            <h4 className="text-[13.5px] font-bold text-on-surface truncate">
               Shinjuku Gyoen Garden
             </h4>
-            <p className="text-[11.5px] text-on-surface-variant line-clamp-1">
+            <p className="text-[11px] text-on-surface-variant line-clamp-1 mt-0.5">
               Piknik santai hanami sakura & istirahat sejenak setelah check-in hotel.
             </p>
           </div>
@@ -167,10 +139,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
 
         <button
           onClick={() => onNavigateTab('itinerary')}
-          className="w-full h-10 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex items-center justify-center gap-1.5 text-on-surface text-[12.5px] font-bold border border-surface-container active:scale-98"
+          className="w-full h-9.5 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex items-center justify-center gap-1.5 text-primary text-[12px] font-bold border border-surface-container active:scale-98"
         >
-          <span className="material-symbols-outlined text-[16px] text-primary-container">route</span>
           Lihat Seluruh Itinerary
+          <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
         </button>
       </div>
 
@@ -178,139 +150,118 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
       <div className="rounded-2xl bg-surface-container-lowest p-4 shadow-xs flex flex-col space-y-3 border border-surface-container/80">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[20px] text-secondary">mosque</span>
+            <span className="material-symbols-outlined text-[19px] text-primary">location_on</span>
             <div>
-              <h4 className="text-[14px] font-bold text-on-surface leading-tight">Jadwal Sholat Terdekat</h4>
-              <p className="text-[11px] text-on-surface-variant mt-0.5">Tokyo, Japan (JST)</p>
+              <h4 className="text-[13.5px] font-bold text-on-surface leading-tight">Jadwal Sholat</h4>
+              <p className="text-[10.5px] text-on-surface-variant mt-0.5">Tokyo (JST, UTC+9)</p>
             </div>
           </div>
           <div className="flex flex-col items-end leading-tight">
-            <span className="text-[12.5px] text-primary font-extrabold">
+            <span className="text-[12.5px] text-primary font-black">
               {prayers ? `${prayers.nextPrayer.name} (${prayers.nextPrayer.time})` : 'Ashar (15:20)'}
             </span>
-            <span className="text-[10px] text-on-surface-variant font-medium mt-0.5">Metode Muslim League</span>
+            <span className="text-[10px] text-on-surface-variant font-medium mt-0.5">Waktu Berikutnya</span>
           </div>
         </div>
 
-        {/* Five Mini Prayer Badges */}
+        {/* 5 Daily Prayers */}
         <div className="grid grid-cols-5 gap-1.5 pt-0.5">
           <div className="flex flex-col items-center justify-center py-2 px-0.5 rounded-xl bg-surface-container-low text-center min-w-0">
             <span className="text-[10.5px] text-on-surface-variant font-medium">Subuh</span>
-            <span className="text-[12.5px] font-bold text-on-surface mt-0.5">{prayers?.fajr || '04:15'}</span>
+            <span className="text-[12px] font-bold text-on-surface mt-0.5">{prayers?.fajr || '04:15'}</span>
           </div>
           <div className="flex flex-col items-center justify-center py-2 px-0.5 rounded-xl bg-surface-container-low text-center min-w-0">
             <span className="text-[10.5px] text-on-surface-variant font-medium">Dzuhur</span>
-            <span className="text-[12.5px] font-bold text-on-surface mt-0.5">{prayers?.dhuhr || '11:52'}</span>
+            <span className="text-[12px] font-bold text-on-surface mt-0.5">{prayers?.dhuhr || '11:52'}</span>
           </div>
-          <div className="flex flex-col items-center justify-center py-2 px-0.5 rounded-xl bg-secondary-container text-on-secondary-container text-center shadow-xs min-w-0">
-            <span className="text-[10.5px] font-bold uppercase tracking-wider">Ashar</span>
-            <span className="text-[12.5px] font-extrabold mt-0.5">{prayers?.asr || '15:20'}</span>
+          <div className="flex flex-col items-center justify-center py-2 px-0.5 rounded-xl bg-secondary-container text-on-secondary-container text-center shadow-xs border border-secondary min-w-0">
+            <span className="text-[10.5px] font-black uppercase">Ashar</span>
+            <span className="text-[12px] font-black mt-0.5">{prayers?.asr || '15:20'}</span>
           </div>
           <div className="flex flex-col items-center justify-center py-2 px-0.5 rounded-xl bg-surface-container-low text-center min-w-0">
             <span className="text-[10.5px] text-on-surface-variant font-medium">Maghrib</span>
-            <span className="text-[12.5px] font-bold text-on-surface mt-0.5">{prayers?.maghrib || '18:10'}</span>
+            <span className="text-[12px] font-bold text-on-surface mt-0.5">{prayers?.maghrib || '18:10'}</span>
           </div>
           <div className="flex flex-col items-center justify-center py-2 px-0.5 rounded-xl bg-surface-container-low text-center min-w-0">
             <span className="text-[10.5px] text-on-surface-variant font-medium">Isya</span>
-            <span className="text-[12.5px] font-bold text-on-surface mt-0.5">{prayers?.isha || '19:28'}</span>
+            <span className="text-[12px] font-bold text-on-surface mt-0.5">{prayers?.isha || '19:28'}</span>
           </div>
         </div>
 
-        {/* Quick Halal & Qibla Actions */}
-        <div className="grid grid-cols-2 gap-2 pt-0.5">
-          <button
-            onClick={() => onNavigateTab('ibadah')}
-            className="flex items-center justify-center gap-1.5 h-9.5 px-2 rounded-xl bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors text-[11.5px] font-bold border border-surface-container active:scale-95"
-          >
-            <span className="material-symbols-outlined text-[16px] text-primary">explore</span>
-            <span className="truncate">Kiblat 293° Barat Laut</span>
-          </button>
-          <button
-            onClick={() => onNavigateTab('ibadah')}
-            className="flex items-center justify-center gap-1.5 h-9.5 px-2 rounded-xl bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors text-[11.5px] font-bold border border-surface-container active:scale-95"
-          >
-            <span className="material-symbols-outlined text-[16px] text-secondary">restaurant_menu</span>
-            <span className="truncate">Masjid & Halal Spot</span>
-          </button>
-        </div>
+        <button
+          onClick={() => onNavigateTab('ibadah')}
+          className="w-full text-center py-1 text-[11.5px] text-primary font-bold hover:underline flex items-center justify-center gap-1"
+        >
+          <span>Buka Kompas Kiblat & Direktori Masjid</span>
+          <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+        </button>
       </div>
 
       {/* 4. Budget & Financial Tracker Summary */}
       <div className="rounded-2xl bg-surface-container-lowest p-4 shadow-xs flex flex-col space-y-3 border border-surface-container/80">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
-              <span className="material-symbols-outlined text-[17px]">currency_yen</span>
+            <div className="w-7 h-7 rounded-lg bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
+              <span className="material-symbols-outlined text-[16px]">payments</span>
             </div>
             <div>
-              <h4 className="text-[14px] font-bold text-on-surface leading-tight">Ringkasan Biaya</h4>
-              <span className="text-[11px] text-on-surface-variant font-medium">Kurs: ¥1 ≈ Rp {rate.toFixed(1)}</span>
+              <h4 className="text-[13.5px] font-bold text-on-surface leading-tight">Ringkasan Biaya</h4>
+              <span className="text-[10.5px] text-on-surface-variant font-medium">Kurs: 1 JPY ≈ Rp {rate.toFixed(1)}</span>
             </div>
           </div>
           <button
             onClick={() => onNavigateTab('biaya')}
-            className="text-primary text-[12px] font-bold hover:underline"
+            className="text-primary text-[11.5px] font-bold hover:underline"
           >
-            Detail
+            Lihat Detail
           </button>
         </div>
 
         <div className="space-y-2 bg-surface-container-low p-3 rounded-xl">
-          <div className="flex justify-between items-baseline text-[12px]">
+          <div className="flex justify-between items-baseline text-[11.5px]">
             <span className="text-on-surface-variant font-medium">Terpakai ({usagePercent}%)</span>
-            <span className="font-extrabold text-on-surface text-[13px]">
-              Rp {formatRupiah(totalExpenseIdr)}{' '}
-              <span className="font-normal text-on-surface-variant text-[10.5px]">/ Rp 35jt</span>
-            </span>
-          </div>
-
-          <div className="w-full h-2.5 bg-surface-container-highest rounded-full overflow-hidden flex">
-            <div className="h-full bg-primary-container" style={{ width: `${Math.min(usagePercent, 70)}%` }}></div>
-            <div className="h-full bg-secondary-container" style={{ width: `${Math.max(0, usagePercent - 70)}%` }}></div>
-          </div>
-
-          <div className="flex items-center justify-between pt-0.5 text-on-surface-variant text-[11.5px]">
-            <span className="font-medium">Sisa Saldo Kas:</span>
             <span className="font-extrabold text-on-surface text-[12.5px]">
+              Rp {formatRupiah(totalExpenseIdr)}{' '}
+              <span className="font-normal text-on-surface-variant text-[10.5px]">/ Rp {formatRupiah(totalBudget)}</span>
+            </span>
+          </div>
+
+          <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+            <div className="h-full bg-primary-container rounded-full" style={{ width: `${usagePercent}%` }}></div>
+          </div>
+
+          <div className="flex items-center justify-between pt-0.5 text-on-surface-variant text-[11px]">
+            <span className="font-medium">Sisa Kas:</span>
+            <span className="font-extrabold text-on-surface text-[12px]">
               ¥ {formatJpy(remainingJpy)}{' '}
-              <span className="text-secondary font-bold text-[11px]">(~ Rp {formatRupiah(remainingBudget)})</span>
+              <span className="text-secondary font-bold text-[10.5px]">(~ Rp {formatRupiah(remainingBudget)})</span>
             </span>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={onOpenAddExpense || (() => onNavigateTab('biaya'))}
-            className="h-10 px-3 rounded-xl bg-primary-container text-white text-[12px] font-bold flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition-transform"
-          >
-            <span className="material-symbols-outlined text-[16px]">add_circle</span>
-            Catat Pengeluaran
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigateTab('biaya')}
-            className="h-10 px-3 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface text-[12px] font-bold flex items-center justify-center gap-1.5 border border-surface-container active:scale-95"
-          >
-            <span className="material-symbols-outlined text-[16px] text-secondary">sync_alt</span>
-            Konversi Kurs
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={onOpenAddExpense || (() => onNavigateTab('biaya'))}
+          className="w-full h-9.5 rounded-xl bg-primary-container text-white text-[12px] font-bold flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition-transform"
+        >
+          <span className="material-symbols-outlined text-[16px]">add_circle</span>
+          Catat Pengeluaran
+        </button>
       </div>
 
       {/* 5. Preparation Progress Bar */}
-      <div className="rounded-2xl bg-surface-container-lowest p-3.5 sm:p-4 shadow-xs flex flex-col space-y-2.5 border border-surface-container/80">
+      <div className="rounded-2xl bg-surface-container-lowest p-4 shadow-xs flex flex-col space-y-2.5 border border-surface-container/80">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[17px] text-primary-container">checklist</span>
-            <span className="text-[13px] sm:text-[13.5px] font-bold text-on-surface">Kesiapan Berangkat</span>
+            <span className="material-symbols-outlined text-[17px] text-primary-container">luggage</span>
+            <span className="text-[13.5px] font-bold text-on-surface">Kesiapan Berangkat</span>
           </div>
-          <span className="text-[11px] sm:text-[11.5px] font-bold text-primary">
+          <span className="text-[11.5px] font-bold text-primary">
             {completedChecklist} / {totalChecklist} Selesai ({checklistPercent}%)
           </span>
         </div>
 
-        <div className="w-full h-2 sm:h-2.5 bg-surface-container-high rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
           <div
             className="h-full bg-primary-container rounded-full transition-all duration-500"
             style={{ width: `${checklistPercent}%` }}
@@ -319,80 +270,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
 
         <button
           onClick={() => onNavigateTab('bekal')}
-          className="text-center py-1 text-[11px] sm:text-[11.5px] text-primary font-bold hover:underline"
+          className="text-center py-1 text-[11.5px] text-primary font-bold hover:underline flex items-center justify-center gap-1"
         >
-          Buka Checklist & Dokumen Koper
+          <span>Buka Checklist Koper</span>
+          <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
         </button>
-      </div>
-
-      {/* 6. Quick Access Bento Grid */}
-      <div className="flex flex-col space-y-2 pt-0.5">
-        <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-wider text-on-surface-variant">
-          Akses Cepat Teman Jalan
-        </span>
-        <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
-          <button
-            onClick={() => onNavigateTab('itinerary')}
-            className="p-3 sm:p-3.5 rounded-2xl bg-surface-container-lowest shadow-2xs flex flex-col justify-between hover:bg-surface-container-low transition-all active:scale-[0.98] text-left border border-surface-container/80"
-          >
-            <div className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-xl bg-primary-fixed text-primary flex items-center justify-center mb-1.5">
-              <span className="material-symbols-outlined text-[16px] sm:text-[17px]">calendar_month</span>
-            </div>
-            <span className="text-[11.5px] sm:text-[12.5px] font-bold text-on-surface leading-tight">Itinerary Lengkap</span>
-            <span className="text-[9.5px] sm:text-[10px] text-on-surface-variant mt-0.5">Jadwal 7 Hari Tokyo-Kyoto</span>
-          </button>
-
-          <button
-            onClick={() => onNavigateTab('biaya')}
-            className="p-3 sm:p-3.5 rounded-2xl bg-surface-container-lowest shadow-2xs flex flex-col justify-between hover:bg-surface-container-low transition-all active:scale-[0.98] text-left border border-surface-container/80"
-          >
-            <div className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-xl bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center mb-1.5">
-              <span className="material-symbols-outlined text-[16px] sm:text-[17px]">currency_exchange</span>
-            </div>
-            <span className="text-[11.5px] sm:text-[12.5px] font-bold text-on-surface leading-tight">Konverter Kurs</span>
-            <span className="text-[9.5px] sm:text-[10px] text-on-surface-variant mt-0.5">¥ JPY ➔ Rp IDR Instan</span>
-          </button>
-
-          <button
-            onClick={() => onNavigateTab('ibadah')}
-            className="p-3 sm:p-3.5 rounded-2xl bg-surface-container-lowest shadow-2xs flex flex-col justify-between hover:bg-surface-container-low transition-all active:scale-[0.98] text-left border border-surface-container/80"
-          >
-            <div className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-xl bg-surface-container-high text-on-surface flex items-center justify-center mb-1.5">
-              <span className="material-symbols-outlined text-[16px] sm:text-[17px]">compass_calibration</span>
-            </div>
-            <span className="text-[11.5px] sm:text-[12.5px] font-bold text-on-surface leading-tight">Kompas Kiblat</span>
-            <span className="text-[9.5px] sm:text-[10px] text-on-surface-variant mt-0.5">Akurat dengan GPS</span>
-          </button>
-
-          <button
-            onClick={() => onNavigateTab('ibadah')}
-            className="p-3 sm:p-3.5 rounded-2xl bg-surface-container-lowest shadow-2xs flex flex-col justify-between hover:bg-surface-container-low transition-all active:scale-[0.98] text-left border border-surface-container/80"
-          >
-            <div className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-xl bg-error-container text-primary-container flex items-center justify-center mb-1.5">
-              <span className="material-symbols-outlined text-[16px] sm:text-[17px]">storefront</span>
-            </div>
-            <span className="text-[11.5px] sm:text-[12.5px] font-bold text-on-surface leading-tight">Masjid & Kuliner</span>
-            <span className="text-[9.5px] sm:text-[10px] text-on-surface-variant mt-0.5">Direktori Halal</span>
-          </button>
-
-          <button
-            onClick={() => onNavigateTab('bekal')}
-            className="col-span-2 p-3 sm:p-3.5 rounded-2xl bg-surface-container-lowest shadow-2xs flex items-center justify-between hover:bg-surface-container-low transition-all active:scale-[0.99] border border-surface-container/80"
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-xl bg-surface-container-high text-on-surface-variant flex items-center justify-center">
-                <span className="material-symbols-outlined text-[16px] sm:text-[17px]">luggage</span>
-              </div>
-              <div className="flex flex-col text-left leading-tight">
-                <span className="text-[11.5px] sm:text-[12.5px] font-bold text-on-surface">Checklist & Bekal Koper</span>
-                <span className="text-[9.5px] sm:text-[10px] text-on-surface-variant mt-0.5">Panduan pakaian & obat penting</span>
-              </div>
-            </div>
-            <span className="material-symbols-outlined text-[16px] text-on-surface-variant">chevron_right</span>
-          </button>
-        </div>
       </div>
     </div>
   );
 };
-
