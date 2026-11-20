@@ -250,7 +250,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         <div className="flex-1 min-w-0">
           <h2 className="text-[14.5px] font-extrabold text-on-surface leading-snug">Teman TJR</h2>
           <p className="text-[10.5px] text-on-surface-variant font-medium mt-0.5">
-            Teman Jalan Dalam Genggaman • Versi 2.1 (Build 15)
+            Teman Jalan Dalam Genggaman • Versi 2.1 (Build 16)
           </p>
           <div className="flex items-center gap-1.5 mt-1">
             <span className="inline-block px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[9.5px] font-bold uppercase">
@@ -267,113 +267,62 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
       </div>
 
       {/* 1. PWA Installation Section */}
-      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-primary text-[18px]">install_mobile</span>
-            <h3 className="text-[13px] font-bold text-on-surface">Pemasangan Aplikasi (PWA)</h3>
-          </div>
-          {isInstalled ? (
-            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 text-[9.5px] font-bold flex items-center gap-1">
-              <span className="material-symbols-outlined text-[12px]">verified</span>
-              Terpasang di HP
-            </span>
-          ) : (
-            <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 text-[9.5px] font-bold">
-              Tersedia untuk Diunduh
-            </span>
-          )}
-        </div>
-
-        {isInstalled ? (
-          <div className="bg-emerald-500/5 rounded-lg p-2.5 border border-emerald-500/20 space-y-2">
-            <p className="text-[11px] text-on-surface-variant leading-relaxed">
-              ✅ <strong>Teman TJR sudah terpasang</strong> sebagai aplikasi mandiri di Layar Utama HP Anda. Anda dapat membukanya kapan saja seperti aplikasi resmi tanpa perlu membuka browser.
-            </p>
-            <button
-              onClick={() => setShowSuccessModal(true)}
-              className="w-full h-8.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors active:scale-98"
-            >
-              <span className="material-symbols-outlined text-[15px]">verified</span>
-              Cek Status & Info Aplikasi PWA
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <p className="text-[11px] text-on-surface-variant leading-relaxed">
-              Pasang <strong>Teman TJR</strong> langsung ke Layar Utama (Home Screen) HP Anda untuk akses instan satu sentuhan tanpa perlu membuka browser lagi.
-            </p>
-            <button
-              onClick={handleInstallPWA}
-              className="w-full h-9 rounded-lg bg-primary hover:brightness-105 text-on-primary text-[11.5px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs active:scale-98"
-            >
-              <span className="material-symbols-outlined text-[17px]">download</span>
-              Pasang Aplikasi ke Layar Utama (Install PWA)
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* 2. Auto-Update & Manual Update Button Section */}
-      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-secondary text-[18px]">sync</span>
-            <h3 className="text-[13px] font-bold text-on-surface">Pembaruan Aplikasi (Auto-Update)</h3>
-          </div>
-          <span className="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[9.5px] font-bold">
-            Otomatis & Seketika
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-[13px] font-bold text-on-surface">Pemasangan Aplikasi (PWA)</h3>
+          <span className="text-[10.5px] font-semibold text-on-surface-variant">
+            {isInstalled ? 'Aplikasi sudah terpasang di HP' : 'Tersedia untuk diunduh ke layar HP'}
           </span>
         </div>
-
-        <p className="text-[11px] text-on-surface-variant leading-relaxed">
-          Aplikasi otomatis memeriksa update terbaru dari developer. Namun jika tampilan atau fitur di HP Anda masih tertahan di versi lama, tekan tombol di bawah untuk <strong>membersihkan cache browser & menerapkan pembaruan seketika</strong>.
-        </p>
-
         <button
-          onClick={handleForceUpdate}
-          disabled={isUpdating}
-          className="w-full h-9 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary border border-primary/20 text-[11.5px] font-bold flex items-center justify-center gap-1.5 active:scale-98 transition-all disabled:opacity-60"
+          onClick={isInstalled ? () => setShowSuccessModal(true) : handleInstallPWA}
+          className={`h-8 px-3.5 rounded-lg text-[11px] font-bold shrink-0 shadow-2xs transition-all active:scale-95 ${
+            isInstalled
+              ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+              : 'bg-primary text-white hover:bg-primary-container'
+          }`}
         >
-          {isUpdating ? (
-            <>
-              <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
-              Membersihkan Cache & Memperbarui...
-            </>
-          ) : (
-            <>
-              <span className="material-symbols-outlined text-[16px]">browser_updated</span>
-              Periksa & Terapkan Pembaruan Sekarang
-            </>
-          )}
+          {isInstalled ? 'Status PWA' : 'Pasang Aplikasi'}
         </button>
       </div>
 
-      {/* Backup & Restore Section */}
-      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 space-y-2">
-        <div className="flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-primary text-[17px]">cloud_sync</span>
-          <h3 className="text-[13px] font-bold text-on-surface">Cadangan Data (Backup & Restore)</h3>
+      {/* 2. Auto-Update Section */}
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-[13px] font-bold text-on-surface">Pembaruan Aplikasi</h3>
+          <span className="text-[10.5px] font-semibold text-on-surface-variant">
+            Pembersihan cache & versi terbaru
+          </span>
         </div>
-        <p className="text-[11px] text-on-surface-variant leading-relaxed">
-          Semua catatan perjalanan, itinerary, dan anggaran Anda tersimpan secara mandiri di penyimpanan lokal perangkat.
-        </p>
+        <button
+          onClick={handleForceUpdate}
+          disabled={isUpdating}
+          className="h-8 px-3.5 rounded-lg bg-primary text-white text-[11px] font-bold shrink-0 shadow-2xs hover:bg-primary-container transition-all active:scale-95 disabled:opacity-60 flex items-center gap-1.5"
+        >
+          {isUpdating ? 'Memperbarui...' : 'Perbarui Aplikasi'}
+        </button>
+      </div>
 
-        <div className="grid grid-cols-2 gap-2 pt-0.5">
+      {/* 3. Backup & Restore Section */}
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-[13px] font-bold text-on-surface">Cadangan Data</h3>
+          <span className="text-[10.5px] font-semibold text-on-surface-variant">
+            Ekspor & impor data lokal (.json)
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={handleExportBackup}
-            className="h-8.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-[11.5px] font-bold text-on-surface flex items-center justify-center gap-1.5 transition-colors border border-surface-container active:scale-98"
+            className="h-8 px-2.5 rounded-lg bg-surface-container text-on-surface border border-surface-container text-[11px] font-bold hover:bg-surface-container-high active:scale-95 transition-all"
           >
-            <span className="material-symbols-outlined text-[15px] text-primary">download</span>
-            Unduh Backup (.json)
+            Unduh
           </button>
-
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="h-8.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-[11.5px] font-bold text-on-surface flex items-center justify-center gap-1.5 transition-colors border border-surface-container active:scale-98"
+            className="h-8 px-2.5 rounded-lg bg-surface-container text-on-surface border border-surface-container text-[11px] font-bold hover:bg-surface-container-high active:scale-95 transition-all"
           >
-            <span className="material-symbols-outlined text-[15px] text-secondary">upload_file</span>
-            Pulihkan Data
+            Pulihkan
           </button>
           <input
             ref={fileInputRef}
@@ -385,41 +334,35 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         </div>
       </div>
 
-      {/* Internal Management / Admin Access */}
-      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 space-y-2">
-        <div className="flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-primary text-[17px]">admin_panel_settings</span>
-          <h3 className="text-[13px] font-bold text-on-surface">Admin & Tim Internal TJR</h3>
+      {/* 4. Internal Management / Admin Access */}
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-[13px] font-bold text-on-surface">Admin Internal TJR</h3>
+          <span className="text-[10.5px] font-semibold text-on-surface-variant">
+            Kelola template & direktori
+          </span>
         </div>
-        <p className="text-[11px] text-on-surface-variant leading-relaxed">
-          Kelola direktori masjid, template itinerary, dan data master (Khusus Staf Teman Jalan Ryan).
-        </p>
-
         <button
           onClick={onOpenAdmin}
-          className="w-full h-8.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-[11.5px] font-bold text-primary flex items-center justify-center gap-1.5 transition-colors border border-surface-container active:scale-98"
+          className="h-8 px-3.5 rounded-lg bg-surface-container text-primary border border-surface-container text-[11px] font-bold hover:bg-surface-container-high active:scale-95 transition-all shrink-0"
         >
-          <span className="material-symbols-outlined text-[15px]">key</span>
-          Buka Dashboard Admin Internal (/admin)
+          Buka Admin
         </button>
       </div>
 
-      {/* Danger Zone: Reset Data */}
-      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 space-y-2">
-        <div className="flex items-center gap-1.5 text-error">
-          <span className="material-symbols-outlined text-[17px]">warning</span>
-          <h3 className="text-[13px] font-bold">Zona Pengaturan Perangkat</h3>
+      {/* 5. Danger Zone: Reset Data */}
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-[13px] font-bold text-error">Setel Ulang Data</h3>
+          <span className="text-[10.5px] font-semibold text-on-surface-variant">
+            Hapus data lokal & kembali ke awal
+          </span>
         </div>
-        <p className="text-[11px] text-on-surface-variant leading-relaxed">
-          Hapus catatan perjalanan atau setel ulang data lokal kembali ke data awal.
-        </p>
-
         <button
           onClick={handleDeactivate}
-          className="w-full h-8.5 rounded-lg bg-error-container text-on-error-container text-[11.5px] font-bold flex items-center justify-center gap-1.5 hover:brightness-95 transition-all active:scale-98"
+          className="h-8 px-3.5 rounded-lg bg-error-container text-on-error-container text-[11px] font-bold hover:brightness-95 active:scale-95 transition-all shrink-0"
         >
-          <span className="material-symbols-outlined text-[15px]">restart_alt</span>
-          Setel Ulang Data Perangkat
+          Reset Data
         </button>
       </div>
 

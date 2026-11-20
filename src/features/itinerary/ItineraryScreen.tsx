@@ -382,7 +382,7 @@ export const ItineraryScreen: React.FC = () => {
           }`}
         >
           <span className="material-symbols-outlined text-[16px]">groups</span>
-          Open Trip (Paket Resmi)
+          Open Trip
         </button>
         <button
           onClick={() => setTripType('private')}
@@ -393,7 +393,7 @@ export const ItineraryScreen: React.FC = () => {
           }`}
         >
           <span className="material-symbols-outlined text-[16px]">directions_car</span>
-          Private Trip (Custom Bebas)
+          Private Trip
         </button>
       </div>
 

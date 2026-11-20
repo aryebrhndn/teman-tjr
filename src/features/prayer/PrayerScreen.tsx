@@ -514,76 +514,51 @@ export const PrayerScreen: React.FC = () => {
           ))}
         </div>
 
-        {/* Directory Listing Items */}
-        <div className="flex flex-col gap-2.5">
+        {/* Directory Listing Items - Rapi, Minimalis, Tanpa Ikon, Fokus Info Inti */}
+        <div className="flex flex-col gap-2">
           {filteredPlaces.map((place) => (
-            <div key={place.id} className="bg-surface-container-low rounded-xl p-3 flex flex-col gap-2 border border-surface-container/60">
-              <div className="flex gap-3">
-                <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-primary-fixed/30 flex items-center justify-center text-primary-container">
-                  <span className="material-symbols-outlined text-[22px]">
-                    {place.type === 'Mosque' ? 'mosque' : 'door_sliding'}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-1">
-                    <h4 className="text-[13.5px] font-bold text-on-surface leading-tight truncate">
-                      {place.name}
-                    </h4>
-                    {place.distance_km && (
-                      <span className="shrink-0 text-[11px] font-bold text-primary px-2 py-0.5 rounded bg-primary-fixed">
-                        {place.distance_km} km
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[12px] text-on-surface-variant mt-0.5 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[15px]">train</span>
-                    <span className="truncate">{place.address}</span>
+            <div
+              key={place.id}
+              className="bg-surface-container-low rounded-xl p-3 flex flex-col gap-1.5 border border-surface-container/70"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-[13px] font-bold text-on-surface leading-tight">
+                    {place.name}
+                  </h4>
+                  <p className="text-[11.5px] text-on-surface-variant mt-0.5 leading-snug">
+                    {place.address}
                   </p>
-                  <div className="flex flex-wrap gap-1 mt-1.5">
-                    {place.facilities.map((fac, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-0.5 rounded bg-surface-container text-on-surface-variant text-[11px] font-medium"
-                      >
-                        {fac}
-                      </span>
-                    ))}
-                  </div>
                 </div>
-              </div>
-
-              <div className="pt-1.5 flex items-center justify-between border-t border-surface-container">
-                <span className="text-[11.5px] text-on-surface-variant flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-secondary"></span>
-                  {place.open_hours || 'Buka setiap hari'}
-                </span>
                 <button
                   type="button"
                   onClick={() => openGoogleMaps(place)}
-                  className="h-8 px-3.5 rounded-full bg-primary text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs active:scale-95 transition-transform"
+                  className="h-7 px-3 rounded-lg bg-primary text-white text-[11px] font-bold shadow-2xs hover:bg-primary-container transition-colors shrink-0"
                 >
-                  <span className="material-symbols-outlined text-[16px]">navigation</span>
-                  <span>Buka di Maps</span>
+                  Maps
                 </button>
               </div>
+
+              {/* Fasilitas / Jam Buka ringkas */}
+              {((place.facilities && place.facilities.length > 0) || place.open_hours) && (
+                <div className="flex flex-wrap gap-1 pt-1 border-t border-surface-container/50 text-[10.5px] text-on-surface-variant">
+                  {place.facilities?.map((fac, idx) => (
+                    <span
+                      key={idx}
+                      className="px-2 py-0.5 rounded-md bg-surface-container text-on-surface-variant text-[10.5px]"
+                    >
+                      {fac}
+                    </span>
+                  ))}
+                  {place.open_hours && (
+                    <span className="px-2 py-0.5 rounded-md bg-surface-container text-on-surface-variant text-[10.5px]">
+                      {place.open_hours}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           ))}
-        </div>
-
-
-        {/* Quick Halal Tips Footer inside Directory */}
-        <div className="p-3 bg-surface-container-high rounded-xl flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-surface-container-lowest flex items-center justify-center shrink-0 text-primary-container">
-            <span className="material-symbols-outlined text-[20px]">verified</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] text-primary uppercase font-bold tracking-wider">
-              Tips Mushaf & Wudhu di Stasiun
-            </p>
-            <p className="text-[11px] text-on-surface-variant truncate">
-              Gunakan botol semprot kecil atau wudhu di rest area disabilitas jika darurat.
-            </p>
-          </div>
         </div>
       </div>
     </div>
