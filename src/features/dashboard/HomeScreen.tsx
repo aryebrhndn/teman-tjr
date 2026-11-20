@@ -74,8 +74,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
             </span>
             <span className="inline-flex text-base">🌸</span>
           </div>
-          <p className="text-[12px] text-on-surface-variant font-medium mt-0.5">
-            {trip ? trip.name : 'Tokyo, Kyoto & Osaka 2025'}
+          <p className="text-[11.5px] text-on-surface-variant font-medium mt-0.5">
+            Sahabat setia perjalananmu di Jepang
           </p>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-low text-on-surface text-[11px] font-bold shadow-2xs border border-surface-container shrink-0">
@@ -84,25 +84,25 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
         </div>
       </div>
 
-      {/* 1. Clean Trip Hero Card (Tanpa Tiket Pesawat Palsu) */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1b1c1d] to-[#2b2d30] text-white p-4 sm:p-5 shadow-xs border border-surface-container/20">
-        <div className="relative z-10 flex flex-col space-y-2.5">
+      {/* 1. Trip Hero Card - Kompak, Proporsional & Presisi untuk Mobile */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1c1d1f] to-[#2a2c2f] text-white p-3.5 sm:p-4 shadow-xs border border-surface-container/20">
+        <div className="relative z-10 flex flex-col space-y-2">
           <div className="flex items-center justify-between">
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-bold shadow-2xs">
-              <span className="material-symbols-outlined text-[14px]">event</span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10.5px] font-bold shadow-2xs">
+              <span className="material-symbols-outlined text-[13px]">event</span>
               H - 14 Hari Menuju Berangkat
             </span>
-            <span className="text-[10.5px] text-white/60 tracking-wider uppercase font-semibold">
+            <span className="text-[10px] text-white/60 tracking-wider uppercase font-bold">
               Musim Semi
             </span>
           </div>
 
           <div>
-            <h3 className="text-[17px] font-extrabold text-white tracking-tight leading-snug">
+            <h3 className="text-[16px] font-extrabold text-white tracking-tight leading-snug">
               {trip?.name || 'Jelajah Tokyo, Kyoto & Osaka 2025'}
             </h3>
-            <p className="text-[12px] text-white/80 flex items-center gap-1.5 font-medium mt-1">
-              <span className="material-symbols-outlined text-[15px] text-secondary">calendar_today</span>
+            <p className="text-[11.5px] text-white/80 flex items-center gap-1.5 font-medium mt-0.5">
+              <span className="material-symbols-outlined text-[14px] text-secondary">calendar_today</span>
               12 - 19 April 2025 • 7 Hari Perjalanan
             </p>
           </div>
