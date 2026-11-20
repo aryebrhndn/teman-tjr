@@ -5,14 +5,18 @@ import { supabase, isSupabaseConfigured } from '../../services/supabase.client';
 
 export const PrayerScreen: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>('tokyo');
+  const [gpsCoords, setGpsCoords] = useState<{ latitude: number; longitude: number; label: string } | null>(null);
+  const [isGpsLoading, setIsGpsLoading] = useState(false);
   const [prayers, setPrayers] = useState<DailyPrayers | null>(null);
   const [tickerSeconds, setTickerSeconds] = useState<number>(5055); // ~1h 24m 15s
   const [prayerPlaces, setPrayerPlaces] = useState<PrayerPlace[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
 
-  // Device orientation state
+  // Device orientation / compass states
+  const [isCompassActive, setIsCompassActive] = useState<boolean>(false);
   const [compassHeading, setCompassHeading] = useState<number | null>(null);
+  const [compassError, setCompassError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -55,10 +59,11 @@ export const PrayerScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const p = getJapanPrayerTimes(selectedCity);
+    const loc = gpsCoords ? { latitude: gpsCoords.latitude, longitude: gpsCoords.longitude } : selectedCity;
+    const p = getJapanPrayerTimes(loc);
     setPrayers(p);
     setTickerSeconds(p.nextPrayer.remainingSeconds || 5055);
-  }, [selectedCity]);
+  }, [selectedCity, gpsCoords]);
 
   // Live timer interval
   useEffect(() => {
@@ -68,25 +73,96 @@ export const PrayerScreen: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Device sensor orientation listener (if available)
+  // Sensor compass orientation listener (Active when user turns it ON)
   useEffect(() => {
+    if (!isCompassActive) return;
+
     const handleOrientation = (e: DeviceOrientationEvent) => {
-      if (e.alpha !== null) {
-        setCompassHeading(e.alpha);
-      } else if ((e as any).webkitCompassHeading !== undefined) {
-        setCompassHeading((e as any).webkitCompassHeading);
+      let heading: number | null = null;
+      // iOS Safari webkitCompassHeading
+      if ((e as any).webkitCompassHeading !== undefined) {
+        heading = (e as any).webkitCompassHeading;
+      }
+      // Android absolute or relative orientation (alpha is counter-clockwise)
+      else if (e.alpha !== null) {
+        heading = (360 - e.alpha) % 360;
+      }
+
+      if (heading !== null) {
+        setCompassHeading(Math.round(heading));
       }
     };
 
-    if (window.DeviceOrientationEvent) {
-      window.addEventListener('deviceorientation', handleOrientation, true);
+    const win = window as any;
+    if ('ondeviceorientationabsolute' in win) {
+      win.addEventListener('deviceorientationabsolute', handleOrientation, true);
+    } else if (win.DeviceOrientationEvent) {
+      win.addEventListener('deviceorientation', handleOrientation, true);
     }
+
     return () => {
-      if (window.DeviceOrientationEvent) {
-        window.removeEventListener('deviceorientation', handleOrientation);
+      if ('ondeviceorientationabsolute' in win) {
+        win.removeEventListener('deviceorientationabsolute', handleOrientation);
       }
+      win.removeEventListener('deviceorientation', handleOrientation);
     };
-  }, []);
+  }, [isCompassActive]);
+
+  const handleToggleCompass = async () => {
+    if (isCompassActive) {
+      setIsCompassActive(false);
+      setCompassHeading(null);
+      setCompassError(null);
+      return;
+    }
+
+    setCompassError(null);
+
+    // iOS 13+ permission request
+    if (typeof (DeviceOrientationEvent as any)?.requestPermission === 'function') {
+      try {
+        const response = await (DeviceOrientationEvent as any).requestPermission();
+        if (response !== 'granted') {
+          setCompassError('Izin sensor kompas ditolak oleh browser. Anda tetap dapat menggunakan angka derajat di atas.');
+          return;
+        }
+      } catch {
+        setCompassError('Sensor orientasi tidak dapat diakses pada browser ini.');
+        return;
+      }
+    }
+
+    setIsCompassActive(true);
+  };
+
+  const handleUseGps = () => {
+    if (gpsCoords) {
+      setGpsCoords(null);
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      alert('Perangkat Anda tidak mendukung fitur Geolocation.');
+      return;
+    }
+
+    setIsGpsLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setIsGpsLoading(false);
+        setGpsCoords({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          label: 'Lokasi GPS Presisi',
+        });
+      },
+      (err) => {
+        setIsGpsLoading(false);
+        alert(`Tidak dapat mendeteksi GPS (${err.message}). Menggunakan lokasi kota pilihan.`);
+      },
+      { timeout: 8000, enableHighAccuracy: true }
+    );
+  };
 
   const formatTimer = (totalSec: number) => {
     const hrs = String(Math.floor(totalSec / 3600)).padStart(2, '0');
@@ -95,9 +171,13 @@ export const PrayerScreen: React.FC = () => {
     return `${hrs}:${mins}:${secs}`;
   };
 
-  const targetQibla = prayers?.qiblaAngle || 293;
-  // Needle rotation relative to compass device heading (or static 293 if device has no compass)
-  const needleAngle = compassHeading !== null ? (targetQibla - compassHeading + 360) % 360 : targetQibla;
+  const targetQibla = prayers?.qiblaAngle || 293.0;
+  // Needle rotation relative to compass device heading (or static targetQibla if compass is not active)
+  const needleRotation = isCompassActive && compassHeading !== null
+    ? (targetQibla - compassHeading + 360) % 360
+    : targetQibla;
+
+  const isAligned = isCompassActive && (needleRotation <= 3.5 || needleRotation >= 356.5);
 
   // Filtered places
   const filteredPlaces = prayerPlaces.filter((place) => {
@@ -235,89 +315,154 @@ export const PrayerScreen: React.FC = () => {
       </div>
 
 
-      {/* Card 2: Kompas Arah Kiblat Jepang */}
-      <div className="bg-surface-container-lowest rounded-xl p-3 shadow-xs flex flex-col gap-2 border border-surface-container/80">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <div className="w-7 h-7 rounded-full bg-primary-fixed flex items-center justify-center text-primary-container">
-              <span className="material-symbols-outlined text-[16px]">explore</span>
-            </div>
-            <div>
-              <h3 className="text-[13px] font-bold text-on-surface">Kompas Arah Kiblat</h3>
-              <p className="text-[10.5px] text-on-surface-variant">Presisi astronomis Ka'bah dari Jepang</p>
-            </div>
+      {/* Card 2: Arah Kiblat Jepang (Sesuai Standar Kompas HP & Titik Mana Pun di Jepang) */}
+      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3.5 border border-surface-container/80">
+        <div>
+          <h3 className="text-[17px] font-bold text-on-surface">Arah kiblat</h3>
+          <p className="text-[12px] text-on-surface-variant mt-0.5 leading-relaxed">
+            Letakkan ponsel mendatar, lalu putar badan sampai jarum merah menunjuk ke atas.
+          </p>
+        </div>
+
+        {/* Dynamic Location Indicator */}
+        <div className="flex items-center justify-between text-[11px] bg-surface-container-low px-3 py-1.5 rounded-xl border border-surface-container">
+          <div className="flex items-center gap-1.5 text-on-surface-variant truncate">
+            <span className="material-symbols-outlined text-[15px] text-primary">my_location</span>
+            <span className="truncate">
+              {gpsCoords
+                ? `${gpsCoords.label} (${gpsCoords.latitude.toFixed(2)}°, ${gpsCoords.longitude.toFixed(2)}°)`
+                : `${JAPAN_CITIES[selectedCity]?.label || 'Tokyo'} • ${targetQibla.toFixed(1)}°`}
+            </span>
           </div>
-          <div className="text-right">
-            <span className="text-xs font-extrabold text-primary-container">{targetQibla}° NW</span>
-            <span className="text-[10px] text-on-surface-variant block font-semibold">Barat Laut</span>
-          </div>
+          <button
+            onClick={handleUseGps}
+            disabled={isGpsLoading}
+            className="text-primary font-bold hover:underline shrink-0 flex items-center gap-1 ml-2"
+          >
+            {isGpsLoading ? 'Mendeteksi...' : gpsCoords ? 'Ganti ke Kota' : 'Gunakan GPS'}
+          </button>
         </div>
 
         {/* Compass Graphic Visualizer */}
-        <div className="relative w-full aspect-square max-w-[150px] mx-auto my-1 flex items-center justify-center">
-          {/* Outer Compass Disc */}
-          <div className="absolute inset-0 rounded-full bg-surface-container-low flex items-center justify-center shadow-inner border border-surface-container">
-            <svg className="w-full h-full text-outline-variant p-2" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" fill="none" r="46" stroke="currentColor" strokeDasharray="2, 6" strokeWidth="1.5"></circle>
-              <text fill="#7d0004" fontSize="8" fontWeight="bold" textAnchor="middle" x="50" y="13">
-                U
-              </text>
-              <text fill="#906f6b" fontSize="7" fontWeight="bold" textAnchor="middle" x="90" y="53">
-                T
-              </text>
-              <text fill="#906f6b" fontSize="7" fontWeight="bold" textAnchor="middle" x="50" y="93">
-                S
-              </text>
-              <text fill="#906f6b" fontSize="7" fontWeight="bold" textAnchor="middle" x="10" y="53">
-                B
-              </text>
-            </svg>
-          </div>
+        <div className="relative w-full aspect-square max-w-[220px] sm:max-w-[240px] mx-auto my-1 flex items-center justify-center">
+          {/* Dial SVG */}
+          <svg className="w-full h-full select-none" viewBox="0 0 240 240">
+            {/* Background Circle */}
+            <circle cx="120" cy="120" r="110" fill="#fcfbfa" stroke="#e6e1db" strokeWidth="1.5" />
+            
+            {/* Degree ticks around outer perimeter */}
+            {Array.from({ length: 72 }).map((_, i) => {
+              const angle = i * 5;
+              const isMajor = angle % 30 === 0;
+              const rad = (angle * Math.PI) / 180;
+              const rInner = isMajor ? 95 : 101;
+              const rOuter = 106;
+              const x1 = 120 + rInner * Math.sin(rad);
+              const y1 = 120 - rInner * Math.cos(rad);
+              const x2 = 120 + rOuter * Math.sin(rad);
+              const y2 = 120 - rOuter * Math.cos(rad);
+              return (
+                <line
+                  key={i}
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  stroke={isMajor ? '#6c6563' : '#bbb4af'}
+                  strokeWidth={isMajor ? 1.5 : 1}
+                />
+              );
+            })}
 
-          {/* Kaaba Target Icon Node at ~293 deg */}
-          <div
-            className="absolute inset-2 flex items-center justify-center pointer-events-none transition-transform duration-500"
-            style={{ transform: `rotate(${targetQibla}deg)` }}
-          >
-            <div className="w-full flex items-center justify-between px-1">
-              <div className="flex items-center gap-1 -rotate-90">
-                <div className="w-5 h-5 rounded-full bg-secondary-container flex items-center justify-center shadow-xs">
-                  <span className="material-symbols-outlined text-[13px] text-on-secondary-container">
-                    mosque
-                  </span>
-                </div>
-              </div>
-              <div className="w-2 h-2 rounded-full bg-transparent"></div>
-            </div>
-          </div>
+            {/* Cardinals N, E, S, W */}
+            <text x="120" y="32" textAnchor="middle" fill="#2c2826" fontSize="14" fontWeight="bold" fontFamily="system-ui, sans-serif">
+              N
+            </text>
+            <text x="210" y="125" textAnchor="middle" fill="#78726e" fontSize="12" fontWeight="bold" fontFamily="system-ui, sans-serif">
+              E
+            </text>
+            <text x="120" y="217" textAnchor="middle" fill="#78726e" fontSize="12" fontWeight="bold" fontFamily="system-ui, sans-serif">
+              S
+            </text>
+            <text x="30" y="125" textAnchor="middle" fill="#78726e" fontSize="12" fontWeight="bold" fontFamily="system-ui, sans-serif">
+              W
+            </text>
 
-          {/* Rotating Compass Needle */}
-          <div
-            className="relative z-10 w-24 h-24 flex items-center justify-center transition-transform duration-700 ease-out"
-            style={{ transform: `rotate(${needleAngle}deg)` }}
-          >
-            <div className="w-2 h-full relative flex flex-col justify-between items-center">
-              <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[28px] border-b-primary-container"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-on-surface shadow-xs"></div>
-              <div className="w-0 h-0 border-l-[3.5px] border-l-transparent border-r-[3.5px] border-r-transparent border-t-[24px] border-t-tertiary-fixed-dim"></div>
-            </div>
-          </div>
+            {/* Needle Rotating Group */}
+            <g
+              transform={`rotate(${needleRotation}, 120, 120)`}
+              style={{ transition: 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)' }}
+            >
+              {/* Red Tip (Pointing towards Qibla) */}
+              <polygon points="112,120 120,32 128,120" fill="#c92a2a" />
+              {/* Beige Tail (Opposite Qibla) */}
+              <polygon points="113,120 120,205 127,120" fill="#d8cebe" />
+              {/* Center Hub */}
+              <circle cx="120" cy="120" r="11" fill="#ffffff" stroke="#dcd6ce" strokeWidth="2" />
+              <circle cx="120" cy="120" r="5" fill="#c92a2a" />
+            </g>
 
-          {/* Central Dial Cap */}
-          <div className="absolute w-5 h-5 rounded-full bg-surface-container-lowest shadow-xs flex items-center justify-center z-20">
-            <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
-          </div>
+            {/* Center Degree & Label: e.g. 293.0° DARI UTARA */}
+            <text
+              x="120"
+              y="154"
+              textAnchor="middle"
+              fill="#1c1917"
+              fontSize="24"
+              fontWeight="800"
+              fontFamily="system-ui, -apple-system, sans-serif"
+            >
+              {targetQibla.toFixed(1)}°
+            </text>
+            <text
+              x="120"
+              y="170"
+              textAnchor="middle"
+              fill="#78716c"
+              fontSize="9"
+              fontWeight="700"
+              letterSpacing="0.16em"
+              fontFamily="system-ui, -apple-system, sans-serif"
+            >
+              DARI UTARA
+            </text>
+          </svg>
         </div>
 
-        {/* Calibration Info Box */}
-        <div className="bg-surface-container-low rounded-lg p-2.5 flex items-start gap-2">
-          <span className="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">
-            info
-          </span>
+        {/* Alignment alert if user points directly to Qibla */}
+        {isCompassActive && isAligned && (
+          <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-xl py-2 px-3 flex items-center justify-center gap-2 text-[12px] font-bold animate-pulse">
+            <span className="material-symbols-outlined text-[17px] text-emerald-600">check_circle</span>
+            <span>Tepat Menghadap Kiblat!</span>
+          </div>
+        )}
+
+        {/* Compass Button & Guidance Note */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+          <button
+            onClick={handleToggleCompass}
+            className={`h-10 px-4 rounded-xl text-[12.5px] font-bold flex items-center justify-center gap-2 transition-all active:scale-98 shrink-0 ${
+              isCompassActive
+                ? 'bg-emerald-600 text-white shadow-xs hover:bg-emerald-700'
+                : 'border-2 border-primary-container text-primary-container hover:bg-primary-container/10'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[18px]">
+              {isCompassActive ? 'explore' : 'sensors'}
+            </span>
+            <span>{isCompassActive ? 'Kompas Aktif (Matikan)' : 'Aktifkan kompas'}</span>
+          </button>
+
           <p className="text-[11px] text-on-surface-variant leading-relaxed">
-            Pegang ponsel sejajar permukaan tanah. Arahkan jarum merah ke kubah Ka'bah ({targetQibla}°). Jika kompas deviasi, hadapkan <strong>67° ke kanan dari arah barat</strong> sejati.
+            Tanpa kompas, gunakan angka derajat di atas dengan aplikasi kompas bawaan ponsel.
           </p>
         </div>
+
+        {compassError && (
+          <p className="text-[11px] text-error font-medium bg-error-container/20 p-2 rounded-lg">
+            {compassError}
+          </p>
+        )}
       </div>
 
       {/* Card 3: Direktori Masjid & Musholla */}

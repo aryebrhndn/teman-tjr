@@ -20,7 +20,7 @@ export const JAPAN_CITIES: Record<string, JapanCity> = {
     latitude: 35.6762,
     longitude: 139.6503,
     timezone: 'Asia/Tokyo',
-    defaultQiblaAngle: 293,
+    defaultQiblaAngle: 293.0,
   },
   osaka: {
     id: 'osaka',
@@ -30,7 +30,7 @@ export const JAPAN_CITIES: Record<string, JapanCity> = {
     latitude: 34.6937,
     longitude: 135.5023,
     timezone: 'Asia/Tokyo',
-    defaultQiblaAngle: 291,
+    defaultQiblaAngle: 290.8,
   },
   kyoto: {
     id: 'kyoto',
@@ -40,27 +40,97 @@ export const JAPAN_CITIES: Record<string, JapanCity> = {
     latitude: 35.0116,
     longitude: 135.7681,
     timezone: 'Asia/Tokyo',
-    defaultQiblaAngle: 291,
+    defaultQiblaAngle: 290.9,
   },
-  sapporo: {
-    id: 'sapporo',
-    name: 'Sapporo',
-    label: 'Sapporo (Hokkaido Area)',
-    sublabel: 'Odori Park, Susukino',
-    latitude: 43.0618,
-    longitude: 141.3545,
+  fuji: {
+    id: 'fuji',
+    name: 'Fuji / Kawaguchiko',
+    label: 'Gunung Fuji (Kawaguchiko & Yamanashi)',
+    sublabel: 'Lake Kawaguchi, Chureito, Fujiyoshida',
+    latitude: 35.4975,
+    longitude: 138.7554,
     timezone: 'Asia/Tokyo',
-    defaultQiblaAngle: 288,
+    defaultQiblaAngle: 292.5,
+  },
+  nagoya: {
+    id: 'nagoya',
+    name: 'Nagoya',
+    label: 'Nagoya (Aichi Area)',
+    sublabel: 'Sakae, Meieki, Osu',
+    latitude: 35.1815,
+    longitude: 136.9066,
+    timezone: 'Asia/Tokyo',
+    defaultQiblaAngle: 291.6,
+  },
+  yokohama: {
+    id: 'yokohama',
+    name: 'Yokohama',
+    label: 'Yokohama (Kanagawa Area)',
+    sublabel: 'Minato Mirai, Chinatown',
+    latitude: 35.4437,
+    longitude: 139.6380,
+    timezone: 'Asia/Tokyo',
+    defaultQiblaAngle: 293.0,
+  },
+  hiroshima: {
+    id: 'hiroshima',
+    name: 'Hiroshima',
+    label: 'Hiroshima (Peace Park & Miyajima)',
+    sublabel: 'Genbaku Dome, Itsukushima',
+    latitude: 34.3853,
+    longitude: 132.4553,
+    timezone: 'Asia/Tokyo',
+    defaultQiblaAngle: 289.3,
   },
   fukuoka: {
     id: 'fukuoka',
     name: 'Fukuoka',
     label: 'Fukuoka (Hakata Area)',
-    sublabel: 'Hakata, Tenjin',
+    sublabel: 'Hakata, Tenjin, Dazaifu',
     latitude: 33.5904,
     longitude: 130.4017,
     timezone: 'Asia/Tokyo',
-    defaultQiblaAngle: 290,
+    defaultQiblaAngle: 288.4,
+  },
+  sapporo: {
+    id: 'sapporo',
+    name: 'Sapporo',
+    label: 'Sapporo (Hokkaido Area)',
+    sublabel: 'Odori Park, Susukino, Otaru',
+    latitude: 43.0618,
+    longitude: 141.3545,
+    timezone: 'Asia/Tokyo',
+    defaultQiblaAngle: 293.4,
+  },
+  takayama: {
+    id: 'takayama',
+    name: 'Takayama & Shirakawa-go',
+    label: 'Takayama (Gifu Area)',
+    sublabel: 'Sanmachi Suji, Shirakawa-go',
+    latitude: 36.1460,
+    longitude: 137.2520,
+    timezone: 'Asia/Tokyo',
+    defaultQiblaAngle: 292.0,
+  },
+  sendai: {
+    id: 'sendai',
+    name: 'Sendai',
+    label: 'Sendai (Tohoku Area)',
+    sublabel: 'Aoba, Matsushima',
+    latitude: 38.2682,
+    longitude: 140.8694,
+    timezone: 'Asia/Tokyo',
+    defaultQiblaAngle: 294.6,
+  },
+  okinawa: {
+    id: 'okinawa',
+    name: 'Okinawa / Naha',
+    label: 'Okinawa (Naha Area)',
+    sublabel: 'Kokusai Dori, Shuri',
+    latitude: 26.2124,
+    longitude: 127.6809,
+    timezone: 'Asia/Tokyo',
+    defaultQiblaAngle: 288.6,
   },
 };
 
@@ -80,15 +150,15 @@ export interface DailyPrayers {
 }
 
 export function calculateQibla(latitude: number, longitude: number): number {
-  const kaabaLat = (21.4225 * Math.PI) / 180;
-  const kaabaLng = (39.8262 * Math.PI) / 180;
+  const kaabaLat = (21.422487 * Math.PI) / 180;
+  const kaabaLng = (39.826206 * Math.PI) / 180;
   const userLat = (latitude * Math.PI) / 180;
   const userLng = (longitude * Math.PI) / 180;
 
   const y = Math.sin(kaabaLng - userLng);
   const x = Math.cos(userLat) * Math.tan(kaabaLat) - Math.sin(userLat) * Math.cos(kaabaLng - userLng);
-  let qibla = (Math.atan2(y, x) * 180) / Math.PI;
-  return Math.round((qibla + 360) % 360);
+  const qibla = (Math.atan2(y, x) * 180) / Math.PI;
+  return Math.round(((qibla + 360) % 360) * 10) / 10;
 }
 
 function formatTime(date: Date): string {
@@ -97,9 +167,23 @@ function formatTime(date: Date): string {
   return `${hours}:${minutes}`;
 }
 
-export function getJapanPrayerTimes(cityKey = 'tokyo', date = new Date()): DailyPrayers {
-  const city = JAPAN_CITIES[cityKey] || JAPAN_CITIES.tokyo;
-  const coordinates = new Coordinates(city.latitude, city.longitude);
+export function getJapanPrayerTimes(
+  locationInput: string | { latitude: number; longitude: number } = 'tokyo',
+  date = new Date()
+): DailyPrayers {
+  let lat = 35.6762;
+  let lng = 139.6503;
+
+  if (typeof locationInput === 'string') {
+    const city = JAPAN_CITIES[locationInput] || JAPAN_CITIES.tokyo;
+    lat = city.latitude;
+    lng = city.longitude;
+  } else if (locationInput && typeof locationInput.latitude === 'number') {
+    lat = locationInput.latitude;
+    lng = locationInput.longitude;
+  }
+
+  const coordinates = new Coordinates(lat, lng);
 
   const params = CalculationMethod.MuslimWorldLeague();
   params.madhab = Madhab.Shafi;
@@ -159,6 +243,6 @@ export function getJapanPrayerTimes(cityKey = 'tokyo', date = new Date()): Daily
       time: formatTime(nextDate),
       remainingSeconds,
     },
-    qiblaAngle: calculateQibla(city.latitude, city.longitude),
+    qiblaAngle: calculateQibla(lat, lng),
   };
 }

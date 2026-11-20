@@ -109,7 +109,7 @@ export const ActivationScreen: React.FC<ActivationScreenProps> = ({ onActivated 
               <span className="text-primary-container">TEMAN TJR</span>
             </h1>
             <p className="text-xs text-on-surface-variant max-w-xs mx-auto leading-relaxed">
-              Teman perjalanan dalam genggaman — Sahabat setia menjelajahi Jepang secara mandiri, tenang, dan terarah.
+              Teman jalan dalam genggaman — Sahabat setia menjelajahi Jepang secara mandiri, tenang, dan terarah.
             </p>
           </div>
         </header>

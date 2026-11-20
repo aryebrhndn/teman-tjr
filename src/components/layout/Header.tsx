@@ -38,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, onOpenSettings }) =>
             </span>
             <span className="text-[10px] text-white/90 flex items-center gap-1 mt-1 font-medium tracking-tight leading-none truncate">
               <span className="w-1.5 h-1.5 rounded-full bg-[#fec300] inline-block shrink-0"></span>
-              Teman Perjalanan Dalam Genggaman
+              Teman Jalan Dalam Genggaman
             </span>
           </div>
         </div>

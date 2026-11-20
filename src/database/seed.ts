@@ -709,7 +709,7 @@ export async function initializeDatabaseSeed() {
   // 6. Settings
   await db.app_settings.put({
     key: 'exchange_rate',
-    value: 105.0,
+    value: 114.14,
     updated_at: new Date().toISOString(),
   });
 

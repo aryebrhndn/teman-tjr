@@ -13,7 +13,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [prayers, setPrayers] = useState<DailyPrayers | null>(null);
-  const [rate, setRate] = useState<number>(105.0);
+  const [rate, setRate] = useState<number>(114.14);
 
   useEffect(() => {
     async function loadData() {

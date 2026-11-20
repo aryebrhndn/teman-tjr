@@ -13,7 +13,7 @@ export const ItineraryScreen: React.FC = () => {
   const [expandedDays, setExpandedDays] = useState<Record<string, boolean>>({ 'day-1': true, 'pday-1': true });
 
   // Rate for IDR conversion
-  const [rate, setRate] = useState<number>(105.0);
+  const [rate, setRate] = useState<number>(114.14);
 
   // Modals for Private Trip
   const [showAddDay, setShowAddDay] = useState(false);

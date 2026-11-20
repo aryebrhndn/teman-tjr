@@ -7,7 +7,7 @@ interface BudgetScreenProps {
 
 export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpense }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'converter'>('overview');
-  const [rate, setRate] = useState<number>(105.0);
+  const [rate, setRate] = useState<number>(114.14);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [budget, setBudget] = useState<Budget | null>(null);
 
@@ -16,7 +16,7 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
 
   // Converter state
   const [jpyVal, setJpyVal] = useState<string>('10000');
-  const [idrVal, setIdrVal] = useState<string>('1050000');
+  const [idrVal, setIdrVal] = useState<string>('1141400');
   const [isJpyToIdr, setIsJpyToIdr] = useState<boolean>(true);
 
   // Add expense modal state
@@ -35,6 +35,12 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
   const [budgetAmountInput, setBudgetAmountInput] = useState('');
   const [budgetNameInput, setBudgetNameInput] = useState('');
 
+  // Edit exchange rate modal state
+  const [showEditRateModal, setShowEditRateModal] = useState(false);
+  const [rateInput, setRateInput] = useState('114.14');
+  const [isFetchingRate, setIsFetchingRate] = useState(false);
+  const [fetchRateMessage, setFetchRateMessage] = useState<string | null>(null);
+
   async function loadData() {
     const allExpenses = await db.expenses.orderBy('expense_date').reverse().toArray();
     setExpenses(allExpenses);
@@ -45,6 +51,13 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
     const rateSetting = await db.app_settings.get('exchange_rate');
     if (rateSetting && typeof rateSetting.value === 'number') {
       setRate(rateSetting.value);
+      setIdrVal(Math.round(10000 * rateSetting.value).toString());
+    } else {
+      await db.app_settings.put({
+        key: 'exchange_rate',
+        value: 114.14,
+        updated_at: new Date().toISOString(),
+      });
     }
   }
 
@@ -85,21 +98,51 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
     setIdrVal(Math.round(amount * rate).toString());
   };
 
-  const handleEditRate = async () => {
-    const promptVal = prompt('Masukkan kurs JPY ke IDR saat ini (Contoh: 105.5):', rate.toString());
-    if (promptVal && !isNaN(parseFloat(promptVal))) {
-      const newRate = parseFloat(promptVal);
-      setRate(newRate);
-      await db.app_settings.put({
-        key: 'exchange_rate',
-        value: newRate,
-        updated_at: new Date().toISOString(),
-      });
-      // Recalculate
-      const num = parseDigits(jpyVal);
-      const converted = num > 0 ? Math.round(num * newRate) : 0;
-      setIdrVal(converted > 0 ? converted.toString() : '');
+  const handleOpenEditRate = () => {
+    setRateInput(rate.toString());
+    setFetchRateMessage(null);
+    setShowEditRateModal(true);
+  };
+
+  const handleFetchLiveRate = async () => {
+    setIsFetchingRate(true);
+    setFetchRateMessage(null);
+    try {
+      const res = await fetch('https://open.er-api.com/v6/latest/JPY');
+      if (!res.ok) throw new Error('Gagal mengambil kurs online');
+      const data = await res.json();
+      if (data && data.rates && typeof data.rates.IDR === 'number') {
+        const liveRate = Math.round(data.rates.IDR * 100) / 100;
+        setRateInput(liveRate.toString());
+        setFetchRateMessage(`Kurs live internet berhasil dimuat: 1 JPY = Rp ${liveRate}`);
+      } else {
+        throw new Error('Format data tidak sesuai');
+      }
+    } catch {
+      setFetchRateMessage('Gagal mengambil kurs live. Silakan ketik nilai kurs secara manual.');
+    } finally {
+      setIsFetchingRate(false);
     }
+  };
+
+  const handleSaveRateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanRate = parseFloat(rateInput.replace(',', '.'));
+    if (isNaN(cleanRate) || cleanRate <= 0) return;
+
+    setRate(cleanRate);
+    await db.app_settings.put({
+      key: 'exchange_rate',
+      value: cleanRate,
+      updated_at: new Date().toISOString(),
+    });
+
+    // Recalculate active inputs
+    const num = parseDigits(jpyVal);
+    const converted = num > 0 ? Math.round(num * cleanRate) : 0;
+    setIdrVal(converted > 0 ? converted.toString() : '');
+
+    setShowEditRateModal(false);
   };
 
   // --- BUDGET CEILING HANDLERS ---
@@ -258,7 +301,7 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
             Konverter Kurs
           </span>
           <button
-            onClick={handleEditRate}
+            onClick={handleOpenEditRate}
             className="text-primary text-[11px] font-bold hover:underline"
           >
             Atur Kurs
@@ -820,6 +863,110 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
                   className="flex-1 h-9.5 rounded-xl bg-primary-container text-[12px] font-bold text-white shadow-2xs"
                 >
                   Simpan Perubahan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: Atur & Perbarui Kurs Mata Uang */}
+      {showEditRateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-surface-container-lowest rounded-2xl w-full max-w-sm p-4.5 shadow-xl border border-surface-container flex flex-col gap-3">
+            <div className="flex items-center justify-between border-b border-surface-container/80 pb-2.5">
+              <div>
+                <h3 className="text-[14px] font-bold text-on-surface">Atur Kurs JPY ke IDR</h3>
+                <p className="text-[11px] text-on-surface-variant">Update kurs pasar live internet atau atur manual</p>
+              </div>
+              <button
+                onClick={() => setShowEditRateModal(false)}
+                className="w-7 h-7 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:bg-surface-container"
+              >
+                <span className="material-symbols-outlined text-[16px]">close</span>
+              </button>
+            </div>
+
+            {/* Live Fetch Button from Internet */}
+            <div className="bg-surface-container-low rounded-xl p-3 flex flex-col gap-2 border border-surface-container">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-on-surface">Kurs Pasar Internet</span>
+                <button
+                  type="button"
+                  onClick={handleFetchLiveRate}
+                  disabled={isFetchingRate}
+                  className="px-2.5 py-1 rounded-lg bg-primary-container text-white text-[11px] font-bold flex items-center gap-1.5 shadow-2xs hover:brightness-105 active:scale-95 disabled:opacity-75 transition-all"
+                >
+                  <span className={`material-symbols-outlined text-[14px] ${isFetchingRate ? 'animate-spin' : ''}`}>
+                    sync
+                  </span>
+                  <span>{isFetchingRate ? 'Memuat...' : 'Perbarui dari Internet'}</span>
+                </button>
+              </div>
+
+              {fetchRateMessage && (
+                <p className={`text-[10.5px] font-medium ${fetchRateMessage.includes('berhasil') ? 'text-emerald-700' : 'text-error'}`}>
+                  {fetchRateMessage}
+                </p>
+              )}
+            </div>
+
+            <form onSubmit={handleSaveRateSubmit} className="flex flex-col gap-3">
+              <div>
+                <label className="text-[11px] font-bold text-on-surface block mb-1">
+                  Nilai Kurs (1 JPY = ... IDR)
+                </label>
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-[12px] font-bold text-on-surface-variant">Rp</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="1"
+                    value={rateInput}
+                    onChange={(e) => setRateInput(e.target.value)}
+                    placeholder="114.14"
+                    className="w-full h-10 pl-9 pr-3 rounded-xl bg-surface-container-low text-[14px] font-bold text-on-surface border border-surface-container focus:outline-none"
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              {/* Quick Presets */}
+              <div>
+                <label className="text-[10.5px] font-semibold text-on-surface-variant block mb-1">
+                  Preset Cepat:
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {[114.14, 112.0, 110.0, 105.0].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setRateInput(preset.toString())}
+                      className={`px-2.5 py-1 rounded-lg text-[10.5px] font-bold border transition-colors ${
+                        rateInput === preset.toString()
+                          ? 'bg-primary-container text-white border-primary-container'
+                          : 'bg-surface-container-low text-on-surface border-surface-container hover:bg-surface-container'
+                      }`}
+                    >
+                      Rp {preset}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEditRateModal(false)}
+                  className="flex-1 h-9.5 rounded-xl bg-surface-container text-[12px] font-bold text-on-surface"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 h-9.5 rounded-xl bg-primary-container text-[12px] font-bold text-white shadow-2xs"
+                >
+                  Simpan Kurs
                 </button>
               </div>
             </form>

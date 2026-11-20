@@ -1,7 +1,7 @@
 {
   "name": "Teman TJR",
   "short_name": "Teman TJR",
-  "description": "Teman Perjalanan Dalam Genggaman - Official Companion App",
+  "description": "Teman Jalan Dalam Genggaman - Official Companion App",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
