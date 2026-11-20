@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { db, type PrayerPlace } from '../../database/dexie';
 import { JAPAN_CITIES, getJapanPrayerTimes, type DailyPrayers } from '../../services/prayer.service';
 import { supabase, isSupabaseConfigured } from '../../services/supabase.client';
+import { JAPAN_PRAYER_PLACES } from '../../data/japanPrayerPlaces';
 
 export const PrayerScreen: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>('tokyo');
@@ -16,9 +17,8 @@ export const PrayerScreen: React.FC = () => {
   const [isGpsLoading, setIsGpsLoading] = useState(false);
   const [prayers, setPrayers] = useState<DailyPrayers | null>(null);
   const [tickerSeconds, setTickerSeconds] = useState<number>(5055); // ~1h 24m 15s
-  const [prayerPlaces, setPrayerPlaces] = useState<PrayerPlace[]>([]);
+  const [prayerPlaces, setPrayerPlaces] = useState<PrayerPlace[]>(JAPAN_PRAYER_PLACES);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
 
   // Device orientation / compass states
   const [isCompassActive, setIsCompassActive] = useState<boolean>(false);
@@ -28,10 +28,13 @@ export const PrayerScreen: React.FC = () => {
   useEffect(() => {
     async function loadData() {
       let places = await db.prayer_places.where('status').equals('Published').toArray();
-      if (places.length === 0) {
-        places = await db.prayer_places.toArray();
+      if (places.length < JAPAN_PRAYER_PLACES.length) {
+        for (const p of JAPAN_PRAYER_PLACES) {
+          await db.prayer_places.put(p);
+        }
+        places = await db.prayer_places.where('status').equals('Published').toArray();
       }
-      setPrayerPlaces(places);
+      setPrayerPlaces(places.length > 0 ? places : JAPAN_PRAYER_PLACES);
 
       // Cloud sync from Supabase
       if (isSupabaseConfigured && supabase) {
@@ -250,20 +253,31 @@ export const PrayerScreen: React.FC = () => {
 
   const isAligned = isCompassActive && (needleRotation <= 3.5 || needleRotation >= 356.5);
 
-  // Filtered places
+  // Filtered places: correlated to selectedCity (or search query if entered)
   const filteredPlaces = prayerPlaces.filter((place) => {
-    const matchesSearch =
-      place.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      place.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      place.city.toLowerCase().includes(searchQuery.toLowerCase());
+    // If user enters search query, match query across all
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      return (
+        place.name.toLowerCase().includes(q) ||
+        place.address.toLowerCase().includes(q) ||
+        place.city.toLowerCase().includes(q)
+      );
+    }
 
-    if (!matchesSearch) return false;
+    // Default: match selectedCity
+    const targetCity = selectedCity.toLowerCase();
+    const placeCity = (place.city || '').toLowerCase();
+    const placePref = (place.prefecture || '').toLowerCase();
+    const targetCityName = (JAPAN_CITIES[selectedCity]?.name || '').toLowerCase();
 
-    if (selectedCategory === 'Semua') return true;
-    if (selectedCategory === 'Masjid Besar') return place.type === 'Mosque';
-    if (selectedCategory === 'Prayer Room Stasiun') return place.type === 'Prayer Room';
-    if (selectedCategory === 'Halal Restaurant Space') return place.facilities.some((f) => f.toLowerCase().includes('halal'));
-    return true;
+    return (
+      placeCity === targetCity ||
+      placeCity.includes(targetCity) ||
+      placePref.includes(targetCity) ||
+      placeCity.includes(targetCityName) ||
+      targetCityName.includes(placeCity)
+    );
   });
 
   const openGoogleMaps = (place: PrayerPlace) => {
@@ -664,15 +678,19 @@ export const PrayerScreen: React.FC = () => {
         )}
       </div>
 
-      {/* Card 3: Direktori Masjid & Musholla */}
+      {/* Card 3: Direktori Masjid & Musholla Terdekat Sesuai Lokasi Terpilih */}
       <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs flex flex-col gap-2.5 border border-surface-container/80">
         <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-[14px] font-bold text-on-surface">Masjid & Musholla Terdekat</h3>
-            <p className="text-[11.5px] text-on-surface-variant">Tempat ibadah ramah musafir di sekitar Jepang</p>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-[14px] font-bold text-on-surface truncate">
+              Masjid & Musholla Terdekat
+            </h3>
+            <p className="text-[11px] text-on-surface-variant mt-0.5 truncate">
+              Rekomendasi di {JAPAN_CITIES[selectedCity]?.name || 'Jepang'} ({filteredPlaces.length} lokasi)
+            </p>
           </div>
-          <span className="w-7 h-7 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface text-[12px] font-bold">
-            {filteredPlaces.length}
+          <span className="px-2.5 py-1 rounded-lg bg-surface-container-high text-on-surface text-[11px] font-bold shrink-0">
+            {JAPAN_CITIES[selectedCity]?.name || 'Jepang'}
           </span>
         </div>
 
@@ -682,76 +700,53 @@ export const PrayerScreen: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari masjid atau musholla..."
-            className="w-full h-10 pl-9 pr-3 rounded-xl bg-surface-container-low text-[13px] text-on-surface placeholder:text-outline focus:outline-none border border-surface-container"
+            placeholder={`Cari tempat ibadah di ${JAPAN_CITIES[selectedCity]?.name || 'Jepang'}...`}
+            className="w-full h-9 pl-9 pr-8 rounded-xl bg-surface-container-low text-[12.5px] text-on-surface placeholder:text-outline focus:outline-none border border-surface-container"
           />
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">
+          <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline text-[17px]">
             search
           </span>
-        </div>
-
-        {/* Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 -mx-1 px-1">
-          {['Semua', 'Masjid Besar', 'Prayer Room Stasiun', 'Halal Restaurant Space'].map((cat) => (
+          {searchQuery && (
             <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`h-7.5 px-3 rounded-full text-[11.5px] font-medium flex items-center whitespace-nowrap transition-colors ${
-                selectedCategory === cat
-                  ? 'bg-primary-container text-white shadow-2xs font-semibold'
-                  : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
-              }`}
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
             >
-              {cat}
+              <span className="material-symbols-outlined text-[16px]">close</span>
             </button>
-          ))}
+          )}
         </div>
 
-        {/* Directory Listing Items - Rapi, Minimalis, Tanpa Ikon, Fokus Info Inti */}
+        {/* Directory Listing Items - Ukuran Sama Rata, Hanya Judul, Lokasi, dan Tombol Maps */}
         <div className="flex flex-col gap-2">
-          {filteredPlaces.map((place) => (
-            <div
-              key={place.id}
-              className="bg-surface-container-low rounded-xl p-3 flex flex-col gap-1.5 border border-surface-container/70"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-[13px] font-bold text-on-surface leading-tight">
+          {filteredPlaces.length > 0 ? (
+            filteredPlaces.map((place) => (
+              <div
+                key={place.id}
+                className="bg-surface-container-low rounded-xl px-3.5 py-2.5 flex items-center justify-between gap-3 border border-surface-container/70 h-[68px] min-h-[68px] max-h-[68px]"
+              >
+                <div className="min-w-0 flex-1 flex flex-col justify-center">
+                  <h4 className="text-[13px] font-bold text-on-surface truncate leading-tight">
                     {place.name}
                   </h4>
-                  <p className="text-[11.5px] text-on-surface-variant mt-0.5 leading-snug">
+                  <p className="text-[11px] text-on-surface-variant truncate mt-1">
                     {place.address}
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => openGoogleMaps(place)}
-                  className="h-7 px-3 rounded-lg bg-primary text-white text-[11px] font-bold shadow-2xs hover:bg-primary-container transition-colors shrink-0"
+                  className="h-8 px-3.5 rounded-xl bg-primary text-white text-[11.5px] font-bold shadow-2xs hover:bg-primary-container transition-all active:scale-95 shrink-0 flex items-center justify-center cursor-pointer"
                 >
                   Maps
                 </button>
               </div>
-
-              {/* Fasilitas / Jam Buka ringkas */}
-              {((place.facilities && place.facilities.length > 0) || place.open_hours) && (
-                <div className="flex flex-wrap gap-1 pt-1 border-t border-surface-container/50 text-[10.5px] text-on-surface-variant">
-                  {place.facilities?.map((fac, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2 py-0.5 rounded-md bg-surface-container text-on-surface-variant text-[10.5px]"
-                    >
-                      {fac}
-                    </span>
-                  ))}
-                  {place.open_hours && (
-                    <span className="px-2 py-0.5 rounded-md bg-surface-container text-on-surface-variant text-[10.5px]">
-                      {place.open_hours}
-                    </span>
-                  )}
-                </div>
-              )}
+            ))
+          ) : (
+            <div className="p-4 text-center text-on-surface-variant bg-surface-container-low rounded-xl text-[12px] border border-surface-container/60">
+              Belum ada data masjid/musholla untuk area ini.
             </div>
-          ))}
+          )}
         </div>
       </div>
     </div>

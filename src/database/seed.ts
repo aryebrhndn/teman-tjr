@@ -1,4 +1,5 @@
 import { db } from './dexie';
+import { JAPAN_PRAYER_PLACES } from '../data/japanPrayerPlaces';
 
 export async function initializeDatabaseSeed() {
   const tripCount = await db.trips.count();
@@ -472,109 +473,9 @@ export async function initializeDatabaseSeed() {
     await db.expenses.add(exp);
   }
 
-  // 4. Prayer Places in Japan
-  const prayerPlaces = [
-    {
-      id: 'pp-1',
-      name: 'Tokyo Camii & Turkish Culture Center',
-      type: 'Mosque' as const,
-      description: 'Masjid terbesar di Jepang dengan arsitektur Ottoman megah, pasar halal, dan aula budaya.',
-      address: '1-19 Oyama-cho, Shibuya-ku, Tokyo 151-0065',
-      city: 'Tokyo',
-      prefecture: 'Tokyo',
-      latitude: 35.6675,
-      longitude: 139.6766,
-      distance_km: 2.4,
-      facilities: ['Wudhu Luas', 'Ruang Wanita', 'Halal Market', 'Sajadah Tersedia', 'Perpustakaan'],
-      website: 'https://tokyocamii.org',
-      open_hours: 'Buka setiap hari hingga 19:30',
-      verification_date: '2025-03-01',
-      status: 'Published' as const,
-    },
-    {
-      id: 'pp-2',
-      name: 'Shinjuku South Exit Prayer Room',
-      type: 'Prayer Room' as const,
-      description: 'Musholla bersih dan nyaman tepat di dalam area transit JR Stasiun Shinjuku.',
-      address: 'JR Shinjuku Station South Exit Gate, Shinjuku, Tokyo',
-      city: 'Tokyo',
-      prefecture: 'Tokyo',
-      latitude: 35.6896,
-      longitude: 139.7006,
-      distance_km: 0.85,
-      facilities: ['Akses Suica/Pass', 'Terpisah Pria/Wanita', 'Tempat Wudhu Khusus', 'Arah Kiblat'],
-      open_hours: '09:00 - 21:00',
-      verification_date: '2025-02-15',
-      status: 'Published' as const,
-    },
-    {
-      id: 'pp-3',
-      name: 'Asakusa Mosque (Darul Arqam)',
-      type: 'Mosque' as const,
-      description: 'Masjid bertingkat 4 ramah jamaah di dekat Sensoji Temple dan area halal ramen Asakusa.',
-      address: '1 Chome-9-12 Higashiasakusa, Taito City, Tokyo 111-0025',
-      city: 'Tokyo',
-      prefecture: 'Tokyo',
-      latitude: 35.7196,
-      longitude: 139.7997,
-      distance_km: 5.1,
-      facilities: ['4 Lantai', 'Halal Food Guide', 'Sholat Jumat', 'Ruang Wanita'],
-      open_hours: 'Akses 24 Jam untuk Sholat Fardhu',
-      verification_date: '2025-01-20',
-      status: 'Published' as const,
-    },
-    {
-      id: 'pp-4',
-      name: 'Shibuya Parco Prayer Room',
-      type: 'Prayer Room' as const,
-      description: 'Ruang sholat modern di pusat perbelanjaan Shibuya Parco lantai 5.',
-      address: '15-1 Udagawacho, Shibuya City, Tokyo (Parco 5F)',
-      city: 'Tokyo',
-      prefecture: 'Tokyo',
-      latitude: 35.6621,
-      longitude: 139.6987,
-      distance_km: 1.2,
-      facilities: ['AC Bersih', 'Wudhu Modern', 'Sajadah & Mukena Ready'],
-      open_hours: '11:00 - 21:00',
-      verification_date: '2025-03-10',
-      status: 'Published' as const,
-    },
-    {
-      id: 'pp-5',
-      name: 'Kyoto Islamic Center (KIC)',
-      type: 'Mosque' as const,
-      description: 'Pusat kegiatan muslim di Kyoto dekat Universitas Kyoto dan sungai Kamo.',
-      address: '92 Miyagakicho, Kamigyo Ward, Kyoto 602-0853',
-      city: 'Kyoto',
-      prefecture: 'Kyoto',
-      latitude: 35.0235,
-      longitude: 135.7725,
-      distance_km: 3.8,
-      facilities: ['Wudhu Lengkap', 'Kajian Bahasa Inggris/Jepang', 'Halal Guide'],
-      open_hours: '08:00 - 20:00',
-      verification_date: '2025-02-01',
-      status: 'Published' as const,
-    },
-    {
-      id: 'pp-6',
-      name: 'Osaka Masjid (Chibune)',
-      type: 'Mosque' as const,
-      description: 'Masjid terbesar di Osaka dengan supermarket halal dan restoran.',
-      address: '4 Chome-2-12 Owada, Nishiyodogawa Ward, Osaka 555-0032',
-      city: 'Osaka',
-      prefecture: 'Osaka',
-      latitude: 34.7145,
-      longitude: 135.4567,
-      distance_km: 4.2,
-      facilities: ['Restoran Halal Bawah', 'Toko Halal', 'Area Parkir', 'Sholat Jumat'],
-      open_hours: 'Buka 24 Jam',
-      verification_date: '2025-01-15',
-      status: 'Published' as const,
-    },
-  ];
-
-  for (const pp of prayerPlaces) {
-    await db.prayer_places.add(pp);
+  // 4. Prayer Places in Japan (Comprehensive list across all regions)
+  for (const pp of JAPAN_PRAYER_PLACES) {
+    await db.prayer_places.put(pp);
   }
 
   // 5. Checklist Items
