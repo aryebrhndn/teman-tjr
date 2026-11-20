@@ -5,6 +5,13 @@ import { supabase, isSupabaseConfigured } from '../../services/supabase.client';
 
 export const PrayerScreen: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>('tokyo');
+  const [customLat, setCustomLat] = useState<string>('35.6762');
+  const [customLng, setCustomLng] = useState<string>('139.6503');
+  const [calcMethod, setCalcMethod] = useState<'MuslimWorldLeague' | 'Egyptian' | 'Karachi' | 'UmmAlQura'>('MuslimWorldLeague');
+  const [calcMadhab, setCalcMadhab] = useState<'Shafi' | 'Hanafi'>('Shafi');
+  const [showManualCoords, setShowManualCoords] = useState<boolean>(false);
+  const [isManualMode, setIsManualMode] = useState<boolean>(false);
+
   const [gpsCoords, setGpsCoords] = useState<{ latitude: number; longitude: number; label: string } | null>(null);
   const [isGpsLoading, setIsGpsLoading] = useState(false);
   const [prayers, setPrayers] = useState<DailyPrayers | null>(null);
@@ -59,11 +66,60 @@ export const PrayerScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const loc = gpsCoords ? { latitude: gpsCoords.latitude, longitude: gpsCoords.longitude } : selectedCity;
-    const p = getJapanPrayerTimes(loc);
+    let loc: any = selectedCity;
+    if (isManualMode && !isNaN(parseFloat(customLat)) && !isNaN(parseFloat(customLng))) {
+      loc = { latitude: parseFloat(customLat), longitude: parseFloat(customLng) };
+    } else if (gpsCoords) {
+      loc = { latitude: gpsCoords.latitude, longitude: gpsCoords.longitude };
+    }
+
+    const p = getJapanPrayerTimes(loc, new Date(), calcMethod, calcMadhab);
     setPrayers(p);
     setTickerSeconds(p.nextPrayer.remainingSeconds || 5055);
-  }, [selectedCity, gpsCoords]);
+  }, [selectedCity, isManualMode, customLat, customLng, gpsCoords, calcMethod, calcMadhab]);
+
+  const handleCityChange = (cityId: string) => {
+    setSelectedCity(cityId);
+    setIsManualMode(false);
+    const city = JAPAN_CITIES[cityId];
+    if (city) {
+      setCustomLat(city.latitude.toString());
+      setCustomLng(city.longitude.toString());
+    }
+  };
+
+  const handleLatChange = (val: string) => {
+    setCustomLat(val);
+    setIsManualMode(true);
+  };
+
+  const handleLngChange = (val: string) => {
+    setCustomLng(val);
+    setIsManualMode(true);
+  };
+
+  const todayDateMasehi = new Intl.DateTimeFormat('id-ID', {
+    timeZone: 'Asia/Tokyo',
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date());
+
+  const todayDateHijri = (() => {
+    try {
+      return (
+        new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', {
+          timeZone: 'Asia/Tokyo',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        }).format(new Date()) + ' H'
+      );
+    } catch {
+      return '1448 H';
+    }
+  })();
 
   // Live timer interval
   useEffect(() => {
@@ -155,6 +211,9 @@ export const PrayerScreen: React.FC = () => {
           longitude: pos.coords.longitude,
           label: 'Lokasi GPS Presisi',
         });
+        setCustomLat(pos.coords.latitude.toFixed(4));
+        setCustomLng(pos.coords.longitude.toFixed(4));
+        setIsManualMode(false);
       },
       (err) => {
         setIsGpsLoading(false);
@@ -209,19 +268,44 @@ export const PrayerScreen: React.FC = () => {
             <span className="material-symbols-outlined text-[17px] text-primary">location_on</span>
             Lokasi Waktu Sholat
           </span>
-          <span className="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10.5px] font-bold tracking-wide shrink-0">
-            JST (UTC+9)
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleUseGps}
+              disabled={isGpsLoading}
+              className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[14px]">my_location</span>
+              {isGpsLoading ? 'Mendeteksi...' : gpsCoords ? 'Ganti ke Kota' : 'Gunakan GPS'}
+            </button>
+            <span className="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10.5px] font-bold tracking-wide shrink-0">
+              JST (UTC+9)
+            </span>
+          </div>
         </div>
 
         {/* Full width dropdown to prevent horizontal overlap */}
         <div className="relative w-full">
           <select
             id="city-selector"
-            value={selectedCity}
-            onChange={(e) => setSelectedCity(e.target.value)}
+            value={isManualMode ? 'manual' : selectedCity}
+            onChange={(e) => {
+              if (e.target.value !== 'manual') {
+                handleCityChange(e.target.value);
+              }
+            }}
             className="w-full appearance-none bg-surface-container-low text-[13.5px] font-bold text-on-surface pl-3 pr-9 py-2.5 rounded-xl focus:outline-none cursor-pointer border border-surface-container shadow-2xs"
           >
+            {isManualMode && (
+              <option value="manual">
+                Koordinat Manual ({parseFloat(customLat).toFixed(2)}°, {parseFloat(customLng).toFixed(2)}°)
+              </option>
+            )}
+            {gpsCoords && (
+              <option value="gps">
+                GPS ({gpsCoords.latitude.toFixed(2)}°, {gpsCoords.longitude.toFixed(2)}°)
+              </option>
+            )}
             {Object.values(JAPAN_CITIES).map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name} ({c.sublabel})
@@ -233,17 +317,113 @@ export const PrayerScreen: React.FC = () => {
           </span>
         </div>
 
+        {/* Dynamic Date & On-Device Offline Calculation Info */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-on-surface-variant text-[12px] pt-1.5 border-t border-surface-container/70">
-          <div className="flex items-center gap-1.5 font-medium">
-            <span className="material-symbols-outlined text-[15px] text-primary">calendar_month</span>
-            <span>Rabu, 13 April 2025</span>
+          <div className="flex items-center gap-1.5 font-medium flex-wrap">
+            <span className="material-symbols-outlined text-[15px] text-primary shrink-0">calendar_month</span>
+            <span className="capitalize">{todayDateMasehi}</span>
             <span className="text-outline-variant">•</span>
-            <span className="text-primary font-bold">14 Syawal 1446 H</span>
+            <span className="text-primary font-bold">{todayDateHijri}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-secondary">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-secondary shrink-0">
             <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
-            <span>Japan Islamic Trust (Offline)</span>
+            <span>Dihitung di perangkat (Offline)</span>
           </div>
+        </div>
+
+        {/* Accordion: Koordinat manual & metode hitung */}
+        <div className="pt-2 border-t border-surface-container/70">
+          <button
+            type="button"
+            onClick={() => setShowManualCoords(!showManualCoords)}
+            className="w-full flex items-center justify-between text-left py-0.5 group cursor-pointer"
+          >
+            <span className="text-[13px] font-bold text-on-surface group-hover:text-primary transition-colors">
+              Koordinat manual & metode hitung
+            </span>
+            <span className="w-5 h-5 rounded-md bg-surface-container-low border border-surface-container text-on-surface text-[14px] font-bold flex items-center justify-center">
+              {showManualCoords ? '−' : '+'}
+            </span>
+          </button>
+
+          {showManualCoords && (
+            <div className="pt-3 flex flex-col gap-2.5">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant block mb-1">
+                    LINTANG
+                  </label>
+                  <input
+                    type="number"
+                    step="0.0001"
+                    value={customLat}
+                    onChange={(e) => handleLatChange(e.target.value)}
+                    placeholder="35.6762"
+                    className="w-full h-9 px-3 rounded-xl bg-surface-container-low text-[13px] font-bold text-on-surface border border-surface-container focus:outline-none focus:border-primary"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant block mb-1">
+                    BUJUR
+                  </label>
+                  <input
+                    type="number"
+                    step="0.0001"
+                    value={customLng}
+                    onChange={(e) => handleLngChange(e.target.value)}
+                    placeholder="139.6503"
+                    className="w-full h-9 px-3 rounded-xl bg-surface-container-low text-[13px] font-bold text-on-surface border border-surface-container focus:outline-none focus:border-primary"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant block mb-1">
+                    METODE
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={calcMethod}
+                      onChange={(e) => setCalcMethod(e.target.value as any)}
+                      className="w-full appearance-none h-9 pl-3 pr-8 rounded-xl bg-surface-container-low text-[12px] font-bold text-on-surface border border-surface-container focus:outline-none cursor-pointer"
+                    >
+                      <option value="MuslimWorldLeague">Muslim World League (18° / 17°)</option>
+                      <option value="Egyptian">Egyptian General Authority (19.5° / 17.5°)</option>
+                      <option value="Karachi">Karachi - Univ. of Islamic Sciences (18° / 18°)</option>
+                      <option value="UmmAlQura">Umm al-Qura University, Makkah</option>
+                    </select>
+                    <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px]">
+                      expand_more
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant block mb-1">
+                    MAZHAB ASHAR
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={calcMadhab}
+                      onChange={(e) => setCalcMadhab(e.target.value as any)}
+                      className="w-full appearance-none h-9 pl-3 pr-8 rounded-xl bg-surface-container-low text-[12px] font-bold text-on-surface border border-surface-container focus:outline-none cursor-pointer"
+                    >
+                      <option value="Shafi">Syafi'i / Jumhur</option>
+                      <option value="Hanafi">Hanafi</option>
+                    </select>
+                    <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[16px]">
+                      expand_more
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-[10.5px] text-on-surface-variant leading-relaxed">
+                Zona waktu Jepang tetap JST (UTC+9), berlaku di seluruh wilayah termasuk Okinawa dan Hokkaido.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

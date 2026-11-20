@@ -178,7 +178,9 @@ function formatTime(date: Date): string {
 
 export function getJapanPrayerTimes(
   locationInput: string | { latitude: number; longitude: number } = 'tokyo',
-  date = new Date()
+  date = new Date(),
+  method: 'MuslimWorldLeague' | 'Egyptian' | 'Karachi' | 'UmmAlQura' = 'MuslimWorldLeague',
+  madhab: 'Shafi' | 'Hanafi' = 'Shafi'
 ): DailyPrayers {
   let lat = 35.6762;
   let lng = 139.6503;
@@ -194,8 +196,12 @@ export function getJapanPrayerTimes(
 
   const coordinates = new Coordinates(lat, lng);
 
-  const params = CalculationMethod.MuslimWorldLeague();
-  params.madhab = Madhab.Shafi;
+  let params = CalculationMethod.MuslimWorldLeague();
+  if (method === 'Egyptian') params = CalculationMethod.Egyptian();
+  else if (method === 'Karachi') params = CalculationMethod.Karachi();
+  else if (method === 'UmmAlQura') params = CalculationMethod.UmmAlQura();
+
+  params.madhab = madhab === 'Hanafi' ? Madhab.Hanafi : Madhab.Shafi;
 
   const prayerTimes = new PrayerTimes(coordinates, date, params);
 
