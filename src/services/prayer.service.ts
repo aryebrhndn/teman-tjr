@@ -162,9 +162,18 @@ export function calculateQibla(latitude: number, longitude: number): number {
 }
 
 function formatTime(date: Date): string {
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${hours}:${minutes}`;
+  // Selalu tampilkan dalam zona waktu Jepang (JST / Asia/Tokyo / UTC+9)
+  // agar konsisten meskipun dibuka dari Indonesia (WIB UTC+7)
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Tokyo',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(date);
+
+  const hour = parts.find((p) => p.type === 'hour')?.value || '00';
+  const minute = parts.find((p) => p.type === 'minute')?.value || '00';
+  return `${hour}:${minute}`;
 }
 
 export function getJapanPrayerTimes(

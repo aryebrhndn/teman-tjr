@@ -170,28 +170,34 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
           </div>
         </div>
 
-        {/* 5 Daily Prayers */}
+        {/* 5 Daily Prayers - Highlight Waktu Sholat Berikutnya Secara Dinamis */}
         <div className="grid grid-cols-5 gap-1.5 pt-0.5">
-          <div className="flex flex-col items-center justify-center py-2 px-0.5 rounded-xl bg-surface-container-low text-center min-w-0">
-            <span className="text-[10.5px] text-on-surface-variant font-medium">Subuh</span>
-            <span className="text-[12px] font-bold text-on-surface mt-0.5">{prayers?.fajr || '04:15'}</span>
-          </div>
-          <div className="flex flex-col items-center justify-center py-2 px-0.5 rounded-xl bg-surface-container-low text-center min-w-0">
-            <span className="text-[10.5px] text-on-surface-variant font-medium">Dzuhur</span>
-            <span className="text-[12px] font-bold text-on-surface mt-0.5">{prayers?.dhuhr || '11:52'}</span>
-          </div>
-          <div className="flex flex-col items-center justify-center py-2 px-0.5 rounded-xl bg-secondary-container text-on-secondary-container text-center shadow-xs border border-secondary min-w-0">
-            <span className="text-[10.5px] font-black uppercase">Ashar</span>
-            <span className="text-[12px] font-black mt-0.5">{prayers?.asr || '15:20'}</span>
-          </div>
-          <div className="flex flex-col items-center justify-center py-2 px-0.5 rounded-xl bg-surface-container-low text-center min-w-0">
-            <span className="text-[10.5px] text-on-surface-variant font-medium">Maghrib</span>
-            <span className="text-[12px] font-bold text-on-surface mt-0.5">{prayers?.maghrib || '18:10'}</span>
-          </div>
-          <div className="flex flex-col items-center justify-center py-2 px-0.5 rounded-xl bg-surface-container-low text-center min-w-0">
-            <span className="text-[10.5px] text-on-surface-variant font-medium">Isya</span>
-            <span className="text-[12px] font-bold text-on-surface mt-0.5">{prayers?.isha || '19:28'}</span>
-          </div>
+          {[
+            { key: 'fajr', label: 'Subuh', time: prayers?.fajr || '04:53' },
+            { key: 'dhuhr', label: 'Dzuhur', time: prayers?.dhuhr || '11:28' },
+            { key: 'asr', label: 'Ashar', time: prayers?.asr || '14:12' },
+            { key: 'maghrib', label: 'Maghrib', time: prayers?.maghrib || '16:32' },
+            { key: 'isha', label: 'Isya', time: prayers?.isha || '17:56' },
+          ].map((item) => {
+            const active = prayers?.nextPrayer.name.toLowerCase().includes(item.label.toLowerCase());
+            return (
+              <div
+                key={item.key}
+                className={`flex flex-col items-center justify-center py-2 px-0.5 rounded-xl text-center min-w-0 transition-all ${
+                  active
+                    ? 'bg-secondary-container text-on-secondary-container shadow-xs border border-secondary'
+                    : 'bg-surface-container-low text-on-surface'
+                }`}
+              >
+                <span className={`text-[10.5px] ${active ? 'font-black uppercase text-on-secondary-container' : 'text-on-surface-variant font-medium'}`}>
+                  {item.label}
+                </span>
+                <span className={`text-[12px] mt-0.5 ${active ? 'font-black text-on-secondary-container' : 'font-bold text-on-surface'}`}>
+                  {item.time}
+                </span>
+              </div>
+            );
+          })}
         </div>
 
         <button
