@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tjr-companion-v20';
+const CACHE_NAME = 'tjr-companion-v21';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

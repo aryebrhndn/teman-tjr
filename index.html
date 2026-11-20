@@ -41,21 +41,63 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 
+    <style>
+      #nl-badge-frame,
+      #nl-hud-frame,
+      #netlify-drawer-root,
+      .netlify-drawer-root,
+      [data-netlify-drawer],
+      iframe[id^="nl-"],
+      iframe[title*="Netlify" i],
+      iframe[title*="Powered by Netlify" i] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        position: absolute !important;
+        left: -9999px !important;
+        z-index: -9999 !important;
+      }
+    </style>
+
     <script>
-      // Netlify Drawer blocker for clean mobile UI
-      const hideNetlifyDrawer = () => {
-        const el = document.getElementById('netlify-drawer-root') || document.querySelector('.netlify-drawer-root') || document.querySelector('[data-netlify-drawer]');
-        if (el) el.remove();
+      // Netlify HUD & Drawer Blocker
+      const killNetlifyHUD = () => {
+        const targets = [
+          '#nl-badge-frame',
+          '#nl-hud-frame',
+          '#netlify-drawer-root',
+          '.netlify-drawer-root',
+          '[data-netlify-drawer]',
+          'iframe[id^="nl-"]',
+          'iframe[title*="Netlify" i]',
+          'script[src*=".netlify/scripts/hud"]'
+        ];
+        targets.forEach((sel) => {
+          document.querySelectorAll(sel).forEach((el) => {
+            // Keep the inert dummy tags that prevent HUD script re-running
+            if (el.tagName !== 'DIV') {
+              el.remove();
+            }
+          });
+        });
       };
       if (typeof window !== 'undefined') {
-        const obs = new MutationObserver(hideNetlifyDrawer);
+        const obs = new MutationObserver(killNetlifyHUD);
         obs.observe(document.documentElement, { childList: true, subtree: true });
-        window.addEventListener('load', hideNetlifyDrawer);
+        window.addEventListener('load', killNetlifyHUD);
+        document.addEventListener('DOMContentLoaded', killNetlifyHUD);
       }
     </script>
 
   </head>
   <body class="bg-surface font-body-md text-on-surface antialiased flex flex-col min-h-screen">
+    <!-- Dummy elements to trigger Netlify HUD script early exit -->
+    <div id="nl-badge-frame" style="display:none!important;visibility:hidden!important;position:absolute!important;left:-9999px!important;"></div>
+    <div id="nl-hud-frame" style="display:none!important;visibility:hidden!important;position:absolute!important;left:-9999px!important;"></div>
+
     <div id="root" class="min-h-screen flex flex-col"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
