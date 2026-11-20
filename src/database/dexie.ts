@@ -22,6 +22,7 @@ export interface ItineraryDay {
   city?: string;
   theme?: string;
   notes?: string;
+  status?: 'Siap' | 'Dalam Rencana' | 'Selesai';
 }
 
 export interface ItineraryItem {
