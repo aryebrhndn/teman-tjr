@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { db, type Trip, type Expense, type ChecklistItem, type Budget } from '../../database/dexie';
 import { getJapanPrayerTimes, type DailyPrayers } from '../../services/prayer.service';
+import panoramaBg from '../../assets/Panorama-BGJPN.png';
 
 interface HomeScreenProps {
   onNavigateTab: (tab: string) => void;
@@ -84,24 +85,33 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
         </div>
       </div>
 
-      {/* 1. Trip Hero Card - Kompak, Proporsional & Presisi untuk Mobile */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1c1d1f] to-[#2a2c2f] text-white p-3.5 sm:p-4 shadow-xs border border-surface-container/20">
+      {/* 1. Trip Hero Card - Berlatar Belakang Foto Panorama-BGJPN */}
+      <div className="relative overflow-hidden rounded-2xl text-white p-3.5 sm:p-4 shadow-sm border border-surface-container/30 bg-[#1c1d1f]">
+        {/* Background Panorama Image */}
+        <img
+          src={panoramaBg}
+          alt="Panorama Jepang"
+          className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
+        />
+        {/* Dark Gradient Overlay agar teks tetap kontras, tajam, dan mudah dibaca */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/75 pointer-events-none" />
+
         <div className="relative z-10 flex flex-col space-y-2">
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container text-[10.5px] font-bold shadow-2xs">
               <span className="material-symbols-outlined text-[13px]">event</span>
               H - 14 Hari Menuju Berangkat
             </span>
-            <span className="text-[10px] text-white/60 tracking-wider uppercase font-bold">
+            <span className="text-[10px] text-white/90 tracking-wider uppercase font-bold drop-shadow-xs">
               Musim Semi
             </span>
           </div>
 
           <div>
-            <h3 className="text-[16px] font-extrabold text-white tracking-tight leading-snug">
+            <h3 className="text-[16px] font-extrabold text-white tracking-tight leading-snug drop-shadow-sm">
               {trip?.name || 'Jelajah Tokyo, Kyoto & Osaka 2025'}
             </h3>
-            <p className="text-[11.5px] text-white/80 flex items-center gap-1.5 font-medium mt-0.5">
+            <p className="text-[11.5px] text-white/95 flex items-center gap-1.5 font-medium mt-0.5 drop-shadow-xs">
               <span className="material-symbols-outlined text-[14px] text-secondary">calendar_today</span>
               12 - 19 April 2025 • 7 Hari Perjalanan
             </p>
