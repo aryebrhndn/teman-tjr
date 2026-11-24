@@ -10,6 +10,7 @@ import {
 import { supabase, isSupabaseConfigured } from '../../services/supabase.client';
 import { JAPAN_PRAYER_PLACES } from '../../data/japanPrayerPlaces';
 import { formatHijriDateTokyo } from '../../utils/tripDates';
+import { ConfirmModal } from '../../components/common/ConfirmModal';
 
 export const PrayerScreen: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>('tokyo');
@@ -22,6 +23,7 @@ export const PrayerScreen: React.FC = () => {
 
   const [gpsCoords, setGpsCoords] = useState<{ latitude: number; longitude: number; label: string } | null>(null);
   const [isGpsLoading, setIsGpsLoading] = useState(false);
+  const [gpsAlertMessage, setGpsAlertMessage] = useState<string | null>(null);
   const [prayers, setPrayers] = useState<DailyPrayers | null>(null);
   const [tickerSeconds, setTickerSeconds] = useState<number>(5055); // ~1h 24m 15s
   const [prayerPlaces, setPrayerPlaces] = useState<PrayerPlace[]>(JAPAN_PRAYER_PLACES);
@@ -208,7 +210,7 @@ export const PrayerScreen: React.FC = () => {
     }
 
     if (!navigator.geolocation) {
-      alert('Perangkat Anda tidak mendukung fitur Geolocation.');
+      setGpsAlertMessage('Perangkat Anda tidak mendukung fitur Geolocation.');
       return;
     }
 
@@ -227,7 +229,7 @@ export const PrayerScreen: React.FC = () => {
       },
       (err) => {
         setIsGpsLoading(false);
-        alert(`Tidak dapat mendeteksi GPS (${err.message}). Menggunakan lokasi kota pilihan.`);
+        setGpsAlertMessage(`Tidak dapat mendeteksi GPS (${err.message}). Menggunakan lokasi kota pilihan.`);
       },
       { timeout: 8000, enableHighAccuracy: true }
     );
@@ -832,6 +834,17 @@ export const PrayerScreen: React.FC = () => {
           )}
         </div>
       </div>
+
+      <ConfirmModal
+        open={!!gpsAlertMessage}
+        title="Informasi GPS"
+        message={gpsAlertMessage || ''}
+        confirmLabel="Mengerti"
+        hideCancel
+        icon="location_off"
+        onConfirm={() => setGpsAlertMessage(null)}
+        onCancel={() => setGpsAlertMessage(null)}
+      />
     </div>
   );
 };

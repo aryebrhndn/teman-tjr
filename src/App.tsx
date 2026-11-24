@@ -11,7 +11,7 @@ import { BekalScreen } from './features/checklist/BekalScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
 import { PwaInstallPromptModal } from './components/pwa/PwaInstallPromptModal';
 
-const APP_BUILD_ID = '2026.11.24-build30';
+const APP_BUILD_ID = '2026.11.24-build31';
 
 export function App() {
   const [isReady, setIsReady] = useState(false);

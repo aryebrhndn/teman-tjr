@@ -6,6 +6,7 @@ interface ConfirmModalProps {
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  hideCancel?: boolean;
   icon?: string;
   onConfirm: () => void;
   onCancel: () => void;
@@ -17,6 +18,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   message,
   confirmLabel = 'Hapus',
   cancelLabel = 'Batal',
+  hideCancel = false,
   icon = 'delete',
   onConfirm,
   onCancel,
@@ -46,13 +48,15 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
         <p className="text-[12px] text-on-surface-variant mt-1.5 leading-relaxed">{message}</p>
 
         <div className="flex gap-2 w-full mt-5">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="flex-1 h-9.5 rounded-xl bg-surface-container text-[12px] font-bold text-on-surface hover:bg-surface-container-high active:scale-98 transition-all cursor-pointer"
-          >
-            {cancelLabel}
-          </button>
+          {!hideCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex-1 h-9.5 rounded-xl bg-surface-container text-[12px] font-bold text-on-surface hover:bg-surface-container-high active:scale-98 transition-all cursor-pointer"
+            >
+              {cancelLabel}
+            </button>
+          )}
           <button
             type="button"
             onClick={onConfirm}

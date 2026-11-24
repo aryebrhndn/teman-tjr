@@ -117,6 +117,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
   const [showGuideModal, setShowGuideModal] = useState<boolean>(false);
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [pendingRestoreJson, setPendingRestoreJson] = useState<any | null>(null);
+  const [infoAlert, setInfoAlert] = useState<{ title: string; message: string } | null>(null);
 
   // Appearance state (Theme & Global Font Size)
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => getStoredTheme());
@@ -291,7 +292,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
       }
 
       // 3. Mark update timestamp in localStorage
-      localStorage.setItem('tjr_last_build', '2026.11.20-build11');
+      localStorage.setItem('tjr_last_build', '2026.11.24-build31');
 
       setFeedback('Cache lama dibersihkan! Memuat versi terbaru...');
 
@@ -302,7 +303,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         window.location.href = url.toString();
       }, 700);
     } catch (err: any) {
-      alert('Gagal membersihkan cache: ' + err.message);
+      setInfoAlert({ title: 'Pembaruan Gagal', message: 'Gagal membersihkan cache: ' + err.message });
       setIsUpdating(false);
     }
   };
@@ -342,7 +343,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
       setFeedback('Backup data perjalanan berhasil diunduh!');
       setTimeout(() => setFeedback(null), 3000);
     } catch (e: any) {
-      alert('Gagal mengekspor data: ' + e.message);
+      setInfoAlert({ title: 'Ekspor Gagal', message: 'Gagal mengekspor data: ' + e.message });
     }
   };
 
@@ -357,13 +358,16 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         const json = JSON.parse(text);
 
         if (json.app !== 'teman-jalan-ryan-companion' || !json.data) {
-          alert('File tidak valid. Pastikan file backup resmi Teman Jalan Ryan.');
+          setInfoAlert({
+            title: 'File Tidak Valid',
+            message: 'Pastikan file cadangan yang dipilih adalah file resmi Teman TJR (.json).',
+          });
           return;
         }
 
         setPendingRestoreJson(json);
       } catch (err: any) {
-        alert('Format file JSON rusak: ' + err.message);
+        setInfoAlert({ title: 'Format File Rusak', message: 'Format file JSON rusak: ' + err.message });
       } finally {
         if (fileInputRef.current) fileInputRef.current.value = '';
       }
@@ -414,7 +418,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         window.location.reload();
       }, 1500);
     } catch (err: any) {
-      alert('Gagal memulihkan data: ' + err.message);
+      setInfoAlert({ title: 'Pemulihan Gagal', message: 'Gagal memulihkan data: ' + err.message });
     }
   };
 
@@ -808,6 +812,17 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         icon="warning"
         onConfirm={confirmDeactivate}
         onCancel={() => setShowResetConfirm(false)}
+      />
+
+      <ConfirmModal
+        open={!!infoAlert}
+        title={infoAlert?.title || 'Informasi'}
+        message={infoAlert?.message || ''}
+        confirmLabel="Mengerti"
+        hideCancel
+        icon="info"
+        onConfirm={() => setInfoAlert(null)}
+        onCancel={() => setInfoAlert(null)}
       />
     </div>
   );

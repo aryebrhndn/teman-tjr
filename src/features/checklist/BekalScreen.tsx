@@ -33,6 +33,7 @@ export const BekalScreen: React.FC = () => {
   const [showAddSublist, setShowAddSublist] = useState(false);
   const [newSublistName, setNewSublistName] = useState('');
   const [pendingDeleteSublist, setPendingDeleteSublist] = useState<PackingSublist | null>(null);
+  const [infoAlertMessage, setInfoAlertMessage] = useState<string | null>(null);
 
   async function loadData() {
     let allItems = await db.checklist_items.orderBy('sort_order').toArray();
@@ -211,7 +212,7 @@ export const BekalScreen: React.FC = () => {
     if (!name) return;
 
     if (sublists.some((s) => s.name.toLowerCase() === name.toLowerCase())) {
-      alert('Nama sub-list tersebut sudah ada.');
+      setInfoAlertMessage('Nama sub-list tersebut sudah ada. Silakan gunakan nama lain.');
       return;
     }
 
@@ -648,6 +649,17 @@ export const BekalScreen: React.FC = () => {
         confirmLabel="Hapus"
         onConfirm={confirmDeleteSublist}
         onCancel={() => setPendingDeleteSublist(null)}
+      />
+
+      <ConfirmModal
+        open={!!infoAlertMessage}
+        title="Perhatian"
+        message={infoAlertMessage || ''}
+        confirmLabel="Mengerti"
+        hideCancel
+        icon="info"
+        onConfirm={() => setInfoAlertMessage(null)}
+        onCancel={() => setInfoAlertMessage(null)}
       />
     </div>
   );
