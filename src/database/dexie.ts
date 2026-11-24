@@ -67,6 +67,7 @@ export interface Expense {
 export interface ChecklistItem {
   id: string;
   section?: 'timeline' | 'packing';
+  group?: string;
   category: 'Documents' | 'Electronics' | 'Clothing' | 'Personal Care' | 'Medication' | 'Travel Accessories' | 'Worship Equipment';
   title: string;
   completed: boolean;

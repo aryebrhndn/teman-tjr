@@ -1,6 +1,10 @@
 import { db } from './dexie';
 import { JAPAN_PRAYER_PLACES } from '../data/japanPrayerPlaces';
-import { ALL_DEFAULT_CHECKLIST } from '../data/bekalDefaults';
+import {
+  ALL_DEFAULT_CHECKLIST,
+  DEFAULT_PACKING_ITEMS,
+  DEFAULT_PACKING_SUBLISTS,
+} from '../data/bekalDefaults';
 
 export const MAIN_TRIP_ID = 'trip-main';
 
@@ -102,8 +106,56 @@ export async function initializeDatabaseSeed() {
       });
     }
 
+    await db.app_settings.put({
+      key: 'packing_sublists',
+      value: DEFAULT_PACKING_SUBLISTS,
+      updated_at: new Date().toISOString(),
+    });
+
     await db.local_meta.put({ key: 'hitori_v2_migrated', value: true });
+    await db.local_meta.put({ key: 'hitori_v3_packing_sublists', value: true });
     return;
+  }
+
+  // One-time v3 migration: upgrade flat packing list to Hitori structured sub-lists & sync expanded prayer places
+  const migratedV3 = await db.local_meta.get('hitori_v3_packing_sublists');
+  if (!migratedV3) {
+    // Keep all timeline items + user custom packing items, replace default flat packing items with Hitori sub-lists
+    const allExisting = await db.checklist_items.toArray();
+    const keepTimeline = allExisting.filter(
+      (i) => i.section === 'timeline' || typeof i.days_before_departure === 'number'
+    );
+    const keepCustomPacking = allExisting.filter(
+      (i) => i.section === 'packing' && i.is_custom === true
+    );
+
+    await db.checklist_items.clear();
+    for (const item of keepTimeline) {
+      await db.checklist_items.put(item);
+    }
+    for (const item of DEFAULT_PACKING_ITEMS) {
+      await db.checklist_items.put(item);
+    }
+    for (const custom of keepCustomPacking) {
+      await db.checklist_items.put({
+        ...custom,
+        group: custom.group || 'Lain-lain',
+        season: custom.season || 'all',
+      });
+    }
+
+    await db.app_settings.put({
+      key: 'packing_sublists',
+      value: DEFAULT_PACKING_SUBLISTS,
+      updated_at: new Date().toISOString(),
+    });
+
+    // Also refresh Japan prayer places with the expanded 74-city directory
+    for (const pp of JAPAN_PRAYER_PLACES) {
+      await db.prayer_places.put(pp);
+    }
+
+    await db.local_meta.put({ key: 'hitori_v3_packing_sublists', value: true });
   }
 
   // Safety check: ensure at least 1 trip exists

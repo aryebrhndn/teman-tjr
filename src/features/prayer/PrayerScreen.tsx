@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { db, type PrayerPlace } from '../../database/dexie';
-import { JAPAN_CITIES, getJapanPrayerTimes, type DailyPrayers } from '../../services/prayer.service';
+import {
+  JAPAN_CITIES,
+  JAPAN_CITY_LIST,
+  calculateDistanceKm,
+  getJapanPrayerTimes,
+  type DailyPrayers,
+} from '../../services/prayer.service';
 import { supabase, isSupabaseConfigured } from '../../services/supabase.client';
 import { JAPAN_PRAYER_PLACES } from '../../data/japanPrayerPlaces';
 
 export const PrayerScreen: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>('tokyo');
-  const [customLat, setCustomLat] = useState<string>('35.6762');
-  const [customLng, setCustomLng] = useState<string>('139.6503');
+  const [customLat, setCustomLat] = useState<string>('35.6895');
+  const [customLng, setCustomLng] = useState<string>('139.6917');
   const [calcMethod, setCalcMethod] = useState<'MuslimWorldLeague' | 'Egyptian' | 'Karachi' | 'UmmAlQura'>('MuslimWorldLeague');
   const [calcMadhab, setCalcMadhab] = useState<'Shafi' | 'Hanafi'>('Shafi');
   const [showManualCoords, setShowManualCoords] = useState<boolean>(false);
@@ -253,36 +259,82 @@ export const PrayerScreen: React.FC = () => {
 
   const isAligned = isCompassActive && (needleRotation <= 3.5 || needleRotation >= 356.5);
 
-  // Filtered places: correlated to selectedCity (or search query if entered)
-  const filteredPlaces = prayerPlaces.filter((place) => {
-    // If user enters search query, match query across all
+  // Active coordinates for both prayer times and nearest-mosque Haversine sorting
+  const activeCoords = (() => {
+    const parsedLat = parseFloat(customLat);
+    const parsedLng = parseFloat(customLng);
+    if (isManualMode && !isNaN(parsedLat) && !isNaN(parsedLng)) {
+      return { latitude: parsedLat, longitude: parsedLng };
+    }
+    if (gpsCoords) {
+      return { latitude: gpsCoords.latitude, longitude: gpsCoords.longitude };
+    }
+    const cityObj = JAPAN_CITIES[selectedCity] || JAPAN_CITIES.tokyo;
+    return { latitude: cityObj.latitude, longitude: cityObj.longitude };
+  })();
+
+  const activeLocationName = isManualMode
+    ? 'Koordinat Manual'
+    : gpsCoords
+    ? 'Lokasi GPS'
+    : JAPAN_CITIES[selectedCity]?.name || 'Tokyo (Shinjuku)';
+
+  // Deduplicate places and compute real Haversine distance from active location
+  const placesWithDistance = (() => {
+    const seen = new Set<string>();
+    const unique: Array<PrayerPlace & { distKm: number }> = [];
+    for (const p of prayerPlaces) {
+      const key = p.name.trim().toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const distKm = calculateDistanceKm(
+        activeCoords.latitude,
+        activeCoords.longitude,
+        p.latitude,
+        p.longitude
+      );
+      unique.push({ ...p, distKm });
+    }
+    unique.sort((a, b) => a.distKm - b.distKm);
+    return unique;
+  })();
+
+  // Filtered places: search across all if query is typed; otherwise real nearby mosques by Haversine distance
+  const filteredPlaces = (() => {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      return (
-        place.name.toLowerCase().includes(q) ||
-        place.address.toLowerCase().includes(q) ||
-        place.city.toLowerCase().includes(q)
-      );
+      return placesWithDistance
+        .filter(
+          (place) =>
+            place.name.toLowerCase().includes(q) ||
+            place.address.toLowerCase().includes(q) ||
+            place.city.toLowerCase().includes(q) ||
+            place.prefecture.toLowerCase().includes(q)
+        )
+        .slice(0, 15);
     }
 
-    // Default: match selectedCity
-    const targetCity = selectedCity.toLowerCase();
-    const placeCity = (place.city || '').toLowerCase();
-    const placePref = (place.prefecture || '').toLowerCase();
-    const targetCityName = (JAPAN_CITIES[selectedCity]?.name || '').toLowerCase();
+    // Primary radius: 25 km (accurate local mosques for selected city or manual/GPS coordinate)
+    const within25 = placesWithDistance.filter((p) => p.distKm <= 25).slice(0, 10);
+    if (within25.length > 0) return within25;
 
-    return (
-      placeCity === targetCity ||
-      placeCity.includes(targetCity) ||
-      placePref.includes(targetCity) ||
-      placeCity.includes(targetCityName) ||
-      targetCityName.includes(placeCity)
-    );
-  });
+    // Secondary radius for suburban/nearby areas: 55 km (up to 5 real nearby places)
+    return placesWithDistance.filter((p) => p.distKm <= 55).slice(0, 5);
+  })();
+
+  const formatDist = (km: number) => (km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`);
 
   const openGoogleMaps = (place: PrayerPlace) => {
     const query = encodeURIComponent(`${place.name}, ${place.address}`);
     window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+  };
+
+  const openNearbyGoogleMaps = () => {
+    const query = encodeURIComponent(`mosque OR prayer room`);
+    window.open(
+      `https://www.google.com/maps/search/${query}/@${activeCoords.latitude},${activeCoords.longitude},14z`,
+      '_blank'
+    );
   };
 
   return (
@@ -292,7 +344,7 @@ export const PrayerScreen: React.FC = () => {
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
             <span className="material-symbols-outlined text-[17px] text-primary">location_on</span>
-            Lokasi Waktu Sholat
+            Pilih Kota / Titik
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -310,33 +362,36 @@ export const PrayerScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Full width dropdown to prevent horizontal overlap */}
+        {/* Full width dropdown with all 74 Japan locations + manual coordinates */}
         <div className="relative w-full">
           <select
             id="city-selector"
-            value={isManualMode ? 'manual' : selectedCity}
+            value={isManualMode ? 'manual' : gpsCoords ? 'gps' : selectedCity}
             onChange={(e) => {
-              if (e.target.value !== 'manual') {
-                handleCityChange(e.target.value);
+              const val = e.target.value;
+              if (val === 'manual') {
+                setIsManualMode(true);
+                setGpsCoords(null);
+                setShowManualCoords(true);
+              } else if (val !== 'gps') {
+                setGpsCoords(null);
+                handleCityChange(val);
               }
             }}
+            style={{ appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none', backgroundImage: 'none' }}
             className="w-full appearance-none bg-surface-container-low text-[13.5px] font-bold text-on-surface pl-3 pr-9 py-2.5 rounded-xl focus:outline-none cursor-pointer border border-surface-container shadow-2xs"
           >
-            {isManualMode && (
-              <option value="manual">
-                Koordinat Manual ({parseFloat(customLat).toFixed(2)}°, {parseFloat(customLng).toFixed(2)}°)
-              </option>
-            )}
             {gpsCoords && (
               <option value="gps">
-                GPS ({gpsCoords.latitude.toFixed(2)}°, {gpsCoords.longitude.toFixed(2)}°)
+                GPS ({gpsCoords.latitude.toFixed(4)}°, {gpsCoords.longitude.toFixed(4)}°)
               </option>
             )}
-            {Object.values(JAPAN_CITIES).map((c) => (
+            {JAPAN_CITY_LIST.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.name} ({c.sublabel})
+                {c.name}
               </option>
             ))}
+            <option value="manual">— koordinat manual —</option>
           </select>
           <span className="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
             expand_more
@@ -413,6 +468,7 @@ export const PrayerScreen: React.FC = () => {
                     <select
                       value={calcMethod}
                       onChange={(e) => setCalcMethod(e.target.value as any)}
+                      style={{ appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none', backgroundImage: 'none' }}
                       className="w-full appearance-none h-9 pl-3 pr-8 rounded-xl bg-surface-container-low text-[12px] font-bold text-on-surface border border-surface-container focus:outline-none cursor-pointer"
                     >
                       <option value="MuslimWorldLeague">Muslim World League (18° / 17°)</option>
@@ -434,6 +490,7 @@ export const PrayerScreen: React.FC = () => {
                     <select
                       value={calcMadhab}
                       onChange={(e) => setCalcMadhab(e.target.value as any)}
+                      style={{ appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none', backgroundImage: 'none' }}
                       className="w-full appearance-none h-9 pl-3 pr-8 rounded-xl bg-surface-container-low text-[12px] font-bold text-on-surface border border-surface-container focus:outline-none cursor-pointer"
                     >
                       <option value="Shafi">Syafi'i / Jumhur</option>
@@ -542,9 +599,11 @@ export const PrayerScreen: React.FC = () => {
           <div className="flex items-center gap-1.5 text-on-surface-variant truncate">
             <span className="material-symbols-outlined text-[15px] text-primary">my_location</span>
             <span className="truncate">
-              {gpsCoords
-                ? `${gpsCoords.label} (${gpsCoords.latitude.toFixed(2)}°, ${gpsCoords.longitude.toFixed(2)}°)`
-                : `${JAPAN_CITIES[selectedCity]?.label || 'Tokyo'} • ${targetQibla.toFixed(1)}°`}
+              {isManualMode
+                ? `Koordinat Manual (${activeCoords.latitude.toFixed(2)}°, ${activeCoords.longitude.toFixed(2)}°) • ${targetQibla.toFixed(1)}°`
+                : gpsCoords
+                ? `${gpsCoords.label} (${gpsCoords.latitude.toFixed(2)}°, ${gpsCoords.longitude.toFixed(2)}°) • ${targetQibla.toFixed(1)}°`
+                : `${JAPAN_CITIES[selectedCity]?.label || 'Tokyo (Shinjuku)'} • ${targetQibla.toFixed(1)}°`}
             </span>
           </div>
           <button
@@ -678,19 +737,19 @@ export const PrayerScreen: React.FC = () => {
         )}
       </div>
 
-      {/* Card 3: Direktori Masjid & Musholla Terdekat Sesuai Lokasi Terpilih */}
+      {/* Card 3: Direktori Masjid & Musholla Terdekat Sesuai Lokasi / Koordinat Aktif */}
       <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs flex flex-col gap-2.5 border border-surface-container/80">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <div className="min-w-0 flex-1">
             <h3 className="text-[14px] font-bold text-on-surface truncate">
-              Masjid & Musholla Terdekat
+              Masjid &amp; Musholla Terdekat
             </h3>
             <p className="text-[11px] text-on-surface-variant mt-0.5 truncate">
-              Rekomendasi di {JAPAN_CITIES[selectedCity]?.name || 'Jepang'} ({filteredPlaces.length} lokasi)
+              Sekitar {activeLocationName} ({filteredPlaces.length} lokasi ditemukan)
             </p>
           </div>
-          <span className="px-2.5 py-1 rounded-lg bg-surface-container-high text-on-surface text-[11px] font-bold shrink-0">
-            {JAPAN_CITIES[selectedCity]?.name || 'Jepang'}
+          <span className="px-2.5 py-1 rounded-lg bg-surface-container-high text-on-surface text-[11px] font-bold shrink-0 max-w-[130px] truncate">
+            {activeLocationName}
           </span>
         </div>
 
@@ -700,7 +759,7 @@ export const PrayerScreen: React.FC = () => {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={`Cari tempat ibadah di ${JAPAN_CITIES[selectedCity]?.name || 'Jepang'}...`}
+            placeholder="Cari nama masjid atau kota di Jepang..."
             className="w-full h-9 pl-9 pr-8 rounded-xl bg-surface-container-low text-[12.5px] text-on-surface placeholder:text-outline focus:outline-none border border-surface-container"
           />
           <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline text-[17px]">
@@ -710,14 +769,14 @@ export const PrayerScreen: React.FC = () => {
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer"
             >
               <span className="material-symbols-outlined text-[16px]">close</span>
             </button>
           )}
         </div>
 
-        {/* Directory Listing Items - Ukuran Sama Rata, Hanya Judul, Lokasi, dan Tombol Maps */}
+        {/* Directory Listing Items - Ukuran Sama Rata, Judul, Jarak + Alamat, dan Tombol Maps */}
         <div className="flex flex-col gap-2">
           {filteredPlaces.length > 0 ? (
             filteredPlaces.map((place) => (
@@ -730,6 +789,8 @@ export const PrayerScreen: React.FC = () => {
                     {place.name}
                   </h4>
                   <p className="text-[11px] text-on-surface-variant truncate mt-1">
+                    <span className="font-bold text-primary">{formatDist(place.distKm)}</span>
+                    {' · '}
                     {place.address}
                   </p>
                 </div>
@@ -743,8 +804,15 @@ export const PrayerScreen: React.FC = () => {
               </div>
             ))
           ) : (
-            <div className="p-4 text-center text-on-surface-variant bg-surface-container-low rounded-xl text-[12px] border border-surface-container/60">
-              Belum ada data masjid/musholla untuk area ini.
+            <div className="p-4 text-center text-on-surface-variant bg-surface-container-low rounded-xl text-[12px] border border-surface-container/60 space-y-2">
+              <p>Belum ada masjid/musholla terdaftar dalam radius 55 km dari titik ini.</p>
+              <button
+                type="button"
+                onClick={openNearbyGoogleMaps}
+                className="h-8 px-3.5 rounded-xl bg-primary text-white text-[11.5px] font-bold inline-flex items-center justify-center cursor-pointer"
+              >
+                Cari di Google Maps
+              </button>
             </div>
           )}
         </div>

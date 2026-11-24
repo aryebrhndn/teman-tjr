@@ -265,26 +265,44 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
     categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.converted_idr;
   }
 
+  const [selectedExpCat, setSelectedExpCat] = useState<string>('Semua');
+
+  const categoryLabels: Record<string, string> = {
+    Food: 'Makan',
+    Transportation: 'Transport',
+    Attraction: 'Wisata',
+    Shopping: 'Belanja',
+    Accommodation: 'Hotel',
+    Other: 'Lainnya',
+  };
+
+  const filteredExpenses =
+    selectedExpCat === 'Semua'
+      ? expenses
+      : expenses.filter((e) => e.category === selectedExpCat);
+
   const formatRupiah = (num: number) => new Intl.NumberFormat('id-ID').format(Math.round(num));
   const formatJpy = (num: number) => new Intl.NumberFormat('ja-JP').format(Math.round(num));
 
   return (
-    <div className="flex flex-col w-full space-y-3.5 sm:space-y-4">
-      {/* Mode Switcher Pill - Minimalis 1 Baris */}
+    <div className="flex flex-col w-full space-y-4">
+      {/* Mode Switcher Pill - Pisah Tegas: Rencana Anggaran vs Konverter Kurs */}
       <div className="p-1 rounded-2xl bg-surface-container-high flex items-center justify-between shadow-2xs">
         <button
+          type="button"
           onClick={() => setActiveTab('overview')}
-          className={`flex-1 py-2 px-3 rounded-xl text-[12px] font-bold text-center transition-all ${
+          className={`flex-1 py-2 px-3 rounded-xl text-[12.5px] font-bold text-center transition-all cursor-pointer ${
             activeTab === 'overview'
               ? 'bg-surface-container-lowest text-primary shadow-2xs'
               : 'text-on-surface-variant'
           }`}
         >
-          Ringkasan Biaya
+          Rencana Anggaran
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab('converter')}
-          className={`flex-1 py-2 px-3 rounded-xl text-[12px] font-bold text-center transition-all ${
+          className={`flex-1 py-2 px-3 rounded-xl text-[12.5px] font-bold text-center transition-all cursor-pointer ${
             activeTab === 'converter'
               ? 'bg-surface-container-lowest text-primary shadow-2xs'
               : 'text-on-surface-variant'
@@ -294,301 +312,246 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
         </button>
       </div>
 
-      {/* SECTION 1: Quick Currency Converter Box - Bersih, Seimbang & Presisi */}
-      <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-xs border border-surface-container/80">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-[12.5px] font-bold text-on-surface">
-            Konverter Kurs
-          </span>
-          <button
-            onClick={handleOpenEditRate}
-            className="text-primary text-[11px] font-bold hover:underline"
-          >
-            Atur Kurs
-          </button>
-        </div>
-
-        {/* Converter Form */}
-        <div className="flex flex-col gap-2 relative">
-          {/* JPY Block */}
-          <div className="bg-surface-container-low rounded-xl px-3.5 py-3 flex items-center justify-between gap-3 border border-surface-container/60">
-            {/* Flag & Currency Code */}
-            <div className="flex items-center gap-2.5 shrink-0">
-              <div className="w-7 h-7 rounded-full bg-white border border-surface-container-high flex items-center justify-center shrink-0 shadow-2xs overflow-hidden">
-                <div className="w-3.5 h-3.5 rounded-full bg-[#bc002d]"></div>
-              </div>
-              <div className="flex flex-col justify-center leading-none">
-                <span className="font-extrabold text-[14px] text-on-surface tracking-tight">JPY</span>
-                <span className="text-[10px] text-on-surface-variant font-medium mt-0.5">Yen Jepang</span>
-              </div>
-            </div>
-
-            {/* Value & Symbol - Sejajar di Kanan, Berdampingan Menempel Sempurna */}
-            <div
-              onClick={() => jpyInputRef.current?.focus()}
-              className="flex-1 flex items-center justify-end gap-1 min-w-0 cursor-text"
-            >
-              <span className="text-[15px] font-black text-on-surface-variant shrink-0 select-none">
-                ¥
-              </span>
-              <input
-                ref={jpyInputRef}
-                type="text"
-                inputMode="numeric"
-                value={formatWithDots(jpyVal)}
-                onChange={(e) => handleJpyChange(e.target.value)}
-                readOnly={!isJpyToIdr}
-                placeholder="0"
-                style={{ width: `${Math.max(1, (formatWithDots(jpyVal) || '0').length + 0.3)}ch` }}
-                className="bg-transparent text-right text-[18px] sm:text-[19px] font-black text-on-surface tabular-nums tracking-tight focus:outline-none shrink-0"
-              />
-            </div>
-          </div>
-
-          {/* Swap Button di Tengah */}
-          <div className="flex justify-center -my-2.5 z-10">
+      {/* TAB 2: KONVERTER KURS (Terpisah Penuh, Bersih Apa Adanya) */}
+      {activeTab === 'converter' && (
+        <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-2xs border border-surface-container">
+          <div className="flex items-center justify-between mb-3.5">
+            <span className="text-[14px] font-bold text-on-surface">Konverter Kurs</span>
             <button
               type="button"
-              aria-label="Tukar Posisi Mata Uang"
-              onClick={() => setIsJpyToIdr(!isJpyToIdr)}
-              className="w-7.5 h-7.5 rounded-full bg-surface-container-highest hover:bg-secondary-container text-on-surface hover:text-on-secondary-container shadow-xs flex items-center justify-center active:scale-95 transition-all border border-surface-container"
+              onClick={handleOpenEditRate}
+              className="text-primary text-[11.5px] font-bold hover:underline cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[17px]">swap_vert</span>
+              Atur Kurs
             </button>
           </div>
 
-          {/* IDR Block */}
-          <div className="bg-surface-container-low rounded-xl px-3.5 py-3 flex items-center justify-between gap-3 border border-surface-container/60">
-            {/* Flag & Currency Code */}
-            <div className="flex items-center gap-2.5 shrink-0">
-              <div className="w-7 h-7 rounded-full border border-surface-container-high flex flex-col shrink-0 shadow-2xs overflow-hidden">
-                <div className="w-full h-1/2 bg-[#d80027]"></div>
-                <div className="w-full h-1/2 bg-white"></div>
+          {/* Converter Form */}
+          <div className="flex flex-col gap-2 relative">
+            {/* JPY Block */}
+            <div className="bg-surface-container-low rounded-xl px-3.5 py-3 flex items-center justify-between gap-3 border border-surface-container/60">
+              <div className="flex items-center gap-2.5 shrink-0">
+                <div className="w-7 h-7 rounded-full bg-white border border-surface-container-high flex items-center justify-center shrink-0 shadow-2xs overflow-hidden">
+                  <div className="w-3.5 h-3.5 rounded-full bg-[#bc002d]"></div>
+                </div>
+                <div className="flex flex-col justify-center leading-none">
+                  <span className="font-extrabold text-[14px] text-on-surface tracking-tight">JPY</span>
+                  <span className="text-[10px] text-on-surface-variant font-medium mt-0.5">Yen Jepang</span>
+                </div>
               </div>
-              <div className="flex flex-col justify-center leading-none">
-                <span className="font-extrabold text-[14px] text-on-surface tracking-tight">IDR</span>
-                <span className="text-[10px] text-on-surface-variant font-medium mt-0.5">Rupiah</span>
-              </div>
-            </div>
 
-            {/* Value & Symbol - Sejajar di Kanan, Berdampingan Menempel Sempurna */}
-            <div
-              onClick={() => idrInputRef.current?.focus()}
-              className="flex-1 flex items-center justify-end gap-1 min-w-0 cursor-text"
-            >
-              <span className="text-[15px] font-black text-primary shrink-0 select-none">
-                Rp
-              </span>
-              <input
-                ref={idrInputRef}
-                type="text"
-                inputMode="numeric"
-                value={formatWithDots(idrVal)}
-                onChange={(e) => handleIdrChange(e.target.value)}
-                readOnly={isJpyToIdr}
-                placeholder="0"
-                style={{ width: `${Math.max(1, (formatWithDots(idrVal) || '0').length + 0.3)}ch` }}
-                className="bg-transparent text-right text-[18px] sm:text-[19px] font-black text-primary tabular-nums tracking-tight focus:outline-none shrink-0"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Presets dengan Pemisah Titik Ribuan */}
-        <div className="flex items-center gap-1.5 mt-3 overflow-x-auto pb-0.5">
-          {[1000, 3000, 5000, 10000, 30000].map((amt) => (
-            <button
-              key={amt}
-              onClick={() => setPresetJpy(amt)}
-              className="h-7 px-2.5 rounded-lg bg-surface-container text-on-surface text-[11px] font-bold hover:bg-primary hover:text-white transition-colors shrink-0 active:scale-95"
-            >
-              ¥{new Intl.NumberFormat('id-ID').format(amt)}
-            </button>
-          ))}
-        </div>
-
-        {/* Minimal Rate Footer */}
-        <div className="mt-2.5 pt-2 flex items-center justify-between text-on-surface-variant text-[11px] border-t border-surface-container/70">
-          <span>
-            1 JPY = <strong className="text-on-surface">Rp {rate.toFixed(2)}</strong>
-          </span>
-          <span className="text-[10px] font-semibold text-on-surface-variant/80">
-            Siap Offline
-          </span>
-        </div>
-      </div>
-
-
-      {activeTab === 'overview' && (
-        <>
-          {/* SECTION 2: Budget Card Overview */}
-          <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-xs relative overflow-hidden border border-surface-container/80">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <span className="text-on-surface-variant text-[9.5px] uppercase tracking-wider block font-bold">
-                  Buku Anggaran Traveling
-                </span>
-                <h2 className="text-[14px] font-bold text-on-surface leading-tight mt-0.5">
-                  {budget?.name || 'Trip Musim Semi Tokyo-Kyoto'}
-                </h2>
-              </div>
-              <button
-                onClick={handleOpenEditBudget}
-                className="h-8 px-2.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary text-[11px] font-bold flex items-center gap-1 transition-colors active:scale-95 border border-surface-container shadow-2xs"
+              <div
+                onClick={() => jpyInputRef.current?.focus()}
+                className="flex-1 flex items-center justify-end gap-1 min-w-0 cursor-text"
               >
-                <span className="material-symbols-outlined text-[14px]">edit</span>
-                <span>Atur Plafon</span>
+                <span className="text-[15px] font-black text-on-surface-variant shrink-0 select-none">¥</span>
+                <input
+                  ref={jpyInputRef}
+                  type="text"
+                  inputMode="numeric"
+                  value={formatWithDots(jpyVal)}
+                  onChange={(e) => handleJpyChange(e.target.value)}
+                  readOnly={!isJpyToIdr}
+                  placeholder="0"
+                  style={{ width: `${Math.max(1, (formatWithDots(jpyVal) || '0').length + 0.3)}ch` }}
+                  className="bg-transparent text-right text-[18px] sm:text-[19px] font-black text-on-surface tabular-nums tracking-tight focus:outline-none shrink-0"
+                />
+              </div>
+            </div>
+
+            {/* Swap Button */}
+            <div className="flex justify-center -my-2.5 z-10">
+              <button
+                type="button"
+                aria-label="Tukar Posisi Mata Uang"
+                onClick={() => setIsJpyToIdr(!isJpyToIdr)}
+                className="w-7.5 h-7.5 rounded-full bg-surface-container-highest hover:bg-secondary-container text-on-surface hover:text-on-secondary-container shadow-xs flex items-center justify-center active:scale-95 transition-all border border-surface-container cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[17px]">swap_vert</span>
               </button>
             </div>
 
-            {/* Balances */}
-            <div className="bg-surface-container-low rounded-xl p-3 mb-3 border border-surface-container/60">
-              <span className="text-[10.5px] text-on-surface-variant font-medium block">Sisa Saldo Kas Aman</span>
-              <div className="flex items-baseline justify-between mt-1 flex-wrap gap-1">
-                <div className="text-[18px] sm:text-[20px] font-black text-on-surface tracking-tight">
-                  Rp {formatRupiah(remainingBudget)}
+            {/* IDR Block */}
+            <div className="bg-surface-container-low rounded-xl px-3.5 py-3 flex items-center justify-between gap-3 border border-surface-container/60">
+              <div className="flex items-center gap-2.5 shrink-0">
+                <div className="w-7 h-7 rounded-full border border-surface-container-high flex flex-col shrink-0 shadow-2xs overflow-hidden">
+                  <div className="w-full h-1/2 bg-[#d80027]"></div>
+                  <div className="w-full h-1/2 bg-white"></div>
                 </div>
-                <div className="text-[12px] font-bold text-secondary">
-                  Setara ≈ ¥ {formatJpy(remainingJpy)}
+                <div className="flex flex-col justify-center leading-none">
+                  <span className="font-extrabold text-[14px] text-on-surface tracking-tight">IDR</span>
+                  <span className="text-[10px] text-on-surface-variant font-medium mt-0.5">Rupiah</span>
                 </div>
               </div>
 
-              {/* Progress Bar & Plafon Info */}
-              <div className="mt-3 pt-2 border-t border-surface-container/60">
-                <div className="flex items-center justify-between text-[11px] mb-1.5">
-                  <span className="text-on-surface-variant font-medium">
-                    Terpakai:{' '}
-                    <strong className="text-primary font-bold">
-                      Rp {formatRupiah(totalExpenseIdr)} ({usagePercent}%)
-                    </strong>
-                  </span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-on-surface-variant">Plafon:</span>
+              <div
+                onClick={() => idrInputRef.current?.focus()}
+                className="flex-1 flex items-center justify-end gap-1 min-w-0 cursor-text"
+              >
+                <span className="text-[15px] font-black text-primary shrink-0 select-none">Rp</span>
+                <input
+                  ref={idrInputRef}
+                  type="text"
+                  inputMode="numeric"
+                  value={formatWithDots(idrVal)}
+                  onChange={(e) => handleIdrChange(e.target.value)}
+                  readOnly={isJpyToIdr}
+                  placeholder="0"
+                  style={{ width: `${Math.max(1, (formatWithDots(idrVal) || '0').length + 0.3)}ch` }}
+                  className="bg-transparent text-right text-[18px] sm:text-[19px] font-black text-primary tabular-nums tracking-tight focus:outline-none shrink-0"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Presets */}
+          <div className="flex items-center gap-1.5 mt-3 overflow-x-auto pb-0.5">
+            {[1000, 3000, 5000, 10000, 30000].map((amt) => (
+              <button
+                key={amt}
+                type="button"
+                onClick={() => setPresetJpy(amt)}
+                className="h-7 px-2.5 rounded-lg bg-surface-container text-on-surface text-[11px] font-bold hover:bg-primary hover:text-white transition-colors shrink-0 active:scale-95 cursor-pointer"
+              >
+                ¥{new Intl.NumberFormat('id-ID').format(amt)}
+              </button>
+            ))}
+          </div>
+
+          {/* Minimal Rate Footer */}
+          <div className="mt-3 pt-2.5 flex items-center justify-between text-on-surface-variant text-[11.5px] border-t border-surface-container/70">
+            <span>
+              1 JPY = <strong className="text-on-surface">Rp {rate.toFixed(2)}</strong>
+            </span>
+            <span className="text-[10.5px] font-semibold text-on-surface-variant/80">Siap Offline</span>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 1: RENCANA ANGGARAN (Bersih, Ringkas, Mudah Dibaca ala Hitori Companion) */}
+      {activeTab === 'overview' && (
+        <>
+          {/* Card 1: Ringkasan Saldo Utama */}
+          <div className="bg-surface-container-lowest rounded-2xl p-5 shadow-2xs border border-surface-container space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-[15.5px] font-bold text-on-surface truncate">
+                {budget?.name || 'Anggaran Perjalanan'}
+              </h2>
+              <button
+                type="button"
+                onClick={handleOpenEditBudget}
+                className="h-8 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-primary text-[11.5px] font-bold border border-surface-container shrink-0 cursor-pointer transition-colors"
+              >
+                Atur Plafon
+              </button>
+            </div>
+
+            {/* Focal Remaining Balance */}
+            <div className="py-1">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant block">
+                Sisa Anggaran
+              </span>
+              <div className="text-[26px] sm:text-[28px] font-extrabold text-on-surface tracking-tight leading-tight mt-1 tabular-nums">
+                Rp {formatRupiah(remainingBudget)}
+              </div>
+              <div className="text-[13px] font-semibold text-on-surface-variant mt-0.5 tabular-nums">
+                ≈ ¥ {formatJpy(remainingJpy)}
+              </div>
+            </div>
+
+            {/* Clean Progress Bar & 2-column summary */}
+            <div className="space-y-2.5 pt-2 border-t border-surface-container/70">
+              <div className="w-full h-1.5 rounded-full bg-surface-container overflow-hidden">
+                <div
+                  className="h-full bg-primary-container rounded-full transition-all duration-300"
+                  style={{ width: `${Math.min(100, usagePercent)}%` }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-[12px] tabular-nums">
+                <div>
+                  <span className="text-on-surface-variant block text-[11px]">Terpakai ({usagePercent}%)</span>
+                  <span className="font-bold text-primary">Rp {formatRupiah(totalExpenseIdr)}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-on-surface-variant block text-[11px]">Total Plafon</span>
+                  <span className="font-bold text-on-surface">Rp {formatRupiah(totalBudget)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Catatan Pengeluaran */}
+          <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-2xs border border-surface-container space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <h3 className="text-[15px] font-bold text-on-surface">Pengeluaran</h3>
+                <span className="text-[11.5px] text-on-surface-variant">
+                  {expenses.length} catatan
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(true)}
+                className="h-8.5 px-3.5 rounded-xl bg-primary-container text-white text-[12px] font-bold flex items-center gap-1 shadow-2xs active:scale-95 transition-transform cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[16px]">add</span>
+                <span>Catat</span>
+              </button>
+            </div>
+
+            {/* Category filter strip (only shown when user has expenses) */}
+            {expenses.length > 0 && (
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 -mx-0.5 px-0.5">
+                {['Semua', 'Food', 'Transportation', 'Attraction', 'Shopping', 'Accommodation', 'Other'].map((cat) => {
+                  const catSum = cat === 'Semua' ? totalExpenseIdr : categoryTotals[cat] || 0;
+                  if (cat !== 'Semua' && catSum === 0) return null;
+                  return (
                     <button
-                      onClick={handleOpenEditBudget}
-                      className="font-extrabold text-on-surface hover:text-primary transition-colors underline decoration-dotted cursor-pointer"
-                      title="Klik untuk ubah plafon anggaran"
+                      key={cat}
+                      type="button"
+                      onClick={() => setSelectedExpCat(cat)}
+                      className={`h-7 px-3 rounded-full text-[11.5px] font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                        selectedExpCat === cat
+                          ? 'bg-primary-container text-white'
+                          : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                      }`}
                     >
-                      Rp {formatRupiah(totalBudget)}
+                      {cat === 'Semua' ? 'Semua' : categoryLabels[cat]}
                     </button>
-                  </div>
-                </div>
-                <div className="w-full h-2 rounded-full bg-surface-container-highest overflow-hidden">
-                  <div
-                    className="h-full bg-primary-container rounded-full transition-all duration-300"
-                    style={{ width: `${Math.min(100, usagePercent)}%` }}
-                  ></div>
-                </div>
+                  );
+                })}
               </div>
-            </div>
+            )}
 
-            {/* Daily pills */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className="p-2.5 rounded-xl bg-surface-container-low">
-                <span className="text-[9.5px] text-on-surface-variant font-medium block">Rata-rata Terpakai</span>
-                <span className="text-[12px] font-bold text-on-surface mt-0.5 block">
-                  Rp {formatRupiah(totalExpenseIdr / 4)} <span className="text-[9.5px] font-normal text-on-surface-variant">/hari</span>
-                </span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-surface-container-low">
-                <span className="text-[9.5px] text-on-surface-variant font-medium block">Estimasi Sisa Kuota</span>
-                <span className="text-[12px] font-bold text-secondary mt-0.5 block">
-                  ¥ {formatJpy(remainingJpy / 4)} <span className="text-[9.5px] font-normal text-on-surface-variant">/hari</span>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* SECTION 3: Kategori Pengeluaran */}
-          <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-xs border border-surface-container/80">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[13px] font-bold text-on-surface">Rincian Per Kategori</span>
-              <span className="text-[11px] text-on-surface-variant font-medium">Berdasarkan Transaksi</span>
-            </div>
-
-            <div className="space-y-2.5">
-              {[
-                { label: 'Kuliner & Halal Food', cat: 'Food', icon: 'restaurant' },
-                { label: 'Transportasi (JR / Bus)', cat: 'Transportation', icon: 'directions_subway' },
-                { label: 'Tiket Wisata & Atraksi', cat: 'Attraction', icon: 'confirmation_number' },
-                { label: 'Belanja & Oleh-oleh', cat: 'Shopping', icon: 'shopping_bag' },
-                { label: 'Lainnya (Locker, dll)', cat: 'Other', icon: 'local_convenience_store' },
-              ].map((item) => {
-                const totalCat = categoryTotals[item.cat] || 0;
-                const catPercent = totalExpenseIdr > 0 ? Math.round((totalCat / totalExpenseIdr) * 100) : 0;
-                return (
-                  <div key={item.cat} className="flex items-center justify-between py-1 border-b border-surface-container/50 last:border-none">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-surface-container text-on-surface flex items-center justify-center shrink-0">
-                        <span className="material-symbols-outlined text-[16px]">{item.icon}</span>
-                      </div>
-                      <div>
-                        <span className="text-[12px] font-bold text-on-surface block leading-tight">{item.label}</span>
-                        <span className="text-[10px] text-on-surface-variant">
-                          ¥ {formatJpy(totalCat / rate)}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[12px] font-bold text-on-surface block leading-tight">
-                        Rp {formatRupiah(totalCat)}
-                      </span>
-                      <span className="text-[9.5px] text-on-surface-variant font-medium">{catPercent}% total</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* SECTION 4: Riwayat Pengeluaran (Bisa Tambah, Ubah, Hapus) */}
-          <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-xs border border-surface-container/80">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[17px] text-primary">history</span>
-                <h3 className="text-[13px] font-bold text-on-surface">Riwayat Pengeluaran</h3>
-              </div>
-              <span className="text-[11px] text-on-surface-variant font-medium">{expenses.length} Transaksi</span>
-            </div>
-
-            {expenses.length === 0 ? (
-              <div className="p-4 text-center rounded-xl bg-surface-container-low text-[11.5px] text-on-surface-variant">
-                Belum ada catatan pengeluaran. Ketuk tombol <strong>"+ Catat Pengeluaran Baru"</strong> di bawah untuk menambah.
+            {/* Clean Divider-Separated List */}
+            {filteredExpenses.length === 0 ? (
+              <div className="py-6 text-center text-[12.5px] text-on-surface-variant">
+                Belum ada pengeluaran tercatat.
               </div>
             ) : (
-              <div className="space-y-2">
-                {expenses.map((exp) => (
+              <div className="divide-y divide-surface-container/70">
+                {filteredExpenses.map((exp) => (
                   <div
                     key={exp.id}
                     onClick={() => handleOpenEditExpense(exp)}
-                    className="p-3 rounded-xl bg-surface-container-low hover:bg-surface-container flex items-center justify-between cursor-pointer transition-colors border border-surface-container/60"
+                    className="py-3 flex items-center justify-between gap-3 cursor-pointer hover:bg-surface-container-low/50 -mx-2 px-2 rounded-xl transition-colors"
                   >
-                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <div className="w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center shrink-0">
-                        <span className="material-symbols-outlined text-[16px]">payments</span>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <span className="text-[12.5px] font-bold text-on-surface block leading-tight truncate">
-                          {exp.name}
-                        </span>
-                        <span className="text-[10.5px] text-on-surface-variant leading-tight block mt-0.5">
-                          {exp.expense_date} • {exp.notes || exp.category}
-                        </span>
-                      </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13.5px] font-semibold text-on-surface truncate leading-snug">
+                        {exp.name}
+                      </p>
+                      <p className="text-[11.5px] text-on-surface-variant truncate mt-0.5">
+                        {categoryLabels[exp.category] || exp.category} · {exp.expense_date}
+                      </p>
                     </div>
-
-                    <div className="text-right shrink-0 flex items-center gap-2 ml-2">
-                      <div>
-                        <span className="text-[12.5px] font-black text-on-surface block leading-tight">
-                          -¥ {formatJpy(exp.original_currency === 'JPY' ? exp.original_amount : exp.converted_idr / rate)}
-                        </span>
-                        <span className="text-[10px] text-on-surface-variant leading-tight block mt-0.5 font-medium">
-                          Rp {formatRupiah(exp.converted_idr)}
-                        </span>
-                      </div>
-                      <span className="material-symbols-outlined text-[16px] text-on-surface-variant/70">
-                        edit
-                      </span>
+                    <div className="text-right shrink-0 tabular-nums">
+                      <p className="text-[13.5px] font-bold text-on-surface leading-snug">
+                        ¥ {formatJpy(exp.original_currency === 'JPY' ? exp.original_amount : exp.converted_idr / rate)}
+                      </p>
+                      <p className="text-[11px] text-on-surface-variant mt-0.5">
+                        Rp {formatRupiah(exp.converted_idr)}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -597,17 +560,6 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
           </div>
         </>
       )}
-
-      {/* Sticky Bottom CTA: Catat Pengeluaran Baru */}
-      <div className="sticky bottom-16 z-30 flex justify-center pt-1">
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="h-9 px-4 bg-primary-container text-white rounded-full shadow-md flex items-center justify-center gap-1.5 text-[11.5px] font-bold hover:brightness-110 active:scale-95 transition-all"
-        >
-          <span className="material-symbols-outlined text-[16px]">add_circle</span>
-          Catat Pengeluaran Baru
-        </button>
-      </div>
 
       {/* MODAL 1: Atur Plafon Anggaran */}
       {showEditBudgetModal && (
