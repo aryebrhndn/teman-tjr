@@ -3,9 +3,13 @@ import { db, type Expense, type Budget } from '../../database/dexie';
 
 interface BudgetScreenProps {
   initialOpenAddExpense?: boolean;
+  onConsumeInitialOpenAddExpense?: () => void;
 }
 
-export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpense }) => {
+export const BudgetScreen: React.FC<BudgetScreenProps> = ({
+  initialOpenAddExpense,
+  onConsumeInitialOpenAddExpense,
+}) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'converter'>('overview');
   const [rate, setRate] = useState<number>(114.14);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -20,7 +24,14 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
   const [isJpyToIdr, setIsJpyToIdr] = useState<boolean>(true);
 
   // Add expense modal state
-  const [showAddModal, setShowAddModal] = useState<boolean>(!!initialOpenAddExpense);
+  const [showAddModal, setShowAddModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (initialOpenAddExpense) {
+      setShowAddModal(true);
+      onConsumeInitialOpenAddExpense?.();
+    }
+  }, [initialOpenAddExpense, onConsumeInitialOpenAddExpense]);
   const [expName, setExpName] = useState('');
   const [expAmount, setExpAmount] = useState('');
   const [expCurrency, setExpCurrency] = useState<'JPY' | 'IDR'>('JPY');

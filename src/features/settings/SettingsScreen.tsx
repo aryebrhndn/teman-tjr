@@ -10,11 +10,23 @@ import {
   type ThemeMode,
 } from '../../utils/appearance';
 
+import audioButaNikuHaitte from '../../assets/audio/Buta-niku wa haitte imasu ka.mp3';
+import audioArukoruMirin from '../../assets/audio/Arukōru ya mirin wa tsukatte imasu ka.mp3';
+import audioButaNikuTaberaremasen from '../../assets/audio/Watashi wa buta-niku o taberaremasen..mp3';
+import audioReihaishitsu from '../../assets/audio/Koko ni reihaishitsu wa arimasu ka.mp3';
+import audioMichiMayoimashita from '../../assets/audio/Michi ni mayoimashita. Tasukete kudasai..mp3';
+import audioKonoEki from '../../assets/audio/Kono eki ni wa dōyatte ikimasu ka.mp3';
+import audioHoteruJusho from '../../assets/audio/Sumimasen, kochira ga hoteru no jūsho desu..mp3';
+import audioIkuraDesuKa from '../../assets/audio/Ikura desu ka.mp3';
+import audioKadoHaraemasu from '../../assets/audio/Kādo de haraemasu ka.mp3';
+import audioKyukyusha from '../../assets/audio/Kyūkyūsha o yonde kudasai..mp3';
+
 interface EmergencyPhrase {
   id: string;
   idText: string;
   jpText: string;
   romaji: string;
+  audioSrc: string;
 }
 
 const EMERGENCY_PHRASES: EmergencyPhrase[] = [
@@ -23,60 +35,70 @@ const EMERGENCY_PHRASES: EmergencyPhrase[] = [
     idText: 'Apakah ada daging babi di dalamnya?',
     jpText: '豚肉は入っていますか？',
     romaji: 'Buta-niku wa haitte imasu ka?',
+    audioSrc: audioButaNikuHaitte,
   },
   {
     id: 'ph-2',
     idText: 'Apakah ini memakai alkohol atau mirin?',
     jpText: 'アルコールやみりんは使っていますか？',
     romaji: 'Arukōru ya mirin wa tsukatte imasu ka?',
+    audioSrc: audioArukoruMirin,
   },
   {
     id: 'ph-3',
     idText: 'Saya tidak makan daging babi.',
     jpText: '私は豚肉を食べられません。',
     romaji: 'Watashi wa buta-niku o taberaremasen.',
+    audioSrc: audioButaNikuTaberaremasen,
   },
   {
     id: 'ph-4',
     idText: 'Apakah ada tempat sholat di sini?',
     jpText: 'ここに礼拝室はありますか？',
     romaji: 'Koko ni reihaishitsu wa arimasu ka?',
+    audioSrc: audioReihaishitsu,
   },
   {
     id: 'ph-5',
     idText: 'Saya tersesat, tolong bantu.',
     jpText: '道に迷いました。助けてください。',
     romaji: 'Michi ni mayoimashita. Tasukete kudasai.',
+    audioSrc: audioMichiMayoimashita,
   },
   {
     id: 'ph-6',
     idText: 'Bagaimana cara ke stasiun ini?',
     jpText: 'この駅にはどうやって行きますか？',
     romaji: 'Kono eki ni wa dōyatte ikimasu ka?',
+    audioSrc: audioKonoEki,
   },
   {
     id: 'ph-7',
     idText: 'Tolong, ini alamat hotel saya.',
     jpText: 'すみません、こちらがホテルの住所です。',
     romaji: 'Sumimasen, kochira ga hoteru no jūsho desu.',
+    audioSrc: audioHoteruJusho,
   },
   {
     id: 'ph-8',
     idText: 'Berapa harganya?',
     jpText: 'いくらですか？',
     romaji: 'Ikura desu ka?',
+    audioSrc: audioIkuraDesuKa,
   },
   {
     id: 'ph-9',
     idText: 'Bisa bayar pakai kartu?',
     jpText: 'カードで払えますか？',
     romaji: 'Kādo de haraemasu ka?',
+    audioSrc: audioKadoHaraemasu,
   },
   {
     id: 'ph-10',
     idText: 'Tolong panggilkan ambulans.',
     jpText: '救急車を呼んでください。',
     romaji: 'Kyūkyūsha o yonde kudasai.',
+    audioSrc: audioKyukyusha,
   },
 ];
 
@@ -87,6 +109,7 @@ interface SettingsScreenProps {
 
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, onBack }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
@@ -96,8 +119,19 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => getStoredTheme());
   const [fontSize, setFontSize] = useState<FontSizeMode>(() => getStoredFontSize());
 
-  // Emergency Phrases accordion state (first item open by default just like Hitori Companion)
+  // Emergency Phrases accordion & audio playback state
   const [openPhraseId, setOpenPhraseId] = useState<string | null>('ph-1');
+  const [playingPhraseId, setPlayingPhraseId] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   const handleSelectTheme = (mode: ThemeMode) => {
     setThemeMode(mode);
@@ -109,7 +143,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
     applyFontSize(size);
   };
 
-  const handleSpeakJapanese = (jpText: string) => {
+  const fallbackSpeakJapanese = (jpText: string) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
     try {
       window.speechSynthesis.cancel();
@@ -119,6 +153,59 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
       window.speechSynthesis.speak(utter);
     } catch {
       // Ignore if speech synthesis unavailable on device
+    }
+  };
+
+  const handlePlayPhraseAudio = (phrase: EmergencyPhrase) => {
+    // Toggle off if clicking the currently playing phrase
+    if (playingPhraseId === phrase.id && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+      setPlayingPhraseId(null);
+      return;
+    }
+
+    // Stop any previously playing audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+
+    try {
+      const audio = new Audio(phrase.audioSrc);
+      audioRef.current = audio;
+      setPlayingPhraseId(phrase.id);
+
+      audio.onended = () => {
+        if (audioRef.current === audio) {
+          audioRef.current = null;
+          setPlayingPhraseId(null);
+        }
+      };
+
+      audio.onerror = () => {
+        if (audioRef.current === audio) {
+          audioRef.current = null;
+          setPlayingPhraseId(null);
+        }
+        fallbackSpeakJapanese(phrase.jpText);
+      };
+
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          if (audioRef.current === audio) {
+            audioRef.current = null;
+            setPlayingPhraseId(null);
+          }
+          fallbackSpeakJapanese(phrase.jpText);
+        });
+      }
+    } catch {
+      setPlayingPhraseId(null);
+      fallbackSpeakJapanese(phrase.jpText);
     }
   };
 
@@ -548,12 +635,26 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
                       </p>
                       <button
                         type="button"
-                        onClick={() => handleSpeakJapanese(phrase.jpText)}
-                        title="Dengarkan pelafalan Jepang"
-                        aria-label={`Putar suara ${phrase.idText}`}
-                        className="w-8 h-8 rounded-lg bg-surface-container-low border border-surface-container text-primary hover:bg-primary-fixed/40 flex items-center justify-center shrink-0 cursor-pointer transition-colors"
+                        onClick={() => handlePlayPhraseAudio(phrase)}
+                        title={
+                          playingPhraseId === phrase.id
+                            ? 'Hentikan suara'
+                            : 'Dengarkan pelafalan Jepang'
+                        }
+                        aria-label={
+                          playingPhraseId === phrase.id
+                            ? `Hentikan suara ${phrase.idText}`
+                            : `Putar suara ${phrase.idText}`
+                        }
+                        className={`w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 cursor-pointer transition-colors ${
+                          playingPhraseId === phrase.id
+                            ? 'bg-primary-container text-white border-primary-container shadow-2xs'
+                            : 'bg-surface-container-low border-surface-container text-primary hover:bg-primary-fixed/40'
+                        }`}
                       >
-                        <span className="material-symbols-outlined text-[17px]">volume_up</span>
+                        <span className="material-symbols-outlined text-[17px]">
+                          {playingPhraseId === phrase.id ? 'stop' : 'volume_up'}
+                        </span>
                       </button>
                     </div>
                     <p className="text-[12px] text-on-surface-variant font-medium">

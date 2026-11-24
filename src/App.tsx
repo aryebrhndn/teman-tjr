@@ -11,7 +11,7 @@ import { BekalScreen } from './features/checklist/BekalScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
 import { PwaInstallPromptModal } from './components/pwa/PwaInstallPromptModal';
 
-const APP_BUILD_ID = '2026.11.24-build28';
+const APP_BUILD_ID = '2026.11.24-build29';
 
 export function App() {
   const [isReady, setIsReady] = useState(false);
@@ -74,15 +74,18 @@ export function App() {
     );
   }
 
+  const handleNavigateTab = (tab: string) => {
+    setOpenAddExpenseInBudget(false);
+    setCurrentTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const renderMainContent = () => {
     switch (currentTab) {
       case 'beranda':
         return (
           <HomeScreen
-            onNavigateTab={(tab) => {
-              setCurrentTab(tab);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+            onNavigateTab={handleNavigateTab}
             onOpenAddExpense={() => {
               setOpenAddExpenseInBudget(true);
               setCurrentTab('biaya');
@@ -93,7 +96,12 @@ export function App() {
       case 'itinerary':
         return <ItineraryScreen />;
       case 'biaya':
-        return <BudgetScreen initialOpenAddExpense={openAddExpenseInBudget} />;
+        return (
+          <BudgetScreen
+            initialOpenAddExpense={openAddExpenseInBudget}
+            onConsumeInitialOpenAddExpense={() => setOpenAddExpenseInBudget(false)}
+          />
+        );
       case 'ibadah':
         return <PrayerScreen />;
       case 'bekal':
@@ -105,18 +113,11 @@ export function App() {
               // Reset local data reload
               window.location.reload();
             }}
-            onBack={() => setCurrentTab('beranda')}
+            onBack={() => handleNavigateTab('beranda')}
           />
         );
       default:
-        return (
-          <HomeScreen
-            onNavigateTab={(tab) => {
-              setCurrentTab(tab);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-          />
-        );
+        return <HomeScreen onNavigateTab={handleNavigateTab} />;
     }
   };
 
@@ -124,14 +125,14 @@ export function App() {
     <div className="min-h-screen bg-surface flex flex-col selection:bg-primary-fixed selection:text-primary">
       <Header
         currentTab={currentTab}
-        onOpenSettings={() => setCurrentTab(currentTab === 'settings' ? 'beranda' : 'settings')}
+        onOpenSettings={() => handleNavigateTab(currentTab === 'settings' ? 'beranda' : 'settings')}
       />
 
       <main className="flex-1 w-full max-w-xl mx-auto px-3.5 sm:px-4 pt-[80px] sm:pt-[84px] pb-[76px] sm:pb-[82px] flex flex-col">
         {renderMainContent()}
       </main>
 
-      <BottomNav currentTab={currentTab} onTabChange={(tab) => setCurrentTab(tab)} />
+      <BottomNav currentTab={currentTab} onTabChange={handleNavigateTab} />
 
       {/* Optional Auto-Show PWA Install Modal (only when not yet installed) */}
       <PwaInstallPromptModal />
