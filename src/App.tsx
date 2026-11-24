@@ -11,7 +11,7 @@ import { BekalScreen } from './features/checklist/BekalScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
 import { AdminScreen } from './features/admin/AdminScreen';
 
-const APP_BUILD_ID = '2026.11.24-build26';
+const APP_BUILD_ID = '2026.11.24-build27';
 
 export function App() {
   const [isReady, setIsReady] = useState(false);
@@ -62,19 +62,19 @@ export function App() {
     };
   }, []);
 
-  // Loading state
+  // Loading state - Pure CSS circular spinner (tanpa ketergantungan font ikon)
   if (!isReady) {
     return (
-      <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-4 gap-4">
         <img
           src="/LOGO TJR.png"
           alt="Teman TJR Logo"
-          className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-md bg-[#a90008] animate-pulse"
+          className="w-14 h-14 rounded-2xl object-cover border-2 border-white/80 shadow-sm bg-primary-container"
         />
-        <p className="mt-4 text-xs font-semibold text-on-surface-variant flex items-center gap-2">
-          <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
-          Memuat Teman TJR...
-        </p>
+        <div
+          aria-label="Memuat"
+          className="w-6 h-6 rounded-full border-[2.5px] border-surface-container-highest border-t-primary-container animate-spin"
+        />
       </div>
     );
   }
@@ -137,7 +137,7 @@ export function App() {
         onOpenSettings={() => setCurrentTab(currentTab === 'settings' ? 'beranda' : 'settings')}
       />
 
-      <main className="flex-1 w-full max-w-xl mx-auto px-3.5 sm:px-4 pt-[66px] sm:pt-[70px] pb-[76px] sm:pb-[82px] flex flex-col">
+      <main className="flex-1 w-full max-w-xl mx-auto px-3.5 sm:px-4 pt-[80px] sm:pt-[84px] pb-[76px] sm:pb-[82px] flex flex-col">
         {renderMainContent()}
       </main>
 

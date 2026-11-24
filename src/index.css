@@ -165,13 +165,13 @@ html[data-theme="dark"] {
   --color-on-primary-fixed: #ffd6da;
   --color-on-primary-fixed-variant: #f08a94;
 
-  --color-secondary: #ffd54f;
-  --color-secondary-container: #d4a100;
-  --color-on-secondary: #1e1600;
-  --color-on-secondary-container: #1b1400;
-  --color-secondary-fixed: #3d2e00;
-  --color-secondary-fixed-dim: #5c4500;
-  --color-on-secondary-fixed: #ffe082;
+  --color-secondary: #ffe066;
+  --color-secondary-container: #f5c518;
+  --color-on-secondary: #1a1300;
+  --color-on-secondary-container: #1a1300;
+  --color-secondary-fixed: #5c4600;
+  --color-secondary-fixed-dim: #7a5d00;
+  --color-on-secondary-fixed: #ffe97f;
 
   --color-surface: #121315;
   --color-surface-dim: #0c0d0f;

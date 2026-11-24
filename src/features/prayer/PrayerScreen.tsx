@@ -353,7 +353,7 @@ export const PrayerScreen: React.FC = () => {
               <span className="material-symbols-outlined text-[13.5px]">my_location</span>
               <span>{isGpsLoading ? '...' : gpsCoords ? 'Kota' : 'GPS'}</span>
             </button>
-            <span className="h-7 px-2.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10.5px] font-bold inline-flex items-center whitespace-nowrap">
+            <span className="h-7 px-2.5 rounded-full bg-secondary-fixed text-on-secondary-fixed border border-secondary/40 text-[10.5px] font-bold inline-flex items-center whitespace-nowrap">
               JST
             </span>
           </div>
@@ -536,9 +536,9 @@ export const PrayerScreen: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-2.5 pt-2 bg-white/10 rounded-lg px-3 py-1.5 flex items-center justify-between relative z-10">
+          <div className="mt-2.5 pt-2 bg-black/15 rounded-lg px-3 py-1.5 flex items-center justify-between relative z-10">
             <span className="text-[12px] font-semibold">Sisa waktu</span>
-            <div className="text-[13px] font-bold tracking-wider font-mono text-secondary-container tabular-nums">
+            <div className="text-[13px] font-bold tracking-wider font-mono text-[#ffe97f] tabular-nums">
               {formatTimer(tickerSeconds)}
             </div>
           </div>

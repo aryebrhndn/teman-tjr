@@ -26,28 +26,28 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, onOpenSettings }) =>
       className="fixed top-0 inset-x-0 z-30 shadow-xs pt-safe transition-colors"
     >
       {/* Decorative Top Accent Stripe */}
-      <div className="w-full h-[2.5px] flex shrink-0">
+      <div className="w-full h-[3px] flex shrink-0">
         <div className="w-[30%]" style={{ backgroundColor: 'var(--color-header-stripe-red)' }}></div>
-        <div className="w-[70%] bg-[#fec300]"></div>
+        <div className="w-[70%] bg-[#f5c518]"></div>
       </div>
 
-      <div className="h-[54px] px-4 max-w-xl mx-auto flex items-center justify-between">
+      <div className="h-[66px] sm:h-[70px] px-4 py-2.5 max-w-xl mx-auto flex items-center justify-between">
         {/* Brand & Slogan */}
-        <div className="flex items-center gap-2.5 min-w-0">
+        <div className="flex items-center gap-3 min-w-0">
           <img
             src="/LOGO TJR.png"
             alt="Teman TJR Logo"
-            className="w-8 h-8 rounded-full object-cover border border-white/80 shadow-2xs bg-primary-container shrink-0"
+            className="w-9 h-9 rounded-full object-cover border border-white/80 shadow-2xs bg-primary-container shrink-0"
           />
           <div className="flex flex-col justify-center leading-none min-w-0">
-            <span className="font-extrabold text-[15px] tracking-tight leading-none">
+            <span className="font-extrabold text-[15.5px] tracking-tight leading-tight">
               Teman TJR
             </span>
             <span
               style={{ color: 'var(--color-header-muted)' }}
-              className="text-[10px] flex items-center gap-1 mt-1 font-medium tracking-tight leading-none truncate"
+              className="text-[10.5px] flex items-center gap-1.5 mt-1 font-medium tracking-tight leading-none truncate"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#fec300] inline-block shrink-0"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#f5c518] inline-block shrink-0"></span>
               Teman Jalan Dalam Genggaman
             </span>
           </div>
