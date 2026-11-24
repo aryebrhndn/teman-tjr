@@ -1,629 +1,122 @@
 import { db } from './dexie';
 import { JAPAN_PRAYER_PLACES } from '../data/japanPrayerPlaces';
+import { ALL_DEFAULT_CHECKLIST } from '../data/bekalDefaults';
+
+export const MAIN_TRIP_ID = 'trip-main';
 
 export async function initializeDatabaseSeed() {
+  const migrated = await db.local_meta.get('hitori_v2_migrated');
   const tripCount = await db.trips.count();
-  if (tripCount > 0) return; // Already seeded
 
-  const tripId = 'trip-jp-2025-01';
-  const budgetId = 'budget-jp-2025-01';
-
-  // 1. Trip
-  await db.trips.add({
-    id: tripId,
-    name: 'Jelajah Tokyo, Kyoto & Osaka 2025',
-    destination: 'Jepang (Tokyo - Kyoto - Osaka)',
-    departure_date: '2025-04-12',
-    return_date: '2025-04-19',
-    season: 'spring',
-    travelers_count: 2,
-    flight_number: 'GA874 (CGK - HND)',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  });
-
-  // 2. Itinerary Days & Items
-  const days = [
-    {
-      id: 'day-1',
-      trip_id: tripId,
-      date: '2025-04-12',
-      day_number: 1,
-      title: 'Tiba di Tokyo & Suasana Shinjuku',
-      city: 'Tokyo',
-      theme: 'Kedatangan & Hanami',
-      notes: 'Mendarat pagi di Bandara Haneda, ambil Pasmo & simpan koper di hotel.',
-      items: [
-        {
-          id: 'item-1-1',
-          day_id: 'day-1',
-          title: 'Mendarat di Haneda & Ambil Pasmo Card',
-          start_time: '08:45',
-          end_time: '10:00',
-          location: 'Haneda Airport (HND) Terminal 3',
-          address: 'Ota City, Tokyo',
-          notes: 'Estimasi proses imigrasi & bagasi 45-60 menit. Beli/top up kartu Suica/Pasmo fisik di mesin tiket.',
-          estimated_cost: 2000,
-          currency: 'JPY',
-          completed: true,
-          sort_order: 1,
-          is_halal_spot: false,
-        },
-        {
-          id: 'item-1-2',
-          day_id: 'day-1',
-          title: 'Check-in Keio Plaza Hotel Shinjuku',
-          start_time: '11:30',
-          end_time: '13:00',
-          location: 'Keio Plaza Hotel Shinjuku',
-          address: '2 Chome-2-1 Nishishinjuku, Shinjuku City',
-          notes: 'Titip koper di concierge jika kamar belum siap, istirahat sejenak dan sholat Dzuhur.',
-          estimated_cost: 0,
-          currency: 'JPY',
-          completed: true,
-          sort_order: 2,
-          is_halal_spot: false,
-        },
-        {
-          id: 'item-1-3',
-          day_id: 'day-1',
-          title: 'Shinjuku Gyoen National Garden (Hanami Sakura)',
-          start_time: '14:30',
-          end_time: '17:00',
-          location: 'Shinjuku Gyoen',
-          address: '11 Naitomachi, Shinjuku City',
-          notes: 'Piknik santai hanami sakura & menikmati udara sejuk musim semi.',
-          estimated_cost: 500,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 3,
-          is_halal_spot: false,
-        },
-        {
-          id: 'item-1-4',
-          day_id: 'day-1',
-          title: 'Malam di Omoide Yokocho & Kabukicho',
-          start_time: '18:30',
-          end_time: '21:00',
-          location: 'Omoide Yokocho & Kabukicho',
-          address: 'Nishishinjuku, Shinjuku City',
-          notes: 'Makan malam Halal Yakitori & foto di spot neon sign terkenal Shinjuku.',
-          estimated_cost: 3700,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 4,
-          is_halal_spot: true,
-        },
-      ],
-    },
-    {
-      id: 'day-2',
-      trip_id: tripId,
-      date: '2025-04-13',
-      day_number: 2,
-      title: 'Harajuku, Meiji Jingu & Shibuya Sky',
-      city: 'Tokyo',
-      theme: 'Tokyo Pop-Culture',
-      notes: 'Eksplorasi budaya pop, taman kuil rindang, dan sunset di puncak Tokyo.',
-      items: [
-        {
-          id: 'item-2-1',
-          day_id: 'day-2',
-          title: 'Hutan Tenang Kuil Meiji Jingu',
-          start_time: '07:30',
-          end_time: '09:30',
-          location: 'Meiji Jingu Shrine',
-          address: '1-1 Yoyogikamizonocho, Shibuya City',
-          notes: 'Suasana pagi minim turis, udara sangat segar di dalam hutan sakura.',
-          estimated_cost: 0,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 1,
-          is_halal_spot: false,
-        },
-        {
-          id: 'item-2-2',
-          day_id: 'day-2',
-          title: 'Takeshita Street & Harajuku Shopping',
-          start_time: '10:00',
-          end_time: '12:30',
-          location: 'Takeshita St, Harajuku',
-          address: 'Jingumae, Shibuya City',
-          notes: 'Mencoba halal sweet crepes dan berbelanja fashion unik.',
-          estimated_cost: 1800,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 2,
-          is_halal_spot: true,
-        },
-        {
-          id: 'item-2-3',
-          day_id: 'day-2',
-          title: 'Foto Patung Hachiko & Penyeberangan Shibuya Crossing',
-          start_time: '13:30',
-          end_time: '15:30',
-          location: 'Shibuya Crossing',
-          address: 'Dogenzaka, Shibuya City',
-          notes: 'Sholat Dzuhur/Ashar di prayer room Shibuya Parco lantai 5.',
-          estimated_cost: 0,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 3,
-          is_halal_spot: true,
-        },
-        {
-          id: 'item-2-4',
-          day_id: 'day-2',
-          title: 'Sunset Spektakuler di Rooftop Shibuya Sky',
-          start_time: '17:00',
-          end_time: '19:30',
-          location: 'Shibuya Scramble Square 47F',
-          address: '2 Chome-24-12 Shibuya',
-          notes: 'Tiket jam sunset sudah terbooking resmi. Panorama 360 derajat kota Tokyo dan siluet Gunung Fuji.',
-          estimated_cost: 4400,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 4,
-          is_halal_spot: false,
-        },
-      ],
-    },
-    {
-      id: 'day-3',
-      trip_id: tripId,
-      date: '2025-04-14',
-      day_number: 3,
-      title: 'Warisan Asakusa & Akihabara Electronics',
-      city: 'Tokyo',
-      theme: 'Tradisi & Teknologi',
-      notes: 'Melihat sisi historis kuil Asakusa dan pusat gashapon/gadget Akihabara.',
-      items: [
-        {
-          id: 'item-3-1',
-          day_id: 'day-3',
-          title: 'Gerbang Kaminarimon & Kuil Senso-ji',
-          start_time: '08:30',
-          end_time: '11:00',
-          location: 'Senso-ji Temple',
-          address: '2 Chome-3-1 Asakusa, Taito City',
-          notes: 'Foto di lampion raksasa merah dan jalan-jalan di Nakamise-dori.',
-          estimated_cost: 500,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 1,
-          is_halal_spot: false,
-        },
-        {
-          id: 'item-3-2',
-          day_id: 'day-3',
-          title: 'Santap Siang: Halal Ramen Naritaya Asakusa',
-          start_time: '11:30',
-          end_time: '13:00',
-          location: 'Naritaya Halal Ramen',
-          address: '2 Chome-7-13 Asakusa, Taito City',
-          notes: '100% Halal Certified broth, tersedia ruang wudhu dan sajadah sholat di lantai 2.',
-          estimated_cost: 1600,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 2,
-          is_halal_spot: true,
-        },
-        {
-          id: 'item-3-3',
-          day_id: 'day-3',
-          title: 'Eksplorasi Gadget & Gashapon Akihabara',
-          start_time: '14:00',
-          end_time: '17:30',
-          location: 'Akihabara Electric Town',
-          address: 'Sotokanda, Chiyoda City',
-          notes: 'Yodobashi Camera & Radio Kaikan. Berburu oleh-oleh unik dan figur koleksi.',
-          estimated_cost: 2700,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 3,
-          is_halal_spot: false,
-        },
-      ],
-    },
-    {
-      id: 'day-4',
-      trip_id: tripId,
-      date: '2025-04-15',
-      day_number: 4,
-      title: 'Shinkansen ke Kyoto: Kota Seribu Kuil',
-      city: 'Kyoto',
-      theme: 'Shinkansen & Suasana Tradisional',
-      notes: 'Meluncur dengan kereta cepat Hikari menuju ibukota budaya Jepang.',
-      items: [
-        {
-          id: 'item-4-1',
-          day_id: 'day-4',
-          title: 'Naik Shinkansen Hikari dari Stasiun Tokyo',
-          start_time: '08:03',
-          end_time: '10:45',
-          location: 'Tokyo Station Shinkansen Track',
-          address: 'Marunouchi, Chiyoda City',
-          notes: 'Duduk di sisi kanan (kursi D/E) untuk pemandangan Gunung Fuji dari jendela.',
-          estimated_cost: 14200,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 1,
-          is_halal_spot: false,
-        },
-        {
-          id: 'item-4-2',
-          day_id: 'day-4',
-          title: 'Check-in Ryokan Tradisional dekat Gion',
-          start_time: '11:30',
-          end_time: '13:00',
-          location: 'Gion District, Kyoto',
-          address: 'Higashiyama Ward, Kyoto',
-          notes: 'Pengalaman kamar beralas tatami khas Jepang dan istirahat.',
-          estimated_cost: 0,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 2,
-          is_halal_spot: false,
-        },
-        {
-          id: 'item-4-3',
-          day_id: 'day-4',
-          title: 'Fushimi Inari Taisha (Senbon Torii)',
-          start_time: '14:30',
-          end_time: '18:00',
-          location: 'Fushimi Inari Taisha',
-          address: '68 Fukakusa Yabunouchicho, Fushimi Ward',
-          notes: 'Mendaki ribuan gerbang torii oranye menjelang sore temaram yang mistis dan fotogenik.',
-          estimated_cost: 0,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 3,
-          is_halal_spot: false,
-        },
-      ],
-    },
-    {
-      id: 'day-5',
-      trip_id: tripId,
-      date: '2025-04-16',
-      day_number: 5,
-      title: 'Arashiyama Bamboo Grove & Kinkaku-ji',
-      city: 'Kyoto',
-      theme: 'Kyoto Nature & Zen',
-      notes: 'Hutan bambu legendaris dan kuil emas berkilau di atas danau cermin.',
-      items: [
-        {
-          id: 'item-5-1',
-          day_id: 'day-5',
-          title: 'Arashiyama Bamboo Grove Walk',
-          start_time: '07:00',
-          end_time: '09:00',
-          location: 'Arashiyama Bamboo Forest',
-          address: 'Ukyo Ward, Kyoto',
-          notes: 'Datang pagi-pagi sekali saat sepi untuk mendengarkan gemerisik daun bambu ditiup angin.',
-          estimated_cost: 0,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 1,
-          is_halal_spot: false,
-        },
-        {
-          id: 'item-5-2',
-          day_id: 'day-5',
-          title: 'Kuil Emas Kinkaku-ji (Golden Pavilion)',
-          start_time: '11:00',
-          end_time: '13:00',
-          location: 'Kinkaku-ji',
-          address: '1 Kinkakujicho, Kita Ward, Kyoto',
-          notes: 'Refleksi kuil berbalut emas murni di atas kolam Kyoko-chi.',
-          estimated_cost: 500,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 2,
-          is_halal_spot: false,
-        },
-      ],
-    },
-    {
-      id: 'day-6',
-      trip_id: tripId,
-      date: '2025-04-17',
-      day_number: 6,
-      title: 'Day Trip Nara & Gemerlap Malam Dotonbori',
-      city: 'Osaka',
-      theme: 'Nara & Osaka Food Haven',
-      notes: 'Bermain dengan rusa jinak di Nara lalu menikmati malam di surga kuliner Osaka.',
-      items: [
-        {
-          id: 'item-6-1',
-          day_id: 'day-6',
-          title: 'Taman Rusa Ramah Nara & Shika Senbei',
-          start_time: '09:00',
-          end_time: '12:00',
-          location: 'Nara Park',
-          address: 'Noborioji-cho, Nara',
-          notes: 'Beli biskuit rusa ¥200, rusa di sini membungkuk hormat sebelum meminta makan.',
-          estimated_cost: 1500,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 1,
-          is_halal_spot: false,
-        },
-        {
-          id: 'item-6-2',
-          day_id: 'day-6',
-          title: 'Kereta ke Osaka & Malam di Dotonbori',
-          start_time: '15:00',
-          end_time: '21:00',
-          location: 'Dotonbori & Shinsaibashi',
-          address: 'Chuo Ward, Osaka',
-          notes: 'Foto pose lari ikonik Glico Sign & santap Halal Takoyaki Matsuri.',
-          estimated_cost: 3500,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 2,
-          is_halal_spot: true,
-        },
-      ],
-    },
-    {
-      id: 'day-7',
-      trip_id: tripId,
-      date: '2025-04-18',
-      day_number: 7,
-      title: 'Belanja Oleh-Oleh & Persiapan Pulang',
-      city: 'Tokyo',
-      theme: 'Souvenir Hunting & Farewell',
-      notes: 'Kembali ke Tokyo dengan Shinkansen, belanja Tax Free Tokyo Banana & Shiroi Koibito.',
-      items: [
-        {
-          id: 'item-7-1',
-          day_id: 'day-7',
-          title: 'Belanja Oleh-Oleh Tokyo Station & Ginza',
-          start_time: '13:00',
-          end_time: '17:00',
-          location: 'Tokyo Character Street & Ginza',
-          address: 'Chiyoda City, Tokyo',
-          notes: 'Gunakan paspor fisik untuk diskon Tax Free 10%.',
-          estimated_cost: 8000,
-          currency: 'JPY',
-          completed: false,
-          sort_order: 1,
-          is_halal_spot: false,
-        },
-      ],
-    },
-  ];
-
-  for (const day of days) {
-    const { items, ...dayData } = day;
-    await db.itinerary_days.add(dayData);
-    for (const item of items) {
-      await db.itinerary_items.add(item);
+  // One-time migration from legacy 7-day 2025 Open/Private Trip template to clean Hitori-style single-day start
+  if (!migrated) {
+    // 1. Clean legacy trips & itinerary days/items if they exist from old template
+    if (tripCount > 0) {
+      await db.trips.clear();
+      await db.itinerary_days.clear();
+      await db.itinerary_items.clear();
     }
+
+    // Create 1 clean customizable trip (departure_date empty until user sets it in Bekal)
+    await db.trips.put({
+      id: MAIN_TRIP_ID,
+      name: 'Perjalanan Jepang Saya',
+      destination: 'Jepang',
+      departure_date: '',
+      return_date: '',
+      season: 'spring',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+
+    // Start with ONLY 1 customizable day (user can edit nama, kota/kemana, tanggal, & tambah hari selanjutnya)
+    await db.itinerary_days.put({
+      id: 'day-1',
+      trip_id: MAIN_TRIP_ID,
+      date: '',
+      day_number: 1,
+      title: 'Hari Pertama di Jepang',
+      city: 'Tokyo',
+      notes: '',
+      status: 'Dalam Rencana',
+    });
+
+    // 2. Preserve any custom checklist items, replace legacy default checklist with Hitori-style timeline + seasonal packing
+    const existingCustom = await db.checklist_items.filter((c) => c.is_custom === true).toArray();
+    await db.checklist_items.clear();
+    for (const item of ALL_DEFAULT_CHECKLIST) {
+      await db.checklist_items.put(item);
+    }
+    for (const custom of existingCustom) {
+      await db.checklist_items.put({
+        ...custom,
+        section: custom.section || 'packing',
+        season: custom.season || 'all',
+      });
+    }
+
+    // 3. Ensure budget exists
+    const budgetCount = await db.budgets.count();
+    if (budgetCount === 0) {
+      await db.budgets.put({
+        id: 'budget-main',
+        trip_id: MAIN_TRIP_ID,
+        name: 'Anggaran Liburan Jepang',
+        amount: 25000000,
+        currency: 'IDR',
+        created_at: new Date().toISOString(),
+      });
+    }
+
+    // 4. Ensure prayer places exist
+    const ppCount = await db.prayer_places.count();
+    if (ppCount < JAPAN_PRAYER_PLACES.length) {
+      for (const pp of JAPAN_PRAYER_PLACES) {
+        await db.prayer_places.put(pp);
+      }
+    }
+
+    // 5. Ensure default settings exist
+    const existingRate = await db.app_settings.get('exchange_rate');
+    if (!existingRate) {
+      await db.app_settings.put({
+        key: 'exchange_rate',
+        value: 114.14,
+        updated_at: new Date().toISOString(),
+      });
+    }
+
+    const existingPrayer = await db.app_settings.get('prayer_settings');
+    if (!existingPrayer) {
+      await db.app_settings.put({
+        key: 'prayer_settings',
+        value: {
+          selected_city: 'tokyo',
+          calculation_method: 'MuslimWorldLeague',
+          madhhab: 'Shafi',
+          latitude: 35.6762,
+          longitude: 139.6503,
+          timezone: 'Asia/Tokyo',
+        },
+        updated_at: new Date().toISOString(),
+      });
+    }
+
+    await db.local_meta.put({ key: 'hitori_v2_migrated', value: true });
+    return;
   }
 
-  // 3. Budget & Expenses
-  await db.budgets.add({
-    id: budgetId,
-    trip_id: tripId,
-    name: 'Buku Anggaran Traveling Tokyo-Kyoto',
-    amount: 35000000, // Rp 35.000.000
-    currency: 'IDR',
-    created_at: new Date().toISOString(),
-  });
-
-  const rate = 105.0; // 1 JPY = Rp 105
-  const initialExpenses = [
-    {
-      id: 'exp-1',
-      budget_id: budgetId,
-      name: 'Isi Ulang Suica Card',
-      category: 'Transportation' as const,
-      original_amount: 2000,
-      original_currency: 'JPY' as const,
-      exchange_rate: rate,
-      converted_idr: 210000,
-      expense_date: '2025-04-12',
-      notes: 'Mesin Tiket Stasiun Haneda/Shinjuku',
-      location_name: 'Stasiun Shinjuku',
-    },
-    {
-      id: 'exp-2',
-      budget_id: budgetId,
-      name: 'Makan Siang Halal Ramen Ayam-ya',
-      category: 'Food' as const,
-      original_amount: 1450,
-      original_currency: 'JPY' as const,
-      exchange_rate: rate,
-      converted_idr: 152250,
-      expense_date: '2025-04-12',
-      notes: 'Ueno Tokyo - Paket Porsi Komplit Halal',
-      location_name: 'Ayam-ya Ueno',
-    },
-    {
-      id: 'exp-3',
-      budget_id: budgetId,
-      name: 'Tiket Shibuya Sky Sunset',
-      category: 'Attraction' as const,
-      original_amount: 4400,
-      original_currency: 'JPY' as const,
-      exchange_rate: rate,
-      converted_idr: 462000,
-      expense_date: '2025-04-12',
-      notes: '2 Orang Dewasa sesi jam 17:20',
-      location_name: 'Shibuya Scramble Square',
-    },
-    {
-      id: 'exp-4',
-      budget_id: budgetId,
-      name: 'Belanja Don Quijote Shinjuku',
-      category: 'Shopping' as const,
-      original_amount: 8600,
-      original_currency: 'JPY' as const,
-      exchange_rate: rate,
-      converted_idr: 903000,
-      expense_date: '2025-04-12',
-      notes: 'Snack Halal, Cokelat Matcha & Kosmetik (Tax Free)',
-      location_name: 'Don Quijote Shinjuku',
-    },
-  ];
-
-  for (const exp of initialExpenses) {
-    await db.expenses.add(exp);
+  // Safety check: ensure at least 1 trip exists
+  if (tripCount === 0) {
+    await db.trips.put({
+      id: MAIN_TRIP_ID,
+      name: 'Perjalanan Jepang Saya',
+      destination: 'Jepang',
+      departure_date: '',
+      return_date: '',
+      season: 'spring',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
   }
-
-  // 4. Prayer Places in Japan (Comprehensive list across all regions)
-  for (const pp of JAPAN_PRAYER_PLACES) {
-    await db.prayer_places.put(pp);
-  }
-
-  // 5. Checklist Items
-  const checklist = [
-    {
-      id: 'chk-1',
-      category: 'Documents' as const,
-      title: 'Submit QR Visit Japan Web (Imigrasi & Bea Cukai)',
-      completed: true,
-      days_before_departure: 3,
-      is_priority: true,
-      sort_order: 1,
-      is_custom: false,
-    },
-    {
-      id: 'chk-2',
-      category: 'Documents' as const,
-      title: 'Cek Masa Berlaku Paspor Fisik (Minimal 6 Bulan)',
-      completed: true,
-      days_before_departure: 60,
-      is_priority: true,
-      sort_order: 2,
-      is_custom: false,
-    },
-    {
-      id: 'chk-3',
-      category: 'Electronics' as const,
-      title: 'Aktivasi eSIM Japan Unlimited Data',
-      completed: true,
-      days_before_departure: 2,
-      is_priority: false,
-      sort_order: 3,
-      is_custom: false,
-    },
-    {
-      id: 'chk-4',
-      category: 'Electronics' as const,
-      title: 'Bawa Adapter Colokan Gepeng (Tipe A) 2 Pin',
-      completed: true,
-      days_before_departure: 7,
-      is_priority: false,
-      sort_order: 4,
-      is_custom: false,
-    },
-    {
-      id: 'chk-5',
-      category: 'Worship Equipment' as const,
-      title: 'Sajadah Travel Tipis & Botol Semprot Wudhu',
-      completed: true,
-      days_before_departure: 7,
-      is_priority: false,
-      sort_order: 5,
-      is_custom: false,
-    },
-    {
-      id: 'chk-6',
-      category: 'Clothing' as const,
-      title: 'Jaket Windbreaker Ringan Musim Semi',
-      completed: true,
-      days_before_departure: 5,
-      is_priority: false,
-      sort_order: 6,
-      is_custom: false,
-      season: 'spring' as const,
-    },
-    {
-      id: 'chk-7',
-      category: 'Clothing' as const,
-      title: 'Sepatu Jalan Empuk (Walking Shoes 15.000+ Langkah)',
-      completed: true,
-      days_before_departure: 14,
-      is_priority: true,
-      sort_order: 7,
-      is_custom: false,
-    },
-    {
-      id: 'chk-8',
-      category: 'Medication' as const,
-      title: 'Obat Pribadi, Tolak Angin, Salonpas & Paracetamol',
-      completed: true,
-      days_before_departure: 7,
-      is_priority: false,
-      sort_order: 8,
-      is_custom: false,
-    },
-    {
-      id: 'chk-9',
-      category: 'Documents' as const,
-      title: 'Tukar Uang Tunai Pecahan Yen (¥20.000 - ¥50.000)',
-      completed: false,
-      days_before_departure: 3,
-      is_priority: true,
-      sort_order: 9,
-      is_custom: false,
-    },
-    {
-      id: 'chk-10',
-      category: 'Travel Accessories' as const,
-      title: 'Payung Lipat Ringan (Musim Semi Sering Hujan Gerimis)',
-      completed: false,
-      days_before_departure: 2,
-      is_priority: false,
-      sort_order: 10,
-      is_custom: false,
-    },
-    {
-      id: 'chk-11',
-      category: 'Documents' as const,
-      title: 'Simpan Bukti Booking Hotel & Tiket Pesawat Offline',
-      completed: false,
-      days_before_departure: 1,
-      is_priority: true,
-      sort_order: 11,
-      is_custom: false,
-    },
-    {
-      id: 'chk-12',
-      category: 'Electronics' as const,
-      title: 'Powerbank Maksimal 20.000 mAh (Bawa di Kabin Pesawat)',
-      completed: false,
-      days_before_departure: 1,
-      is_priority: true,
-      sort_order: 12,
-      is_custom: false,
-    },
-  ];
-
-  for (const c of checklist) {
-    await db.checklist_items.add(c);
-  }
-
-  // 6. Settings
-  await db.app_settings.put({
-    key: 'exchange_rate',
-    value: 114.14,
-    updated_at: new Date().toISOString(),
-  });
-
-  await db.app_settings.put({
-    key: 'prayer_settings',
-    value: {
-      selected_city: 'tokyo',
-      calculation_method: 'MuslimWorldLeague',
-      madhhab: 'Shafi',
-      latitude: 35.6762,
-      longitude: 139.6503,
-      timezone: 'Asia/Tokyo',
-    },
-    updated_at: new Date().toISOString(),
-  });
 }

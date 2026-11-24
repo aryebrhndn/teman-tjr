@@ -66,6 +66,7 @@ export interface Expense {
 
 export interface ChecklistItem {
   id: string;
+  section?: 'timeline' | 'packing';
   category: 'Documents' | 'Electronics' | 'Clothing' | 'Personal Care' | 'Medication' | 'Travel Accessories' | 'Worship Equipment';
   title: string;
   completed: boolean;
@@ -74,7 +75,7 @@ export interface ChecklistItem {
   is_priority?: boolean;
   sort_order: number;
   is_custom: boolean;
-  season?: 'spring' | 'summer' | 'autumn' | 'winter';
+  season?: 'all' | 'spring' | 'summer' | 'autumn' | 'winter';
 }
 
 export interface AppSetting {

@@ -250,7 +250,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         <div className="flex-1 min-w-0">
           <h2 className="text-[14.5px] font-extrabold text-on-surface leading-snug">Teman TJR</h2>
           <p className="text-[10.5px] text-on-surface-variant font-medium mt-0.5">
-            Teman Jalan Dalam Genggaman • Versi 2.1 (Build 21)
+            Teman Jalan Dalam Genggaman • Versi 2.2 (Build 22)
           </p>
           <div className="flex items-center gap-1.5 mt-1">
             <span className="inline-block px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[9.5px] font-bold uppercase">

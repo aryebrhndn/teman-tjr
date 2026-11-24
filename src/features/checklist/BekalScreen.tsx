@@ -1,298 +1,428 @@
-import { useEffect, useState } from 'react';
-import { db, type ChecklistItem } from '../../database/dexie';
+import React, { useEffect, useState } from 'react';
+import { db, type ChecklistItem, type Trip } from '../../database/dexie';
+import { MAIN_TRIP_ID } from '../../database/seed';
+import { ALL_DEFAULT_CHECKLIST } from '../../data/bekalDefaults';
+import {
+  addDaysToIso,
+  detectJapanSeason,
+  getSeasonLabel,
+  getTripStatusInfo,
+  type JapanSeason,
+} from '../../utils/tripDates';
+
+type SeasonFilter = 'all' | JapanSeason;
 
 export const BekalScreen: React.FC = () => {
   const [items, setItems] = useState<ChecklistItem[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
-  const [selectedSeason, setSelectedSeason] = useState<'spring' | 'summer' | 'autumn' | 'winter'>('spring');
-  const [showAddModal, setShowAddModal] = useState<boolean>(false);
+  const [trip, setTrip] = useState<Trip | null>(null);
+  const [totalDays, setTotalDays] = useState<number>(1);
+  const [departureDate, setDepartureDate] = useState<string>('');
+  const [selectedSeason, setSelectedSeason] = useState<SeasonFilter>('all');
 
-  const [newItemTitle, setNewItemTitle] = useState('');
-  const [newItemCategory, setNewItemCategory] = useState<ChecklistItem['category']>('Documents');
-  const [newItemPriority, setNewItemPriority] = useState(false);
+  // Simple inline add packing item state
+  const [newPackingTitle, setNewPackingTitle] = useState('');
 
   async function loadData() {
-    const all = await db.checklist_items.orderBy('sort_order').toArray();
-    setItems(all);
+    let allItems = await db.checklist_items.orderBy('sort_order').toArray();
+    if (allItems.length === 0) {
+      for (const item of ALL_DEFAULT_CHECKLIST) {
+        await db.checklist_items.put(item);
+      }
+      allItems = await db.checklist_items.orderBy('sort_order').toArray();
+    }
+    setItems(allItems);
+
+    const allTrips = await db.trips.toArray();
+    const activeTrip = allTrips[0] || null;
+    setTrip(activeTrip);
+
+    const allDays = await db.itinerary_days.orderBy('day_number').toArray();
+    setTotalDays(Math.max(1, allDays.length));
+
+    const savedDate = activeTrip?.departure_date || '';
+    setDepartureDate(savedDate);
+
+    // Load saved season filter preference, or auto-detect if departureDate is set
+    const seasonPref = await db.app_settings.get('bekal_season_filter');
+    if (seasonPref && typeof seasonPref.value === 'string') {
+      setSelectedSeason(seasonPref.value as SeasonFilter);
+    } else if (savedDate) {
+      setSelectedSeason(detectJapanSeason(savedDate));
+    } else {
+      setSelectedSeason('all');
+    }
   }
 
   useEffect(() => {
     loadData();
   }, []);
 
+  const handleDepartureDateChange = async (newDate: string) => {
+    setDepartureDate(newDate);
+
+    const detectedSeason = newDate ? detectJapanSeason(newDate) : 'spring';
+    const allDays = await db.itinerary_days.orderBy('day_number').toArray();
+    const dayCount = Math.max(1, allDays.length);
+    const computedReturnDate = newDate ? addDaysToIso(newDate, dayCount - 1) : '';
+
+    // Update or create main trip so Beranda & Itinerary stay in sync immediately
+    if (trip) {
+      await db.trips.update(trip.id, {
+        departure_date: newDate,
+        return_date: computedReturnDate,
+        season: detectedSeason,
+        updated_at: new Date().toISOString(),
+      });
+    } else {
+      await db.trips.put({
+        id: MAIN_TRIP_ID,
+        name: 'Perjalanan Jepang Saya',
+        destination: 'Jepang',
+        departure_date: newDate,
+        return_date: computedReturnDate,
+        season: detectedSeason,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+    }
+
+    // Sync itinerary days' dates sequentially from departure date if user set a date
+    if (newDate && allDays.length > 0) {
+      for (let i = 0; i < allDays.length; i++) {
+        const dayIso = addDaysToIso(newDate, i);
+        await db.itinerary_days.update(allDays[i].id, { date: dayIso });
+      }
+    }
+
+    // Auto-select detected season when a date is picked; back to 'all' if cleared
+    const nextFilter: SeasonFilter = newDate ? detectedSeason : 'all';
+    setSelectedSeason(nextFilter);
+    await db.app_settings.put({
+      key: 'bekal_season_filter',
+      value: nextFilter,
+      updated_at: new Date().toISOString(),
+    });
+
+    const updatedTrips = await db.trips.toArray();
+    setTrip(updatedTrips[0] || null);
+  };
+
+  const handleSeasonFilterChange = async (value: SeasonFilter) => {
+    setSelectedSeason(value);
+    await db.app_settings.put({
+      key: 'bekal_season_filter',
+      value,
+      updated_at: new Date().toISOString(),
+    });
+    if (value !== 'all' && trip) {
+      await db.trips.update(trip.id, {
+        season: value,
+        updated_at: new Date().toISOString(),
+      });
+    }
+  };
+
   const handleToggle = async (id: string, current: boolean) => {
     await db.checklist_items.update(id, { completed: !current });
-    loadData();
+    setItems((prev) => prev.map((it) => (it.id === id ? { ...it, completed: !current } : it)));
   };
 
   const handleDelete = async (id: string) => {
     await db.checklist_items.delete(id);
-    loadData();
+    setItems((prev) => prev.filter((it) => it.id !== id));
   };
 
-  const handleAddItemSubmit = async (e: React.FormEvent) => {
+  const handleAddPackingItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newItemTitle.trim()) return;
+    const title = newPackingTitle.trim();
+    if (!title) return;
 
-    await db.checklist_items.add({
-      id: `chk-${Date.now()}`,
-      title: newItemTitle.trim(),
-      category: newItemCategory,
+    const newItem: ChecklistItem = {
+      id: `pk-custom-${Date.now()}`,
+      section: 'packing',
+      category: 'Travel Accessories',
+      title,
       completed: false,
-      is_priority: newItemPriority,
-      sort_order: items.length + 1,
+      sort_order: items.length + 200,
       is_custom: true,
       season: selectedSeason,
-    });
+    };
 
-    setNewItemTitle('');
-    setShowAddModal(false);
-    loadData();
+    await db.checklist_items.add(newItem);
+    setItems((prev) => [...prev, newItem]);
+    setNewPackingTitle('');
   };
 
-  const completedCount = items.filter((i) => i.completed).length;
-  const totalCount = items.length;
-  const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  // Partition into Timeline vs Packing
+  const timelineItems = items.filter(
+    (i) => i.section === 'timeline' || (!i.section && typeof i.days_before_departure === 'number')
+  );
+  const allPackingItems = items.filter(
+    (i) => i.section === 'packing' || (!i.section && typeof i.days_before_departure !== 'number')
+  );
 
-  const categories = [
-    'Semua',
-    'Documents',
-    'Electronics',
-    'Clothing',
-    'Worship Equipment',
-    'Medication',
-    'Travel Accessories',
-  ];
-
-  const categoryTranslations: Record<string, string> = {
-    Documents: 'Dokumen Penting',
-    Electronics: 'Gadget & Elektronik',
-    Clothing: 'Pakaian & Sepatu',
-    'Worship Equipment': 'Perlengkapan Ibadah',
-    Medication: 'Obat & Kesehatan',
-    'Travel Accessories': 'Aksesoris Koper',
-  };
-
-  const filteredItems = items.filter((i) => {
-    if (selectedCategory === 'Semua') return true;
-    return i.category === selectedCategory;
+  const visiblePackingItems = allPackingItems.filter((i) => {
+    if (selectedSeason === 'all') return true;
+    return !i.season || i.season === 'all' || i.season === selectedSeason;
   });
 
+  const timelineCompleted = timelineItems.filter((i) => i.completed).length;
+  const timelinePercent =
+    timelineItems.length > 0 ? Math.round((timelineCompleted / timelineItems.length) * 100) : 0;
+
+  const packingCompleted = visiblePackingItems.filter((i) => i.completed).length;
+  const packingPercent =
+    visiblePackingItems.length > 0 ? Math.round((packingCompleted / visiblePackingItems.length) * 100) : 0;
+
+  const tripStatus = getTripStatusInfo(departureDate, totalDays, trip?.season);
+
+  const shortSeasonTag = (s?: string) => {
+    if (s === 'spring') return 'Semi';
+    if (s === 'summer') return 'Panas';
+    if (s === 'autumn') return 'Gugur';
+    if (s === 'winter') return 'Dingin';
+    return null;
+  };
+
   return (
-    <div className="flex flex-col w-full space-y-3.5 sm:space-y-4">
-      {/* Header Card */}
-      <div className="bg-surface-container-lowest rounded-2xl p-3.5 sm:p-4 shadow-xs border border-surface-container/80">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary-fixed flex items-center justify-center text-primary">
-              <span className="material-symbols-outlined text-[18px]">luggage</span>
-            </div>
-            <div>
-              <h2 className="text-[13.5px] font-bold text-on-surface">Checklist & Bekal Koper</h2>
-              <span className="text-[11px] text-on-surface-variant font-medium">Panduan persiapan matang ke Jepang</span>
-            </div>
-          </div>
-          <span className="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold">
-            H - 14 Hari
-          </span>
-        </div>
-
-
-        {/* Progress Gauge */}
-        <div className="bg-surface-container-low rounded-lg p-2.5 space-y-1.5 mt-1.5">
-          <div className="flex justify-between items-center text-[11px]">
-            <span className="text-on-surface-variant font-medium">Progress Kelengkapan</span>
-            <span className="font-bold text-primary text-[11.5px]">
-              {completedCount} dari {totalCount} Selesai ({percent}%)
-            </span>
-          </div>
-          <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary-container rounded-full transition-all duration-300"
-              style={{ width: `${percent}%` }}
-            ></div>
-          </div>
-        </div>
-
-        {/* Season Selector */}
-        <div className="pt-2.5 border-t border-surface-container/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <span className="text-[11.5px] text-on-surface-variant font-semibold">Musim Perjalanan:</span>
-          <div className="grid grid-cols-4 gap-1.5 sm:flex sm:gap-1.5">
-            {[
-              { id: 'spring', label: '🌸 Semi' },
-              { id: 'summer', label: '☀️ Panas' },
-              { id: 'autumn', label: '🍁 Gugur' },
-              { id: 'winter', label: '❄️ Dingin' },
-            ].map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setSelectedSeason(s.id as any)}
-                className={`py-1.5 px-2 rounded-lg text-[11px] font-bold text-center transition-colors ${
-                  selectedSeason === s.id
-                    ? 'bg-primary-container text-white shadow-2xs'
-                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </div>
+    <div className="flex flex-col w-full space-y-4">
+      {/* Page Title */}
+      <div className="px-0.5 pt-0.5">
+        <h1 className="text-[20px] sm:text-[22px] font-extrabold text-on-surface tracking-tight leading-tight">
+          Persiapan &amp; Bekal
+        </h1>
+        <p className="text-[12.5px] text-on-surface-variant mt-1 leading-relaxed">
+          Hitung mundur dokumen, lalu centang barang bawaan sesuai musim keberangkatan.
+        </p>
       </div>
 
-      {/* Category Filter Pills */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 -mx-1 px-1">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`h-7.5 px-3 rounded-full text-[11px] font-semibold flex items-center whitespace-nowrap transition-colors ${
-              selectedCategory === cat
-                ? 'bg-primary-container text-white shadow-2xs'
-                : 'bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container border border-surface-container'
-            }`}
-          >
-            {categoryTranslations[cat] || cat}
-          </button>
-        ))}
-      </div>
+      {/* Card 1: Tanggal & musim */}
+      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 border border-surface-container shadow-2xs space-y-3.5">
+        <h2 className="text-[15.5px] font-bold text-on-surface">Tanggal &amp; musim</h2>
 
-      {/* Checklist Feed */}
-      <div className="space-y-2">
-        {filteredItems.map((item) => (
-          <div
-            key={item.id}
-            className={`p-3 rounded-xl border flex items-center justify-between gap-3 transition-colors ${
-              item.completed
-                ? 'bg-surface-container-low/60 border-surface-container opacity-75'
-                : 'bg-surface-container-lowest border-surface-container shadow-xs'
-            }`}
-          >
-            <div
-              onClick={() => handleToggle(item.id, item.completed)}
-              className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <label
+              htmlFor="bekal-departure-date"
+              className="text-[10.5px] font-bold uppercase tracking-wider text-on-surface-variant"
             >
+              Tanggal Berangkat
+            </label>
+            {departureDate && (
               <button
                 type="button"
-                aria-label="Toggle Complete"
-                className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors ${
-                  item.completed
-                    ? 'bg-primary-container text-white'
-                    : 'border-[1.5px] border-outline-variant bg-white'
-                }`}
+                onClick={() => handleDepartureDateChange('')}
+                className="text-[11px] font-semibold text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
               >
-                {item.completed && <span className="material-symbols-outlined text-[14px]">check</span>}
-              </button>
-              <div className="flex flex-col min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span
-                    className={`text-[13px] font-bold ${
-                      item.completed ? 'line-through text-on-surface-variant' : 'text-on-surface'
-                    }`}
-                  >
-                    {item.title}
-                  </span>
-                  {item.is_priority && (
-                    <span className="px-1.5 py-0.5 rounded bg-error-container text-on-error-container text-[9.5px] font-bold">
-                      Prioritas
-                    </span>
-                  )}
-                </div>
-                <span className="text-[11px] text-on-surface-variant mt-0.5">
-                  {categoryTranslations[item.category] || item.category}
-                </span>
-              </div>
-            </div>
-            {item.is_custom && (
-              <button
-                type="button"
-                aria-label="Hapus Item"
-                onClick={() => handleDelete(item.id)}
-                className="text-on-surface-variant/60 hover:text-error transition-colors p-1"
-              >
-                <span className="material-symbols-outlined text-[16px]">delete</span>
+                Hapus tanggal
               </button>
             )}
           </div>
-        ))}
-      </div>
+          <input
+            id="bekal-departure-date"
+            type="date"
+            value={departureDate}
+            onChange={(e) => handleDepartureDateChange(e.target.value)}
+            className="w-full h-11 px-3.5 rounded-xl bg-white text-[13.5px] font-medium text-on-surface border border-outline-variant/70 focus:outline-none focus:border-primary transition-colors"
+          />
 
-      {/* Add Item Button */}
-      <button
-        onClick={() => setShowAddModal(true)}
-        className="w-full h-9.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-[12px] font-bold text-primary flex items-center justify-center gap-1.5 transition-colors border border-dashed border-outline-variant active:scale-98"
-      >
-        <span className="material-symbols-outlined text-[16px]">add</span>
-        Tambah Perlengkapan Kustom
-      </button>
+          {/* Live Sync Feedback Pill */}
+          {departureDate && (
+            <div className="mt-2 flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-surface-container-low border border-surface-container text-[12px]">
+              <span className="font-bold text-primary">{tripStatus.badgeText}</span>
+              <span className="text-[11px] text-on-surface-variant font-medium shrink-0">
+                {getSeasonLabel(tripStatus.season)}
+              </span>
+            </div>
+          )}
+        </div>
 
-
-      {/* Modal: Tambah Checklist */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-4">
-            <h3 className="text-sm font-bold text-on-surface">Tambah Perlengkapan Koper</h3>
-            <form onSubmit={handleAddItemSubmit} className="space-y-3">
-              <div>
-                <label className="text-xs font-semibold text-on-surface block mb-1">Nama Barang / Dokumen</label>
-                <input
-                  type="text"
-                  required
-                  value={newItemTitle}
-                  onChange={(e) => setNewItemTitle(e.target.value)}
-                  placeholder="Misal: Termos Air Hangat & Kaos Kaki Thermal"
-                  className="w-full h-10 px-3 rounded-xl bg-surface-container-low text-xs border border-surface-container focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-on-surface block mb-1">Kategori</label>
-                <select
-                  value={newItemCategory}
-                  onChange={(e) => setNewItemCategory(e.target.value as ChecklistItem['category'])}
-                  className="w-full h-10 px-3 rounded-xl bg-surface-container-low text-xs border border-surface-container focus:outline-none"
-                >
-                  <option value="Documents">Dokumen Penting</option>
-                  <option value="Electronics">Gadget & Elektronik</option>
-                  <option value="Clothing">Pakaian & Sepatu</option>
-                  <option value="Worship Equipment">Perlengkapan Ibadah</option>
-                  <option value="Medication">Obat & Kesehatan</option>
-                  <option value="Travel Accessories">Aksesoris Koper</option>
-                </select>
-              </div>
-
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="priorityCheck"
-                  checked={newItemPriority}
-                  onChange={(e) => setNewItemPriority(e.target.checked)}
-                  className="w-4 h-4 rounded text-primary-container"
-                />
-                <label htmlFor="priorityCheck" className="text-xs text-on-surface font-medium cursor-pointer">
-                  Tandai sebagai Prioritas Utama
-                </label>
-              </div>
-
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="flex-1 h-10 rounded-xl bg-surface-container text-xs font-semibold text-on-surface"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 h-10 rounded-xl bg-primary-container text-xs font-semibold text-white"
-                >
-                  Simpan Barang
-                </button>
-              </div>
-            </form>
+        <div>
+          <label
+            htmlFor="bekal-season-select"
+            className="text-[10.5px] font-bold uppercase tracking-wider text-on-surface-variant block mb-1.5"
+          >
+            Musim Saat Berangkat
+          </label>
+          <div className="relative">
+            <select
+              id="bekal-season-select"
+              value={selectedSeason}
+              onChange={(e) => handleSeasonFilterChange(e.target.value as SeasonFilter)}
+              style={{ appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none', backgroundImage: 'none' }}
+              className="w-full appearance-none h-11 pl-3.5 pr-9 rounded-xl bg-white text-[13.5px] font-medium text-on-surface border border-outline-variant/70 focus:outline-none focus:border-primary cursor-pointer transition-colors"
+            >
+              <option value="all">Tampilkan semua musim</option>
+              <option value="spring">Musim Semi (Mar – Mei)</option>
+              <option value="summer">Musim Panas (Jun – Agu)</option>
+              <option value="autumn">Musim Gugur (Sep – Nov)</option>
+              <option value="winter">Musim Dingin (Des – Feb)</option>
+            </select>
+            <span className="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">
+              expand_more
+            </span>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Card 2: Linimasa persiapan */}
+      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 border border-surface-container shadow-2xs">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-[15.5px] font-bold text-on-surface">Linimasa persiapan</h2>
+          <span className="px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant text-[11.5px] font-bold tabular-nums">
+            {timelinePercent}%
+          </span>
+        </div>
+
+        {/* Thin progress line */}
+        <div className="w-full h-1 bg-surface-container rounded-full overflow-hidden mt-3 mb-1">
+          <div
+            className="h-full bg-primary-container rounded-full transition-all duration-300"
+            style={{ width: `${timelinePercent}%` }}
+          />
+        </div>
+
+        {/* Simple clean list with subtle horizontal dividers */}
+        <div className="divide-y divide-surface-container/70">
+          {timelineItems.map((item) => {
+            const isDueSoon =
+              !item.completed &&
+              tripStatus.state === 'upcoming' &&
+              tripStatus.diffDays !== null &&
+              typeof item.days_before_departure === 'number' &&
+              tripStatus.diffDays <= item.days_before_departure;
+
+            return (
+              <div
+                key={item.id}
+                onClick={() => handleToggle(item.id, item.completed)}
+                className="py-3 flex items-start gap-3 cursor-pointer select-none group"
+              >
+                <button
+                  type="button"
+                  aria-label={`Tandai ${item.title}`}
+                  className={`mt-0.5 w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors ${
+                    item.completed
+                      ? 'bg-primary-container text-white border border-primary-container'
+                      : 'border-[1.5px] border-outline-variant bg-white group-hover:border-primary'
+                  }`}
+                >
+                  {item.completed && <span className="material-symbols-outlined text-[14px]">check</span>}
+                </button>
+                <p
+                  className={`text-[13px] leading-snug flex-1 ${
+                    item.completed ? 'line-through text-on-surface-variant/65' : 'text-on-surface'
+                  }`}
+                >
+                  <span>{item.title}</span>
+                  {typeof item.days_before_departure === 'number' && (
+                    <span
+                      className={`ml-1.5 text-[11.5px] font-medium ${
+                        isDueSoon ? 'text-primary font-bold' : 'text-outline'
+                      }`}
+                    >
+                      H-{item.days_before_departure}
+                    </span>
+                  )}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Card 3: Barang bawaan (sesuai musim) */}
+      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 border border-surface-container shadow-2xs">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <h2 className="text-[15.5px] font-bold text-on-surface">Barang bawaan</h2>
+            <p className="text-[11.5px] text-on-surface-variant mt-0.5">
+              {selectedSeason === 'all' ? 'Menampilkan semua musim' : `Disesuaikan untuk ${getSeasonLabel(selectedSeason)}`}
+            </p>
+          </div>
+          <span className="px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant text-[11.5px] font-bold tabular-nums">
+            {packingPercent}%
+          </span>
+        </div>
+
+        {/* Thin progress line */}
+        <div className="w-full h-1 bg-surface-container rounded-full overflow-hidden mt-3 mb-1">
+          <div
+            className="h-full bg-primary-container rounded-full transition-all duration-300"
+            style={{ width: `${packingPercent}%` }}
+          />
+        </div>
+
+        <div className="divide-y divide-surface-container/70">
+          {visiblePackingItems.map((item) => {
+            const seasonTag = selectedSeason === 'all' ? shortSeasonTag(item.season) : null;
+            return (
+              <div
+                key={item.id}
+                className="py-3 flex items-start justify-between gap-2.5 group"
+              >
+                <div
+                  onClick={() => handleToggle(item.id, item.completed)}
+                  className="flex items-start gap-3 flex-1 min-w-0 cursor-pointer select-none"
+                >
+                  <button
+                    type="button"
+                    aria-label={`Tandai ${item.title}`}
+                    className={`mt-0.5 w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors ${
+                      item.completed
+                        ? 'bg-primary-container text-white border border-primary-container'
+                        : 'border-[1.5px] border-outline-variant bg-white group-hover:border-primary'
+                    }`}
+                  >
+                    {item.completed && <span className="material-symbols-outlined text-[14px]">check</span>}
+                  </button>
+                  <p
+                    className={`text-[13px] leading-snug flex-1 ${
+                      item.completed ? 'line-through text-on-surface-variant/65' : 'text-on-surface'
+                    }`}
+                  >
+                    <span>{item.title}</span>
+                    {seasonTag && (
+                      <span className="ml-1.5 text-[11px] font-medium text-outline">
+                        {seasonTag}
+                      </span>
+                    )}
+                  </p>
+                </div>
+
+                {item.is_custom && (
+                  <button
+                    type="button"
+                    aria-label="Hapus barang"
+                    onClick={() => handleDelete(item.id)}
+                    className="text-outline hover:text-error transition-colors p-0.5 shrink-0 cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">close</span>
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Simple inline add packing item */}
+        <form onSubmit={handleAddPackingItem} className="pt-3 mt-1 border-t border-surface-container/70 flex gap-2">
+          <input
+            type="text"
+            value={newPackingTitle}
+            onChange={(e) => setNewPackingTitle(e.target.value)}
+            placeholder="Tambah barang bawaan lainnya..."
+            className="flex-1 h-9.5 px-3 rounded-xl bg-surface-container-low text-[12.5px] text-on-surface placeholder:text-outline border border-surface-container focus:outline-none focus:border-primary"
+          />
+          <button
+            type="submit"
+            disabled={!newPackingTitle.trim()}
+            className="h-9.5 px-3.5 rounded-xl bg-primary-container text-white text-[12px] font-bold disabled:opacity-40 transition-opacity shrink-0 cursor-pointer"
+          >
+            Tambah
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
