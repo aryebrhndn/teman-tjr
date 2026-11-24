@@ -94,34 +94,51 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
   const tripStatus = getTripStatusInfo(trip?.departure_date, totalDays, trip?.season);
   const hasDepartureDate = Boolean(trip?.departure_date);
 
+  const seasonKanji = (s?: string) => {
+    if (s === 'spring') return '春';
+    if (s === 'summer') return '夏';
+    if (s === 'autumn') return '秋';
+    if (s === 'winter') return '冬';
+    return '日';
+  };
+
   return (
-    <div className="flex flex-col w-full space-y-3.5 sm:space-y-4">
+    <div className="flex flex-col w-full space-y-3.5">
       {/* 1. Trip Hero Card - Tersinkronisasi Otomatis dengan Tanggal di Persiapan & Bekal */}
-      <div className="relative overflow-hidden rounded-2xl text-white p-3.5 sm:p-4 shadow-sm border border-surface-container/30 bg-[#1c1d1f]">
-        {/* Background Panorama Image */}
+      <div className="relative overflow-hidden rounded-2xl text-white p-4 shadow-sm border border-surface-container/30 bg-[#1c1d1f]">
         <img
           src={panoramaBg}
           alt="Panorama Jepang"
           className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
         />
-        {/* Dark Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/65 to-black/75 pointer-events-none" />
+
+        {/* Subtle Japanese Kanji watermark */}
+        <span
+          aria-hidden="true"
+          style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+          className="absolute right-3 bottom-1 text-[44px] font-extrabold text-white/10 leading-none select-none pointer-events-none"
+        >
+          日本旅
+        </span>
 
         <div className="relative z-10 flex flex-col space-y-2">
           <div className="flex items-center justify-between gap-2">
             <span
-              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold shadow-2xs ${
+              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold shadow-2xs whitespace-nowrap ${
                 hasDepartureDate
                   ? 'bg-secondary-container text-on-secondary-container'
                   : 'bg-white/20 text-white backdrop-blur-xs'
               }`}
             >
-              <span className="material-symbols-outlined text-[13px]">event</span>
               {tripStatus.badgeText}
             </span>
             {hasDepartureDate && (
-              <span className="text-[10px] text-white/90 tracking-wider uppercase font-bold drop-shadow-xs shrink-0">
-                {getSeasonLabel(tripStatus.season)}
+              <span
+                style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+                className="text-[11px] text-white/95 font-bold drop-shadow-xs shrink-0 whitespace-nowrap"
+              >
+                {seasonKanji(tripStatus.season)} {getSeasonLabel(tripStatus.season)}
               </span>
             )}
           </div>
@@ -131,19 +148,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
               {trip?.name || 'Perjalanan Jepang Saya'}
             </h3>
             {hasDepartureDate ? (
-              <p className="text-[11.5px] text-white/95 flex items-center gap-1.5 font-medium mt-0.5 drop-shadow-xs">
-                <span className="material-symbols-outlined text-[14px] text-secondary">calendar_today</span>
+              <p className="text-[12px] text-white/90 font-medium mt-0.5 drop-shadow-xs">
                 {tripStatus.formattedRange}
               </p>
             ) : (
-              <div className="mt-1.5 flex items-center justify-between gap-2 flex-wrap">
-                <p className="text-[11.5px] text-white/85 font-medium">
-                  Atur tanggal berangkat di menu Bekal agar hitungan mundur aktif.
-                </p>
+              <div className="mt-2 flex items-center justify-between gap-2">
+                <p className="text-[11.5px] text-white/85">Atur tanggal di menu Bekal</p>
                 <button
                   type="button"
                   onClick={() => onNavigateTab('bekal')}
-                  className="h-7.5 px-3 rounded-lg bg-secondary-container text-on-secondary-container text-[11px] font-bold flex items-center gap-1 shadow-2xs active:scale-95 transition-transform cursor-pointer"
+                  className="h-7.5 px-3 rounded-lg bg-secondary-container text-on-secondary-container text-[11px] font-bold flex items-center gap-1 shadow-2xs active:scale-95 transition-transform cursor-pointer shrink-0 whitespace-nowrap"
                 >
                   <span>Atur Tanggal</span>
                   <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
@@ -154,84 +168,78 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
         </div>
       </div>
 
-      {/* 2. Today's Itinerary Highlight - Dinamis Berdasarkan Data Nyata */}
-      <div className="rounded-2xl bg-surface-container-lowest p-4 shadow-xs flex flex-col space-y-3 border border-surface-container/80">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-primary-container"></span>
-            <span className="text-[13.5px] font-bold text-on-surface">Sorotan Hari Ini</span>
+      {/* 2. Agenda Hari Ini - Ringkas & Bersih */}
+      <div className="rounded-2xl bg-surface-container-lowest p-4 shadow-2xs flex flex-col space-y-2.5 border border-surface-container">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span
+              style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+              className="px-1.5 py-0.5 rounded bg-primary-fixed/70 text-primary text-[10.5px] font-bold leading-none shrink-0"
+            >
+              予定
+            </span>
+            <span className="text-[13.5px] font-bold text-on-surface truncate">Agenda</span>
           </div>
           {todayDay && (
-            <span className="px-2.5 py-0.5 rounded-md bg-primary-fixed text-primary text-[10.5px] font-bold">
-              Hari {todayDay.day_number} • {todayDay.city || 'Tokyo'}
+            <span className="px-2 py-0.5 rounded-md bg-surface-container text-on-surface-variant text-[10.5px] font-bold whitespace-nowrap shrink-0">
+              Hari {todayDay.day_number} · {todayDay.city || 'Tokyo'}
             </span>
           )}
         </div>
 
         {todayItem ? (
-          <div className="rounded-xl bg-surface-container-low p-3 flex gap-3 items-center">
-            <div className="w-10 h-10 rounded-xl bg-primary-fixed/30 flex items-center justify-center text-primary-container shrink-0">
-              <span className="material-symbols-outlined text-[20px]">
-                {todayItem.is_halal_spot ? 'restaurant' : 'place'}
-              </span>
+          <div className="rounded-xl bg-surface-container-low px-3.5 py-2.5 flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-bold text-on-surface truncate">{todayItem.title}</p>
+              <p className="text-[11px] text-on-surface-variant truncate mt-0.5">
+                {[todayItem.start_time ? `${todayItem.start_time} JST` : null, todayItem.location]
+                  .filter(Boolean)
+                  .join(' · ') || 'Jadwal hari ini'}
+              </p>
             </div>
-            <div className="flex flex-col min-w-0 flex-1 leading-tight">
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <span className="px-1.5 py-0.2 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold">
-                  {todayItem.start_time ? `${todayItem.start_time} JST` : 'Jadwal Hari Ini'}
-                </span>
-                {todayItem.location && (
-                  <span className="text-[11px] text-on-surface-variant font-medium truncate">
-                    {todayItem.location}
-                  </span>
-                )}
-              </div>
-              <h4 className="text-[13.5px] font-bold text-on-surface truncate">
-                {todayItem.title}
-              </h4>
-              {todayItem.notes && (
-                <p className="text-[11px] text-on-surface-variant line-clamp-1 mt-0.5">
-                  {todayItem.notes}
-                </p>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={() => onNavigateTab('itinerary')}
+              className="text-[11.5px] font-bold text-primary shrink-0 cursor-pointer"
+            >
+              Lihat →
+            </button>
           </div>
         ) : (
-          <div className="rounded-xl bg-surface-container-low p-3.5 text-center flex flex-col items-center justify-center gap-1 text-on-surface-variant border border-surface-container/60">
-            <p className="text-[12px] font-semibold text-on-surface">Belum ada agenda aktivitas</p>
-            <p className="text-[11px]">Tambahkan rencana tempat kunjungan di menu Itinerary.</p>
+          <div className="flex items-center justify-between gap-2 rounded-xl bg-surface-container-low px-3.5 py-3">
+            <span className="text-[12px] text-on-surface-variant">Belum ada agenda</span>
+            <button
+              type="button"
+              onClick={() => onNavigateTab('itinerary')}
+              className="text-[12px] font-bold text-primary hover:underline shrink-0 cursor-pointer whitespace-nowrap"
+            >
+              Atur Itinerary →
+            </button>
           </div>
         )}
-
-        <button
-          onClick={() => onNavigateTab('itinerary')}
-          className="w-full h-9 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex items-center justify-center gap-1.5 text-primary text-[12px] font-bold border border-surface-container active:scale-98"
-        >
-          Lihat Seluruh Itinerary
-          <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
-        </button>
       </div>
 
-      {/* 3. Islamic Prayer Quick Summary Card */}
-      <div className="rounded-2xl bg-surface-container-lowest p-4 shadow-xs flex flex-col space-y-3 border border-surface-container/80">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[19px] text-primary">location_on</span>
-            <div>
-              <h4 className="text-[13.5px] font-bold text-on-surface leading-tight">Jadwal Sholat</h4>
-              <p className="text-[10.5px] text-on-surface-variant mt-0.5">Tokyo (JST, UTC+9)</p>
-            </div>
-          </div>
-          <div className="flex flex-col items-end leading-tight">
-            <span className="text-[12.5px] text-primary font-black">
-              {prayers ? `${prayers.nextPrayer.name} (${prayers.nextPrayer.time})` : 'Ashar (15:20)'}
+      {/* 3. Jadwal Sholat Ringkas */}
+      <div className="rounded-2xl bg-surface-container-lowest p-4 shadow-2xs flex flex-col space-y-3 border border-surface-container">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span
+              style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+              className="px-1.5 py-0.5 rounded bg-primary-fixed/70 text-primary text-[10.5px] font-bold leading-none shrink-0"
+            >
+              礼拝
             </span>
-            <span className="text-[10px] text-on-surface-variant font-medium mt-0.5">Waktu Berikutnya</span>
+            <h4 className="text-[13.5px] font-bold text-on-surface truncate">
+              Sholat · <span className="font-medium text-on-surface-variant">Tokyo</span>
+            </h4>
           </div>
+          <span className="text-[12px] text-primary font-bold whitespace-nowrap shrink-0 tabular-nums">
+            {prayers ? `${prayers.nextPrayer.name} ${prayers.nextPrayer.time}` : 'Ashar 14:12'}
+          </span>
         </div>
 
-        {/* 5 Daily Prayers - Highlight Waktu Sholat Berikutnya Secara Dinamis */}
-        <div className="grid grid-cols-5 gap-1.5 pt-0.5">
+        {/* 5 Daily Prayers - Rapi & Tidak Sempit */}
+        <div className="grid grid-cols-5 gap-1.5">
           {[
             { key: 'fajr', label: 'Subuh', time: prayers?.fajr || '04:53' },
             { key: 'dhuhr', label: 'Dzuhur', time: prayers?.dhuhr || '11:28' },
@@ -243,16 +251,24 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
             return (
               <div
                 key={item.key}
-                className={`flex flex-col items-center justify-center py-2 px-0.5 rounded-xl text-center min-w-0 transition-all ${
+                className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl text-center min-w-0 transition-all ${
                   active
-                    ? 'bg-secondary-container text-on-secondary-container shadow-xs border border-secondary'
+                    ? 'bg-secondary-container text-on-secondary-container shadow-2xs border border-secondary'
                     : 'bg-surface-container-low text-on-surface'
                 }`}
               >
-                <span className={`text-[10.5px] ${active ? 'font-black uppercase text-on-secondary-container' : 'text-on-surface-variant font-medium'}`}>
+                <span
+                  className={`text-[10px] leading-tight truncate max-w-full ${
+                    active ? 'font-bold text-on-secondary-container' : 'text-on-surface-variant font-medium'
+                  }`}
+                >
                   {item.label}
                 </span>
-                <span className={`text-[12px] mt-0.5 ${active ? 'font-black text-on-secondary-container' : 'font-bold text-on-surface'}`}>
+                <span
+                  className={`text-[12px] mt-0.5 tabular-nums leading-tight ${
+                    active ? 'font-extrabold text-on-secondary-container' : 'font-bold text-on-surface'
+                  }`}
+                >
                   {item.time}
                 </span>
               </div>
@@ -261,91 +277,93 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateTab, onOpenAdd
         </div>
 
         <button
+          type="button"
           onClick={() => onNavigateTab('ibadah')}
-          className="w-full text-center py-1 text-[11.5px] text-primary font-bold hover:underline flex items-center justify-center gap-1"
+          className="w-full text-center pt-0.5 text-[11.5px] text-primary font-bold hover:underline cursor-pointer"
         >
-          <span>Buka Kompas Kiblat & Direktori Masjid</span>
-          <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+          Kiblat &amp; Masjid Terdekat →
         </button>
       </div>
 
-      {/* 4. Budget & Financial Tracker Summary */}
-      <div className="rounded-2xl bg-surface-container-lowest p-4 shadow-xs flex flex-col space-y-3 border border-surface-container/80">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
-              <span className="material-symbols-outlined text-[16px]">payments</span>
-            </div>
-            <div>
-              <h4 className="text-[13.5px] font-bold text-on-surface leading-tight">Ringkasan Biaya</h4>
-              <span className="text-[10.5px] text-on-surface-variant font-medium">Kurs: 1 JPY ≈ Rp {rate.toFixed(1)}</span>
-            </div>
+      {/* 4. Anggaran Ringkas */}
+      <div className="rounded-2xl bg-surface-container-lowest p-4 shadow-2xs flex flex-col space-y-3 border border-surface-container">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span
+              style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+              className="px-1.5 py-0.5 rounded bg-primary-fixed/70 text-primary text-[10.5px] font-bold leading-none shrink-0"
+            >
+              予算
+            </span>
+            <h4 className="text-[13.5px] font-bold text-on-surface truncate">Anggaran</h4>
           </div>
           <button
+            type="button"
             onClick={() => onNavigateTab('biaya')}
-            className="text-primary text-[11.5px] font-bold hover:underline"
+            className="text-primary text-[11.5px] font-bold hover:underline shrink-0 cursor-pointer"
           >
-            Lihat Detail
+            Detail →
           </button>
         </div>
 
-        <div className="space-y-2 bg-surface-container-low p-3 rounded-xl">
-          <div className="flex justify-between items-baseline text-[11.5px]">
-            <span className="text-on-surface-variant font-medium">Terpakai ({usagePercent}%)</span>
-            <span className="font-extrabold text-on-surface text-[12.5px]">
-              Rp {formatRupiah(totalExpenseIdr)}{' '}
-              <span className="font-normal text-on-surface-variant text-[10.5px]">/ Rp {formatRupiah(totalBudget)}</span>
+        <div className="space-y-2 bg-surface-container-low px-3.5 py-3 rounded-xl">
+          <div className="flex items-baseline justify-between gap-2">
+            <span className="text-[11px] text-on-surface-variant font-medium shrink-0">Sisa</span>
+            <span className="font-extrabold text-on-surface text-[15px] tabular-nums truncate">
+              Rp {formatRupiah(remainingBudget)}
             </span>
           </div>
 
-          <div className="w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
-            <div className="h-full bg-primary-container rounded-full" style={{ width: `${usagePercent}%` }}></div>
+          <div className="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+            <div className="h-full bg-primary-container rounded-full" style={{ width: `${usagePercent}%` }} />
           </div>
 
-          <div className="flex items-center justify-between pt-0.5 text-on-surface-variant text-[11px]">
-            <span className="font-medium">Sisa Kas:</span>
-            <span className="font-extrabold text-on-surface text-[12px]">
-              ¥ {formatJpy(remainingJpy)}{' '}
-              <span className="text-secondary font-bold text-[10.5px]">(~ Rp {formatRupiah(remainingBudget)})</span>
-            </span>
+          <div className="flex items-center justify-between text-[11px] text-on-surface-variant tabular-nums">
+            <span>Terpakai {usagePercent}%</span>
+            <span className="font-bold text-on-surface">≈ ¥ {formatJpy(remainingJpy)}</span>
           </div>
         </div>
 
         <button
           type="button"
           onClick={onOpenAddExpense || (() => onNavigateTab('biaya'))}
-          className="w-full h-9.5 rounded-xl bg-primary-container text-white text-[12px] font-bold flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition-transform"
+          className="w-full h-9.5 rounded-xl bg-primary-container text-white text-[12px] font-bold flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 transition-transform cursor-pointer"
         >
-          <span className="material-symbols-outlined text-[16px]">add_circle</span>
-          Catat Pengeluaran
+          <span className="material-symbols-outlined text-[16px]">add</span>
+          <span>Catat Pengeluaran</span>
         </button>
       </div>
 
-      {/* 5. Preparation Progress Bar */}
-      <div className="rounded-2xl bg-surface-container-lowest p-4 shadow-xs flex flex-col space-y-2.5 border border-surface-container/80">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[17px] text-primary-container">luggage</span>
-            <span className="text-[13.5px] font-bold text-on-surface">Kesiapan Berangkat</span>
+      {/* 5. Progres Bekal Ringkas */}
+      <div className="rounded-2xl bg-surface-container-lowest p-4 shadow-2xs flex flex-col space-y-2.5 border border-surface-container">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span
+              style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+              className="px-1.5 py-0.5 rounded bg-primary-fixed/70 text-primary text-[10.5px] font-bold leading-none shrink-0"
+            >
+              荷
+            </span>
+            <span className="text-[13.5px] font-bold text-on-surface truncate">Bekal</span>
           </div>
-          <span className="text-[11.5px] font-bold text-primary">
-            {completedChecklist} / {totalChecklist} Selesai ({checklistPercent}%)
+          <span className="text-[11.5px] font-bold text-primary whitespace-nowrap tabular-nums">
+            {completedChecklist}/{totalChecklist} ({checklistPercent}%)
           </span>
         </div>
 
-        <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-surface-container rounded-full overflow-hidden">
           <div
             className="h-full bg-primary-container rounded-full transition-all duration-500"
             style={{ width: `${checklistPercent}%` }}
-          ></div>
+          />
         </div>
 
         <button
+          type="button"
           onClick={() => onNavigateTab('bekal')}
-          className="text-center py-1 text-[11.5px] text-primary font-bold hover:underline flex items-center justify-center gap-1"
+          className="text-center pt-0.5 text-[11.5px] text-primary font-bold hover:underline cursor-pointer"
         >
-          <span>Buka Checklist Koper</span>
-          <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+          Buka Checklist →
         </button>
       </div>
     </div>

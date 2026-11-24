@@ -312,16 +312,24 @@ export const ItineraryScreen: React.FC = () => {
           </form>
         ) : (
           <div className="flex items-center justify-between gap-2">
-            <h1 className="text-[20px] sm:text-[22px] font-extrabold text-on-surface tracking-tight leading-tight truncate">
-              {trip?.name || 'Perjalanan Jepang Saya'}
-            </h1>
+            <div className="flex items-center gap-2 min-w-0">
+              <span
+                style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+                className="px-1.5 py-0.5 rounded bg-primary-fixed/75 text-primary text-[11px] font-bold leading-none shrink-0"
+              >
+                旅程
+              </span>
+              <h1 className="text-[19px] sm:text-[21px] font-extrabold text-on-surface tracking-tight leading-tight truncate">
+                {trip?.name || 'Perjalanan Jepang Saya'}
+              </h1>
+            </div>
             <button
               type="button"
               onClick={() => setIsEditingTripName(true)}
-              className="h-8 px-2.5 rounded-lg bg-surface-container text-on-surface-variant hover:text-primary text-[11.5px] font-semibold flex items-center gap-1 shrink-0 cursor-pointer transition-colors"
+              className="h-8 px-2.5 rounded-lg bg-surface-container text-on-surface-variant hover:text-primary text-[11.5px] font-semibold flex items-center gap-1 shrink-0 cursor-pointer transition-colors whitespace-nowrap"
             >
               <span className="material-symbols-outlined text-[14px]">edit</span>
-              <span>Ubah Nama</span>
+              <span>Ubah</span>
             </button>
           </div>
         )}
@@ -584,7 +592,7 @@ export const ItineraryScreen: React.FC = () => {
 
       {/* Clean Modal: Tambah / Edit Agenda */}
       {activityModalDayId && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-surface-container-lowest rounded-2xl max-w-sm w-full p-5 shadow-xl space-y-3.5 border border-surface-container">
             <div className="flex items-center justify-between">
               <h3 className="text-[15px] font-bold text-on-surface">

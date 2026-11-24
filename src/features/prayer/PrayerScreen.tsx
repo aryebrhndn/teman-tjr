@@ -9,6 +9,7 @@ import {
 } from '../../services/prayer.service';
 import { supabase, isSupabaseConfigured } from '../../services/supabase.client';
 import { JAPAN_PRAYER_PLACES } from '../../data/japanPrayerPlaces';
+import { formatHijriDateTokyo } from '../../utils/tripDates';
 
 export const PrayerScreen: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState<string>('tokyo');
@@ -109,25 +110,13 @@ export const PrayerScreen: React.FC = () => {
 
   const todayDateMasehi = new Intl.DateTimeFormat('id-ID', {
     timeZone: 'Asia/Tokyo',
-    weekday: 'long',
+    weekday: 'short',
     day: 'numeric',
-    month: 'long',
+    month: 'short',
     year: 'numeric',
   }).format(new Date());
 
-  const todayDateHijri = (() => {
-    try {
-      const raw = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', {
-        timeZone: 'Asia/Tokyo',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      }).format(new Date());
-      return raw.endsWith('H') ? raw : `${raw} H`;
-    } catch {
-      return '10 Jumadilakhir 1448 H';
-    }
-  })();
+  const todayDateHijri = formatHijriDateTokyo(new Date());
 
   const formatJstClock = () => {
     return new Intl.DateTimeFormat('en-GB', {
@@ -339,25 +328,33 @@ export const PrayerScreen: React.FC = () => {
 
   return (
     <div className="flex flex-col w-full space-y-3.5 sm:space-y-4">
-      {/* Location & Method Header Bar */}
-      <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-xs flex flex-col gap-2.5 border border-surface-container/80">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[17px] text-primary">location_on</span>
-            Pilih Kota / Titik
-          </span>
-          <div className="flex items-center gap-2">
+      {/* Location & Method Header Bar - Rapi 1 Baris Tanpa Patah di Layar HP */}
+      <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-2xs flex flex-col gap-2.5 border border-surface-container">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span
+              style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+              className="px-1.5 py-0.5 rounded bg-primary-fixed/70 text-primary text-[10.5px] font-bold leading-none shrink-0"
+            >
+              場所
+            </span>
+            <span className="text-[13px] font-bold text-on-surface whitespace-nowrap">
+              Lokasi
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={handleUseGps}
               disabled={isGpsLoading}
-              className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+              className="h-7 px-2.5 rounded-full bg-surface-container-low border border-surface-container text-[11px] font-bold text-primary hover:bg-primary-fixed/40 flex items-center gap-1 cursor-pointer whitespace-nowrap transition-colors"
             >
-              <span className="material-symbols-outlined text-[14px]">my_location</span>
-              {isGpsLoading ? 'Mendeteksi...' : gpsCoords ? 'Ganti ke Kota' : 'Gunakan GPS'}
+              <span className="material-symbols-outlined text-[13.5px]">my_location</span>
+              <span>{isGpsLoading ? '...' : gpsCoords ? 'Kota' : 'GPS'}</span>
             </button>
-            <span className="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10.5px] font-bold tracking-wide shrink-0">
-              JST (UTC+9)
+            <span className="h-7 px-2.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[10.5px] font-bold inline-flex items-center whitespace-nowrap">
+              JST
             </span>
           </div>
         </div>
@@ -379,7 +376,7 @@ export const PrayerScreen: React.FC = () => {
               }
             }}
             style={{ appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none', backgroundImage: 'none' }}
-            className="w-full appearance-none bg-surface-container-low text-[13.5px] font-bold text-on-surface pl-3 pr-9 py-2.5 rounded-xl focus:outline-none cursor-pointer border border-surface-container shadow-2xs"
+            className="w-full appearance-none bg-surface-container-low text-[13.5px] font-bold text-on-surface pl-3.5 pr-9 py-2.5 rounded-xl focus:outline-none cursor-pointer border border-surface-container"
           >
             {gpsCoords && (
               <option value="gps">
@@ -398,18 +395,17 @@ export const PrayerScreen: React.FC = () => {
           </span>
         </div>
 
-        {/* Dynamic Date & Live Current Time (Hours, Minutes, Seconds) */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-on-surface-variant text-[12px] pt-1.5 border-t border-surface-container/70">
-          <div className="flex items-center gap-1.5 font-medium flex-wrap">
-            <span className="material-symbols-outlined text-[15px] text-primary shrink-0">calendar_month</span>
-            <span className="capitalize">{todayDateMasehi}</span>
-            <span className="text-outline-variant">•</span>
-            <span className="text-primary font-bold">{todayDateHijri}</span>
+        {/* Dynamic Date (Gregorian + Bug-Free Hijri) & Live JST Clock */}
+        <div className="flex items-center justify-between gap-2 text-[11.5px] pt-2 border-t border-surface-container/70">
+          <div className="min-w-0 flex-1 leading-snug">
+            <p className="text-on-surface font-semibold truncate">{todayDateMasehi}</p>
+            <p className="text-primary font-bold text-[11px] truncate">{todayDateHijri}</p>
           </div>
-          <div className="flex items-center gap-1.5 text-[12px] font-bold text-on-surface shrink-0 tabular-nums">
-            <span className="material-symbols-outlined text-[15px] text-primary shrink-0">schedule</span>
-            <span className="font-mono tracking-wider">{currentJstTime}</span>
-            <span className="text-[10.5px] font-semibold text-primary">JST</span>
+          <div className="flex items-center gap-1 bg-surface-container-low px-2.5 py-1 rounded-lg border border-surface-container shrink-0 tabular-nums">
+            <span className="font-mono text-[12px] font-bold text-on-surface tracking-tight">
+              {currentJstTime}
+            </span>
+            <span className="text-[10px] font-bold text-primary">JST</span>
           </div>
         </div>
 
@@ -541,19 +537,14 @@ export const PrayerScreen: React.FC = () => {
           </div>
 
           <div className="mt-2.5 pt-2 bg-white/10 rounded-lg px-3 py-1.5 flex items-center justify-between relative z-10">
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] text-secondary-container">
-                hourglass_top
-              </span>
-              <span className="text-[12px] font-semibold">Menuju Masuk Waktu</span>
-            </div>
-            <div className="text-[13px] font-bold tracking-wider font-mono text-secondary-container">
+            <span className="text-[12px] font-semibold">Sisa waktu</span>
+            <div className="text-[13px] font-bold tracking-wider font-mono text-secondary-container tabular-nums">
               {formatTimer(tickerSeconds)}
             </div>
           </div>
         </div>
 
-        {/* 5 Daily Prayer Cards - Highlight Dinamis Sesuai Jadwal Berikutnya */}
+        {/* 5 Daily Prayer Cards - Rapi & Tidak Sempit */}
         <div className="grid grid-cols-5 gap-1.5 pt-0.5">
           {[
             { key: 'fajr', label: 'Subuh', time: prayers?.fajr || '04:53' },
@@ -568,14 +559,22 @@ export const PrayerScreen: React.FC = () => {
                 key={item.key}
                 className={`py-2 px-1 flex flex-col items-center text-center rounded-xl min-w-0 transition-all ${
                   active
-                    ? 'bg-secondary-container text-on-secondary-container shadow-xs border border-secondary'
+                    ? 'bg-secondary-container text-on-secondary-container shadow-2xs border border-secondary'
                     : 'bg-surface-container-low text-on-surface'
                 }`}
               >
-                <span className={`text-[11px] ${active ? 'font-black uppercase text-on-secondary-container' : 'text-on-surface-variant font-medium'}`}>
+                <span
+                  className={`text-[10px] leading-tight truncate max-w-full ${
+                    active ? 'font-bold text-on-secondary-container' : 'text-on-surface-variant font-medium'
+                  }`}
+                >
                   {item.label}
                 </span>
-                <span className={`text-[12.5px] mt-0.5 ${active ? 'font-black text-on-secondary-container' : 'font-extrabold text-on-surface'}`}>
+                <span
+                  className={`text-[12px] mt-0.5 tabular-nums leading-tight ${
+                    active ? 'font-extrabold text-on-secondary-container' : 'font-bold text-on-surface'
+                  }`}
+                >
                   {item.time}
                 </span>
               </div>
@@ -585,34 +584,42 @@ export const PrayerScreen: React.FC = () => {
       </div>
 
 
-      {/* Card 2: Arah Kiblat Jepang (Sesuai Standar Kompas HP & Titik Mana Pun di Jepang) */}
-      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3.5 border border-surface-container/80">
-        <div>
-          <h3 className="text-[17px] font-bold text-on-surface">Arah kiblat</h3>
-          <p className="text-[12px] text-on-surface-variant mt-0.5 leading-relaxed">
-            Letakkan ponsel mendatar, lalu putar badan sampai jarum merah menunjuk ke atas.
-          </p>
-        </div>
-
-        {/* Dynamic Location Indicator */}
-        <div className="flex items-center justify-between text-[11px] bg-surface-container-low px-3 py-1.5 rounded-xl border border-surface-container">
-          <div className="flex items-center gap-1.5 text-on-surface-variant truncate">
-            <span className="material-symbols-outlined text-[15px] text-primary">my_location</span>
-            <span className="truncate">
-              {isManualMode
-                ? `Koordinat Manual (${activeCoords.latitude.toFixed(2)}°, ${activeCoords.longitude.toFixed(2)}°) • ${targetQibla.toFixed(1)}°`
-                : gpsCoords
-                ? `${gpsCoords.label} (${gpsCoords.latitude.toFixed(2)}°, ${gpsCoords.longitude.toFixed(2)}°) • ${targetQibla.toFixed(1)}°`
-                : `${JAPAN_CITIES[selectedCity]?.label || 'Tokyo (Shinjuku)'} • ${targetQibla.toFixed(1)}°`}
+      {/* Card 2: Arah Kiblat Jepang dengan Aksen Arah Mata Angin Kanji */}
+      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col gap-3 border border-surface-container">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span
+              style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+              className="px-1.5 py-0.5 rounded bg-primary-fixed/70 text-primary text-[10.5px] font-bold leading-none shrink-0"
+            >
+              方角
             </span>
+            <h3 className="text-[15.5px] font-bold text-on-surface truncate">Arah Kiblat</h3>
           </div>
           <button
+            type="button"
             onClick={handleUseGps}
             disabled={isGpsLoading}
-            className="text-primary font-bold hover:underline shrink-0 flex items-center gap-1 ml-2"
+            className="text-[11px] text-primary font-bold hover:underline shrink-0 whitespace-nowrap cursor-pointer"
           >
-            {isGpsLoading ? 'Mendeteksi...' : gpsCoords ? 'Ganti ke Kota' : 'Gunakan GPS'}
+            {isGpsLoading ? '...' : gpsCoords ? 'Ganti Kota' : 'Pakai GPS'}
           </button>
+        </div>
+
+        <p className="text-[12px] text-on-surface-variant leading-relaxed -mt-1">
+          Letakkan ponsel datar, putar hingga jarum merah mengarah ke atas.
+        </p>
+
+        {/* Dynamic Location Indicator */}
+        <div className="flex items-center gap-1.5 text-[11px] bg-surface-container-low px-3 py-1.5 rounded-xl border border-surface-container text-on-surface-variant">
+          <span className="material-symbols-outlined text-[14px] text-primary shrink-0">my_location</span>
+          <span className="truncate font-medium">
+            {isManualMode
+              ? `Manual (${activeCoords.latitude.toFixed(2)}°, ${activeCoords.longitude.toFixed(2)}°) · ${targetQibla.toFixed(1)}°`
+              : gpsCoords
+              ? `GPS (${gpsCoords.latitude.toFixed(2)}°, ${gpsCoords.longitude.toFixed(2)}°) · ${targetQibla.toFixed(1)}°`
+              : `${JAPAN_CITIES[selectedCity]?.label || 'Tokyo (Shinjuku)'} · ${targetQibla.toFixed(1)}°`}
+          </span>
         </div>
 
         {/* Compass Graphic Visualizer */}
@@ -646,18 +653,18 @@ export const PrayerScreen: React.FC = () => {
               );
             })}
 
-            {/* Cardinals N, E, S, W */}
-            <text x="120" y="32" textAnchor="middle" fill="#2c2826" fontSize="14" fontWeight="bold" fontFamily="system-ui, sans-serif">
-              N
+            {/* Cardinals N 北, E 東, S 南, W 西 */}
+            <text x="120" y="31" textAnchor="middle" fill="#a90008" fontSize="13" fontWeight="bold" fontFamily="'Noto Sans JP', system-ui, sans-serif">
+              N 北
             </text>
-            <text x="210" y="125" textAnchor="middle" fill="#78726e" fontSize="12" fontWeight="bold" fontFamily="system-ui, sans-serif">
-              E
+            <text x="206" y="124" textAnchor="middle" fill="#78726e" fontSize="11" fontWeight="bold" fontFamily="'Noto Sans JP', system-ui, sans-serif">
+              東
             </text>
-            <text x="120" y="217" textAnchor="middle" fill="#78726e" fontSize="12" fontWeight="bold" fontFamily="system-ui, sans-serif">
-              S
+            <text x="120" y="218" textAnchor="middle" fill="#78726e" fontSize="11.5" fontWeight="bold" fontFamily="'Noto Sans JP', system-ui, sans-serif">
+              S 南
             </text>
-            <text x="30" y="125" textAnchor="middle" fill="#78726e" fontSize="12" fontWeight="bold" fontFamily="system-ui, sans-serif">
-              W
+            <text x="34" y="124" textAnchor="middle" fill="#78726e" fontSize="11" fontWeight="bold" fontFamily="'Noto Sans JP', system-ui, sans-serif">
+              西
             </text>
 
             {/* Needle Rotating Group */}
@@ -741,14 +748,22 @@ export const PrayerScreen: React.FC = () => {
       <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs flex flex-col gap-2.5 border border-surface-container/80">
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <h3 className="text-[14px] font-bold text-on-surface truncate">
-              Masjid &amp; Musholla Terdekat
-            </h3>
-            <p className="text-[11px] text-on-surface-variant mt-0.5 truncate">
-              Sekitar {activeLocationName} ({filteredPlaces.length} lokasi ditemukan)
+            <div className="flex items-center gap-1.5">
+              <span
+                style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+                className="px-1.5 py-0.5 rounded bg-primary-fixed/70 text-primary text-[10.5px] font-bold leading-none shrink-0"
+              >
+                礼拝所
+              </span>
+              <h3 className="text-[14px] font-bold text-on-surface truncate">
+                Masjid Terdekat
+              </h3>
+            </div>
+            <p className="text-[11px] text-on-surface-variant mt-1 truncate">
+              {filteredPlaces.length} lokasi sekitar {activeLocationName}
             </p>
           </div>
-          <span className="px-2.5 py-1 rounded-lg bg-surface-container-high text-on-surface text-[11px] font-bold shrink-0 max-w-[130px] truncate">
+          <span className="px-2.5 py-1 rounded-lg bg-surface-container-high text-on-surface text-[11px] font-bold shrink-0 max-w-[125px] truncate">
             {activeLocationName}
           </span>
         </div>

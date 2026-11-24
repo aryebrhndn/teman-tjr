@@ -250,7 +250,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         <div className="flex-1 min-w-0">
           <h2 className="text-[14.5px] font-extrabold text-on-surface leading-snug">Teman TJR</h2>
           <p className="text-[10.5px] text-on-surface-variant font-medium mt-0.5">
-            Teman Jalan Dalam Genggaman • Versi 2.3 (Build 23)
+            Teman Jalan Dalam Genggaman • Versi 2.4 (Build 24)
           </p>
           <div className="flex items-center gap-1.5 mt-1">
             <span className="inline-block px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[9.5px] font-bold uppercase">
@@ -368,7 +368,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
 
       {/* MODAL 1: PWA Installation Success Notification Popup */}
       {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-surface rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-surface-container flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
             <div className="w-13 h-13 rounded-full bg-emerald-100 flex items-center justify-center mb-3 border-2 border-emerald-400">
               <span className="material-symbols-outlined text-[30px] text-emerald-600">verified</span>
@@ -399,7 +399,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
 
       {/* MODAL 2: Manual PWA Installation Guide Popup */}
       {showGuideModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-surface rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-surface-container flex flex-col text-left animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between pb-3 border-b border-surface-container">
               <div className="flex items-center gap-2">

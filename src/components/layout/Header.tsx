@@ -17,7 +17,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, onOpenSettings }) =>
   };
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 bg-[#a90008] text-white shadow-xs pt-safe">
+    <header className="fixed top-0 inset-x-0 z-30 bg-[#a90008] text-white shadow-xs pt-safe">
       {/* Decorative Top Accent Stripe: Lighter Red (30%) + Golden Yellow (70%) */}
       <div className="w-full h-[2.5px] flex shrink-0">
         <div className="w-[30%] bg-[#e53935]"></div>
@@ -25,7 +25,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, onOpenSettings }) =>
       </div>
 
       <div className="h-[54px] px-4 max-w-xl mx-auto flex items-center justify-between">
-        {/* Brand & Slogan */}
+        {/* Brand & Slogan with subtle Nippon Kanji accent */}
         <div className="flex items-center gap-2.5 min-w-0">
           <img
             src="/LOGO TJR.png"
@@ -33,9 +33,17 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, onOpenSettings }) =>
             className="w-8 h-8 rounded-full object-cover border border-white/90 shadow-2xs bg-[#a90008] shrink-0"
           />
           <div className="flex flex-col justify-center leading-none min-w-0">
-            <span className="font-extrabold text-[15px] text-white tracking-tight leading-none">
-              Teman TJR
-            </span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-extrabold text-[15px] text-white tracking-tight leading-none">
+                Teman TJR
+              </span>
+              <span
+                style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+                className="text-[10px] font-bold text-[#fec300] bg-black/20 px-1.5 py-0.5 rounded border border-[#fec300]/35 leading-none shrink-0"
+              >
+                旅の友
+              </span>
+            </div>
             <span className="text-[10px] text-white/90 flex items-center gap-1 mt-1 font-medium tracking-tight leading-none truncate">
               <span className="w-1.5 h-1.5 rounded-full bg-[#fec300] inline-block shrink-0"></span>
               Teman Jalan Dalam Genggaman

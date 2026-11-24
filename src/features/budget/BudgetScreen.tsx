@@ -434,13 +434,21 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
           {/* Card 1: Ringkasan Saldo Utama */}
           <div className="bg-surface-container-lowest rounded-2xl p-5 shadow-2xs border border-surface-container space-y-4">
             <div className="flex items-center justify-between gap-2">
-              <h2 className="text-[15.5px] font-bold text-on-surface truncate">
-                {budget?.name || 'Anggaran Perjalanan'}
-              </h2>
+              <div className="flex items-center gap-2 min-w-0">
+                <span
+                  style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+                  className="px-1.5 py-0.5 rounded bg-primary-fixed/75 text-primary text-[10.5px] font-bold leading-none shrink-0"
+                >
+                  予算
+                </span>
+                <h2 className="text-[15px] font-bold text-on-surface truncate">
+                  {budget?.name || 'Anggaran Perjalanan'}
+                </h2>
+              </div>
               <button
                 type="button"
                 onClick={handleOpenEditBudget}
-                className="h-8 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-primary text-[11.5px] font-bold border border-surface-container shrink-0 cursor-pointer transition-colors"
+                className="h-8 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-primary text-[11.5px] font-bold border border-surface-container shrink-0 whitespace-nowrap cursor-pointer transition-colors"
               >
                 Atur Plafon
               </button>
@@ -563,7 +571,7 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
 
       {/* MODAL 1: Atur Plafon Anggaran */}
       {showEditBudgetModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
           <div className="bg-surface rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-surface-container space-y-3.5">
             <h3 className="text-[14px] font-extrabold text-on-surface">Atur Plafon Anggaran Perjalanan</h3>
             <form onSubmit={handleSaveBudgetSubmit} className="space-y-3">
@@ -636,7 +644,7 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
 
       {/* MODAL 2: Tambah Pengeluaran Baru */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
           <div className="bg-surface rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-surface-container space-y-3.5">
             <h3 className="text-[14px] font-extrabold text-on-surface">Catat Pengeluaran Baru</h3>
             <form onSubmit={handleAddExpenseSubmit} className="space-y-3">
@@ -726,7 +734,7 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
 
       {/* MODAL 3: Edit / Hapus Transaksi Pengeluaran */}
       {editingExpense && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
           <div className="bg-surface rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-surface-container space-y-3.5">
             <div className="flex items-center justify-between">
               <h3 className="text-[14px] font-extrabold text-on-surface">Edit Transaksi Pengeluaran</h3>
@@ -824,7 +832,7 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
 
       {/* MODAL 4: Atur & Perbarui Kurs Mata Uang */}
       {showEditRateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-sm">
           <div className="bg-surface-container-lowest rounded-2xl w-full max-w-sm p-4.5 shadow-xl border border-surface-container flex flex-col gap-3">
             <div className="flex items-center justify-between border-b border-surface-container/80 pb-2.5">
               <div>

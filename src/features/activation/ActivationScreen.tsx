@@ -298,7 +298,7 @@ export const ActivationScreen: React.FC<ActivationScreenProps> = ({ onActivated 
       {/* Help Modal */}
       {showHelp && (
         <div
-          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 animate-in fade-in"
+          className="fixed inset-0 z-[100] bg-black/45 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 animate-in fade-in"
           onClick={() => setShowHelp(false)}
         >
           <div

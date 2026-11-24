@@ -178,3 +178,61 @@ export function getTripStatusInfo(
     season,
   };
 }
+
+/**
+ * Deterministic Gregorian -> Hijri (Indonesian) formatter in Asia/Tokyo (JST).
+ * Avoids Android Chrome ICU bugs (e.g. "Juni 1448 SM H") by using pure math.
+ */
+export function formatHijriDateTokyo(date = new Date()): string {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Tokyo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+
+  const y = Number(parts.find((p) => p.type === 'year')?.value || date.getFullYear());
+  const m = Number(parts.find((p) => p.type === 'month')?.value || date.getMonth() + 1);
+  const d = Number(parts.find((p) => p.type === 'day')?.value || date.getDate());
+
+  const jd =
+    Math.floor((1461 * (y + 4800 + Math.floor((m - 14) / 12))) / 4) +
+    Math.floor((367 * (m - 2 - 12 * Math.floor((m - 14) / 12))) / 12) -
+    Math.floor((3 * Math.floor((y + 4900 + Math.floor((m - 14) / 12)) / 100)) / 4) +
+    d -
+    32075;
+
+  let l = jd - 1948440 + 10632;
+  const n = Math.floor((l - 1) / 10631);
+  l = l - 10631 * n + 354;
+  const j =
+    Math.floor((10985 - l) / 5316) * Math.floor((50 * l) / 17719) +
+    Math.floor(l / 5670) * Math.floor((43 * l) / 15238);
+  l =
+    l -
+    Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) -
+    Math.floor(j / 16) * Math.floor((15238 * j) / 43) +
+    29;
+
+  const hMonth = Math.floor((24 * l) / 709);
+  const hDay = l - Math.floor((709 * hMonth) / 24);
+  const hYear = 30 * n + j - 30;
+
+  const months = [
+    '',
+    'Muharram',
+    'Safar',
+    'Rabiulawal',
+    'Rabiulakhir',
+    'Jumadilawal',
+    'Jumadilakhir',
+    'Rajab',
+    'Syaban',
+    'Ramadan',
+    'Syawal',
+    'Zulkaidah',
+    'Zulhijah',
+  ];
+
+  return `${hDay} ${months[hMonth] || ''} ${hYear} H`;
+}

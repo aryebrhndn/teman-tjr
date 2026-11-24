@@ -277,11 +277,19 @@ export const BekalScreen: React.FC = () => {
     <div className="flex flex-col w-full space-y-4">
       {/* Page Title */}
       <div className="px-0.5 pt-0.5">
-        <h1 className="text-[20px] sm:text-[22px] font-extrabold text-on-surface tracking-tight leading-tight">
-          Persiapan &amp; Bekal
-        </h1>
-        <p className="text-[12.5px] text-on-surface-variant mt-1 leading-relaxed">
-          Hitung mundur dokumen, lalu centang barang bawaan sesuai musim keberangkatan.
+        <div className="flex items-center gap-2">
+          <span
+            style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+            className="px-1.5 py-0.5 rounded bg-primary-fixed/75 text-primary text-[11px] font-bold leading-none shrink-0"
+          >
+            準備
+          </span>
+          <h1 className="text-[19px] sm:text-[21px] font-extrabold text-on-surface tracking-tight leading-tight">
+            Persiapan &amp; Bekal
+          </h1>
+        </div>
+        <p className="text-[12px] text-on-surface-variant mt-1 leading-relaxed">
+          Atur tanggal berangkat, lalu centang persiapan dan barang bawaan.
         </p>
       </div>
 
