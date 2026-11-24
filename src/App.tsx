@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { initializeDatabaseSeed } from './database/seed';
+import { initAppearance } from './utils/appearance';
 import { Header } from './components/layout/Header';
 import { BottomNav } from './components/layout/BottomNav';
 import { HomeScreen } from './features/dashboard/HomeScreen';
@@ -10,7 +11,7 @@ import { BekalScreen } from './features/checklist/BekalScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
 import { AdminScreen } from './features/admin/AdminScreen';
 
-const APP_BUILD_ID = '2026.11.24-build24';
+const APP_BUILD_ID = '2026.11.24-build25';
 
 export function App() {
   const [isReady, setIsReady] = useState(false);
@@ -18,6 +19,7 @@ export function App() {
   const [openAddExpenseInBudget, setOpenAddExpenseInBudget] = useState(false);
 
   useEffect(() => {
+    initAppearance();
     // Listen for PWA install prompt
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();

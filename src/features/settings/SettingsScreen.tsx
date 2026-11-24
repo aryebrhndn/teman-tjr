@@ -1,6 +1,84 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { db } from '../../database/dexie';
 import { deactivateDevice } from '../../services/activation.service';
+import {
+  applyFontSize,
+  applyTheme,
+  getStoredFontSize,
+  getStoredTheme,
+  type FontSizeMode,
+  type ThemeMode,
+} from '../../utils/appearance';
+
+interface EmergencyPhrase {
+  id: string;
+  idText: string;
+  jpText: string;
+  romaji: string;
+}
+
+const EMERGENCY_PHRASES: EmergencyPhrase[] = [
+  {
+    id: 'ph-1',
+    idText: 'Apakah ada daging babi di dalamnya?',
+    jpText: '豚肉は入っていますか？',
+    romaji: 'Buta-niku wa haitte imasu ka?',
+  },
+  {
+    id: 'ph-2',
+    idText: 'Apakah ini memakai alkohol atau mirin?',
+    jpText: 'アルコールやみりんは使っていますか？',
+    romaji: 'Arukōru ya mirin wa tsukatte imasu ka?',
+  },
+  {
+    id: 'ph-3',
+    idText: 'Saya tidak makan daging babi.',
+    jpText: '私は豚肉を食べられません。',
+    romaji: 'Watashi wa buta-niku o taberaremasen.',
+  },
+  {
+    id: 'ph-4',
+    idText: 'Apakah ada tempat sholat di sini?',
+    jpText: 'ここに礼拝室はありますか？',
+    romaji: 'Koko ni reihaishitsu wa arimasu ka?',
+  },
+  {
+    id: 'ph-5',
+    idText: 'Saya tersesat, tolong bantu.',
+    jpText: '道に迷いました。助けてください。',
+    romaji: 'Michi ni mayoimashita. Tasukete kudasai.',
+  },
+  {
+    id: 'ph-6',
+    idText: 'Bagaimana cara ke stasiun ini?',
+    jpText: 'この駅にはどうやって行きますか？',
+    romaji: 'Kono eki ni wa dōyatte ikimasu ka?',
+  },
+  {
+    id: 'ph-7',
+    idText: 'Tolong, ini alamat hotel saya.',
+    jpText: 'すみません、こちらがホテルの住所です。',
+    romaji: 'Sumimasen, kochira ga hoteru no jūsho desu.',
+  },
+  {
+    id: 'ph-8',
+    idText: 'Berapa harganya?',
+    jpText: 'いくらですか？',
+    romaji: 'Ikura desu ka?',
+  },
+  {
+    id: 'ph-9',
+    idText: 'Bisa bayar pakai kartu?',
+    jpText: 'カードで払えますか？',
+    romaji: 'Kādo de haraemasu ka?',
+  },
+  {
+    id: 'ph-10',
+    idText: 'Tolong panggilkan ambulans.',
+    jpText: '救急車を呼んでください。',
+    romaji: 'Kyūkyūsha o yonde kudasai.',
+  },
+];
 
 interface SettingsScreenProps {
   onDeactivated: () => void;
@@ -14,6 +92,36 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [showGuideModal, setShowGuideModal] = useState<boolean>(false);
+
+  // Appearance state (Theme & Global Font Size)
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => getStoredTheme());
+  const [fontSize, setFontSize] = useState<FontSizeMode>(() => getStoredFontSize());
+
+  // Emergency Phrases accordion state (first item open by default just like Hitori Companion)
+  const [openPhraseId, setOpenPhraseId] = useState<string | null>('ph-1');
+
+  const handleSelectTheme = (mode: ThemeMode) => {
+    setThemeMode(mode);
+    applyTheme(mode);
+  };
+
+  const handleSelectFontSize = (size: FontSizeMode) => {
+    setFontSize(size);
+    applyFontSize(size);
+  };
+
+  const handleSpeakJapanese = (jpText: string) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(jpText);
+      utter.lang = 'ja-JP';
+      utter.rate = 0.9;
+      window.speechSynthesis.speak(utter);
+    } catch {
+      // Ignore if speech synthesis unavailable on device
+    }
+  };
 
   // Check if PWA is already installed or running in standalone mode
   const [isInstalled, setIsInstalled] = useState<boolean>(() => {
@@ -250,7 +358,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         <div className="flex-1 min-w-0">
           <h2 className="text-[14.5px] font-extrabold text-on-surface leading-snug">Teman TJR</h2>
           <p className="text-[10.5px] text-on-surface-variant font-medium mt-0.5">
-            Teman Jalan Dalam Genggaman • Versi 2.4 (Build 24)
+            Teman Jalan Dalam Genggaman • Versi 2.5 (Build 25)
           </p>
           <div className="flex items-center gap-1.5 mt-1">
             <span className="inline-block px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[9.5px] font-bold uppercase">
@@ -262,6 +370,75 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
                 PWA Terpasang
               </span>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* 0. Tampilan: Mode Gelap/Terang & Ukuran Huruf Global */}
+      <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-2xs border border-surface-container space-y-3.5">
+        <div className="flex items-center gap-2">
+          <span
+            style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+            className="px-1.5 py-0.5 rounded bg-primary-fixed/75 text-primary text-[10.5px] font-bold leading-none shrink-0"
+          >
+            表示
+          </span>
+          <h3 className="text-[14px] font-bold text-on-surface">Tampilan</h3>
+        </div>
+
+        {/* Mode Gelap / Terang */}
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-[12.5px] font-semibold text-on-surface">Tema</span>
+          <div className="p-0.5 rounded-xl bg-surface-container flex items-center gap-0.5">
+            <button
+              type="button"
+              onClick={() => handleSelectTheme('light')}
+              className={`h-8 px-3 rounded-lg text-[11.5px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                themeMode === 'light'
+                  ? 'bg-surface-container-lowest text-primary shadow-2xs'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[15px]">light_mode</span>
+              <span>Terang</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSelectTheme('dark')}
+              className={`h-8 px-3 rounded-lg text-[11.5px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                themeMode === 'dark'
+                  ? 'bg-surface-container-lowest text-primary shadow-2xs'
+                  : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[15px]">dark_mode</span>
+              <span>Gelap</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Ukuran Huruf Keseluruhan Aplikasi */}
+        <div className="flex items-center justify-between gap-3 pt-2.5 border-t border-surface-container/70">
+          <span className="text-[12.5px] font-semibold text-on-surface">Ukuran Huruf</span>
+          <div className="p-0.5 rounded-xl bg-surface-container flex items-center gap-0.5">
+            {[
+              { id: 'sm' as FontSizeMode, label: 'Kecil' },
+              { id: 'md' as FontSizeMode, label: 'Normal' },
+              { id: 'lg' as FontSizeMode, label: 'Besar' },
+            ].map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => handleSelectFontSize(opt.id)}
+                className={`h-8 px-2.5 rounded-lg text-[11.5px] font-bold transition-all cursor-pointer ${
+                  fontSize === opt.id
+                    ? 'bg-surface-container-lowest text-primary shadow-2xs'
+                    : 'text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -348,6 +525,66 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         >
           Buka Admin
         </button>
+      </div>
+
+      {/* 4.5. Frasa Darurat (Bahasa Jepang + Latin + Terjemahan) tepat sebelum Hapus Data */}
+      <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-2xs border border-surface-container">
+        <div className="flex items-center gap-2 mb-2">
+          <span
+            style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+            className="px-1.5 py-0.5 rounded bg-primary-fixed/75 text-primary text-[10.5px] font-bold leading-none shrink-0"
+          >
+            緊急
+          </span>
+          <h3 className="text-[15.5px] font-bold text-on-surface">Frasa darurat</h3>
+        </div>
+
+        <div className="divide-y divide-surface-container/80">
+          {EMERGENCY_PHRASES.map((phrase) => {
+            const isOpen = openPhraseId === phrase.id;
+            return (
+              <div key={phrase.id} className="py-3">
+                <button
+                  type="button"
+                  onClick={() => setOpenPhraseId(isOpen ? null : phrase.id)}
+                  className="w-full flex items-center justify-between gap-3 text-left cursor-pointer group"
+                >
+                  <span className="text-[13px] font-bold text-on-surface group-hover:text-primary transition-colors leading-snug">
+                    {phrase.idText}
+                  </span>
+                  <span className="text-[16px] font-medium text-on-surface-variant shrink-0 leading-none">
+                    {isOpen ? '−' : '+'}
+                  </span>
+                </button>
+
+                {isOpen && (
+                  <div className="mt-2.5 space-y-1.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <p
+                        style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
+                        className="text-[19px] sm:text-[20px] font-bold text-on-surface leading-snug tracking-wide"
+                      >
+                        {phrase.jpText}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => handleSpeakJapanese(phrase.jpText)}
+                        title="Dengarkan pelafalan Jepang"
+                        aria-label={`Putar suara ${phrase.idText}`}
+                        className="w-8 h-8 rounded-lg bg-surface-container-low border border-surface-container text-primary hover:bg-primary-fixed/40 flex items-center justify-center shrink-0 cursor-pointer transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[17px]">volume_up</span>
+                      </button>
+                    </div>
+                    <p className="text-[12px] text-on-surface-variant font-medium">
+                      {phrase.romaji}
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* 5. Danger Zone: Reset Data */}

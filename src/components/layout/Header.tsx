@@ -25,7 +25,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, onOpenSettings }) =>
       </div>
 
       <div className="h-[54px] px-4 max-w-xl mx-auto flex items-center justify-between">
-        {/* Brand & Slogan with subtle Nippon Kanji accent */}
+        {/* Brand & Slogan */}
         <div className="flex items-center gap-2.5 min-w-0">
           <img
             src="/LOGO TJR.png"
@@ -33,17 +33,9 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, onOpenSettings }) =>
             className="w-8 h-8 rounded-full object-cover border border-white/90 shadow-2xs bg-[#a90008] shrink-0"
           />
           <div className="flex flex-col justify-center leading-none min-w-0">
-            <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-[15px] text-white tracking-tight leading-none">
-                Teman TJR
-              </span>
-              <span
-                style={{ fontFamily: "'Noto Sans JP', sans-serif" }}
-                className="text-[10px] font-bold text-[#fec300] bg-black/20 px-1.5 py-0.5 rounded border border-[#fec300]/35 leading-none shrink-0"
-              >
-                旅の友
-              </span>
-            </div>
+            <span className="font-extrabold text-[15px] text-white tracking-tight leading-none">
+              Teman TJR
+            </span>
             <span className="text-[10px] text-white/90 flex items-center gap-1 mt-1 font-medium tracking-tight leading-none truncate">
               <span className="w-1.5 h-1.5 rounded-full bg-[#fec300] inline-block shrink-0"></span>
               Teman Jalan Dalam Genggaman

@@ -63,6 +63,18 @@
     </style>
 
     <script>
+      // Apply saved theme & font size immediately before paint (prevents flash)
+      try {
+        var savedTheme = localStorage.getItem('tjr_theme_mode');
+        if (savedTheme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+        var savedFont = localStorage.getItem('tjr_font_size');
+        if (savedFont === 'sm' || savedFont === 'lg' || savedFont === 'md') {
+          document.documentElement.setAttribute('data-font-size', savedFont);
+        }
+      } catch (e) {}
+
       // Netlify HUD & Drawer Blocker
       const killNetlifyHUD = () => {
         const targets = [
