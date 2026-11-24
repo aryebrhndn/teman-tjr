@@ -9,9 +9,9 @@ import { BudgetScreen } from './features/budget/BudgetScreen';
 import { PrayerScreen } from './features/prayer/PrayerScreen';
 import { BekalScreen } from './features/checklist/BekalScreen';
 import { SettingsScreen } from './features/settings/SettingsScreen';
-import { AdminScreen } from './features/admin/AdminScreen';
+import { PwaInstallPromptModal } from './components/pwa/PwaInstallPromptModal';
 
-const APP_BUILD_ID = '2026.11.24-build27';
+const APP_BUILD_ID = '2026.11.24-build28';
 
 export function App() {
   const [isReady, setIsReady] = useState(false);
@@ -51,11 +51,6 @@ export function App() {
       setIsReady(true);
     }
     init();
-
-    // Check if URL has #admin
-    if (window.location.hash === '#admin') {
-      setCurrentTab('admin');
-    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
@@ -110,12 +105,9 @@ export function App() {
               // Reset local data reload
               window.location.reload();
             }}
-            onOpenAdmin={() => setCurrentTab('admin')}
             onBack={() => setCurrentTab('beranda')}
           />
         );
-      case 'admin':
-        return <AdminScreen onBack={() => setCurrentTab('settings')} />;
       default:
         return (
           <HomeScreen
@@ -128,8 +120,6 @@ export function App() {
     }
   };
 
-  const showNav = currentTab !== 'admin';
-
   return (
     <div className="min-h-screen bg-surface flex flex-col selection:bg-primary-fixed selection:text-primary">
       <Header
@@ -141,7 +131,10 @@ export function App() {
         {renderMainContent()}
       </main>
 
-      {showNav && <BottomNav currentTab={currentTab} onTabChange={(tab) => setCurrentTab(tab)} />}
+      <BottomNav currentTab={currentTab} onTabChange={(tab) => setCurrentTab(tab)} />
+
+      {/* Optional Auto-Show PWA Install Modal (only when not yet installed) */}
+      <PwaInstallPromptModal />
     </div>
   );
 }

@@ -82,11 +82,10 @@ const EMERGENCY_PHRASES: EmergencyPhrase[] = [
 
 interface SettingsScreenProps {
   onDeactivated: () => void;
-  onOpenAdmin: () => void;
   onBack: () => void;
 }
 
-export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, onOpenAdmin, onBack }) => {
+export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, onBack }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
@@ -150,6 +149,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
 
     // Listen for the official browser app installed event
     const handleAppInstalled = () => {
+      localStorage.setItem('tjr_pwa_installed', 'true');
       setIsInstalled(true);
       setShowSuccessModal(true);
       (window as any).deferredPwaPrompt = null;
@@ -168,6 +168,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         prompt.prompt();
         const choiceResult = await prompt.userChoice;
         if (choiceResult && choiceResult.outcome === 'accepted') {
+          localStorage.setItem('tjr_pwa_installed', 'true');
           setIsInstalled(true);
           setShowSuccessModal(true);
           (window as any).deferredPwaPrompt = null;
@@ -506,23 +507,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         </div>
       </div>
 
-      {/* 4. Internal Management / Admin Access */}
-      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 flex items-center justify-between gap-3">
-        <div>
-          <h3 className="text-[13px] font-bold text-on-surface">Admin Internal TJR</h3>
-          <span className="text-[10.5px] font-semibold text-on-surface-variant">
-            Kelola template & direktori
-          </span>
-        </div>
-        <button
-          onClick={onOpenAdmin}
-          className="h-8 px-3.5 rounded-lg bg-surface-container text-primary border border-surface-container text-[11px] font-bold hover:bg-surface-container-high active:scale-95 transition-all shrink-0"
-        >
-          Buka Admin
-        </button>
-      </div>
-
-      {/* 4.5. Frasa Darurat (Bahasa Jepang + Latin + Terjemahan) tepat sebelum Hapus Data */}
+      {/* 4. Frasa Darurat (Bahasa Jepang + Latin + Terjemahan) tepat sebelum Hapus Data */}
       <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-2xs border border-surface-container">
         <div className="flex items-center gap-2 mb-2">
           <span
