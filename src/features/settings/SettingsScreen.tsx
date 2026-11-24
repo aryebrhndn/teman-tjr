@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { db } from '../../database/dexie';
 import { deactivateDevice } from '../../services/activation.service';
+import { ConfirmModal } from '../../components/common/ConfirmModal';
 import {
   applyFontSize,
   applyTheme,
@@ -114,6 +115,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
   const [showGuideModal, setShowGuideModal] = useState<boolean>(false);
+  const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
+  const [pendingRestoreJson, setPendingRestoreJson] = useState<any | null>(null);
 
   // Appearance state (Theme & Global Font Size)
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => getStoredTheme());
@@ -358,60 +361,69 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
           return;
         }
 
-        const confirmRestore = window.confirm(
-          'Apakah Anda yakin ingin memulihkan data ini? Data saat ini di perangkat akan digantikan.'
-        );
-        if (!confirmRestore) return;
-
-        // Restore into tables
-        if (json.data.trip) {
-          await db.trips.clear();
-          await db.trips.add(json.data.trip);
-        }
-
-        if (json.data.itinerary?.days) {
-          await db.itinerary_days.clear();
-          for (const d of json.data.itinerary.days) await db.itinerary_days.add(d);
-        }
-
-        if (json.data.itinerary?.items) {
-          await db.itinerary_items.clear();
-          for (const i of json.data.itinerary.items) await db.itinerary_items.add(i);
-        }
-
-        if (json.data.budgets) {
-          await db.budgets.clear();
-          for (const b of json.data.budgets) await db.budgets.add(b);
-        }
-
-        if (json.data.expenses) {
-          await db.expenses.clear();
-          for (const exp of json.data.expenses) await db.expenses.add(exp);
-        }
-
-        if (json.data.checklists) {
-          await db.checklist_items.clear();
-          for (const chk of json.data.checklists) await db.checklist_items.add(chk);
-        }
-
-        setFeedback('Data berhasil dipulihkan!');
-        setTimeout(() => {
-          setFeedback(null);
-          window.location.reload();
-        }, 1500);
+        setPendingRestoreJson(json);
       } catch (err: any) {
         alert('Format file JSON rusak: ' + err.message);
+      } finally {
+        if (fileInputRef.current) fileInputRef.current.value = '';
       }
     };
     reader.readAsText(file);
   };
 
-  const handleDeactivate = async () => {
-    const confirm = window.confirm(
-      'Apakah Anda yakin ingin mereset catatan data pada perangkat ini? Data lokal akan kembali ke setelan awal.'
-    );
-    if (!confirm) return;
+  const confirmImportBackup = async () => {
+    if (!pendingRestoreJson) return;
+    const json = pendingRestoreJson;
+    setPendingRestoreJson(null);
 
+    try {
+      // Restore into tables
+      if (json.data.trip) {
+        await db.trips.clear();
+        await db.trips.add(json.data.trip);
+      }
+
+      if (json.data.itinerary?.days) {
+        await db.itinerary_days.clear();
+        for (const d of json.data.itinerary.days) await db.itinerary_days.add(d);
+      }
+
+      if (json.data.itinerary?.items) {
+        await db.itinerary_items.clear();
+        for (const i of json.data.itinerary.items) await db.itinerary_items.add(i);
+      }
+
+      if (json.data.budgets) {
+        await db.budgets.clear();
+        for (const b of json.data.budgets) await db.budgets.add(b);
+      }
+
+      if (json.data.expenses) {
+        await db.expenses.clear();
+        for (const exp of json.data.expenses) await db.expenses.add(exp);
+      }
+
+      if (json.data.checklists) {
+        await db.checklist_items.clear();
+        for (const chk of json.data.checklists) await db.checklist_items.add(chk);
+      }
+
+      setFeedback('Data berhasil dipulihkan!');
+      setTimeout(() => {
+        setFeedback(null);
+        window.location.reload();
+      }, 1500);
+    } catch (err: any) {
+      alert('Gagal memulihkan data: ' + err.message);
+    }
+  };
+
+  const handleDeactivate = () => {
+    setShowResetConfirm(true);
+  };
+
+  const confirmDeactivate = async () => {
+    setShowResetConfirm(false);
     await deactivateDevice();
     onDeactivated();
   };
@@ -678,11 +690,18 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         </div>
         <button
           onClick={handleDeactivate}
-          className="h-8 px-3.5 rounded-lg bg-error-container text-on-error-container text-[11px] font-bold hover:brightness-95 active:scale-95 transition-all shrink-0"
+          className="h-8 px-3.5 rounded-lg bg-error-container text-on-error-container text-[11px] font-bold hover:brightness-95 active:scale-95 transition-all shrink-0 cursor-pointer"
         >
           Reset Data
         </button>
       </div>
+
+      {/* Footer Copyright */}
+      <footer className="pt-2 pb-1 text-center px-2">
+        <p className="text-[11px] font-medium text-on-surface-variant/85 leading-relaxed">
+          © 2026 PT MUTRA JALAN SATU. All Right Reserved. By @TemanJalanRyan.
+        </p>
+      </footer>
 
       {/* MODAL 1: PWA Installation Success Notification Popup */}
       {showSuccessModal && (
@@ -770,6 +789,26 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={!!pendingRestoreJson}
+        title="Pulihkan Cadangan Data?"
+        message="Data perjalanan saat ini di perangkat akan digantikan dengan isi file cadangan."
+        confirmLabel="Pulihkan"
+        icon="restore"
+        onConfirm={confirmImportBackup}
+        onCancel={() => setPendingRestoreJson(null)}
+      />
+
+      <ConfirmModal
+        open={showResetConfirm}
+        title="Setel Ulang Data?"
+        message="Semua catatan lokal di perangkat ini akan dihapus dan dikembalikan ke setelan awal."
+        confirmLabel="Reset Data"
+        icon="warning"
+        onConfirm={confirmDeactivate}
+        onCancel={() => setShowResetConfirm(false)}
+      />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { db, type ChecklistItem, type Trip } from '../../database/dexie';
 import { MAIN_TRIP_ID } from '../../database/seed';
+import { ConfirmModal } from '../../components/common/ConfirmModal';
 import {
   ALL_DEFAULT_CHECKLIST,
   DEFAULT_PACKING_SUBLISTS,
@@ -31,6 +32,7 @@ export const BekalScreen: React.FC = () => {
   const [quickAddTitle, setQuickAddTitle] = useState('');
   const [showAddSublist, setShowAddSublist] = useState(false);
   const [newSublistName, setNewSublistName] = useState('');
+  const [pendingDeleteSublist, setPendingDeleteSublist] = useState<PackingSublist | null>(null);
 
   async function loadData() {
     let allItems = await db.checklist_items.orderBy('sort_order').toArray();
@@ -225,8 +227,13 @@ export const BekalScreen: React.FC = () => {
     setShowAddSublist(false);
   };
 
-  const handleDeleteSublist = async (sublist: PackingSublist) => {
-    if (!window.confirm(`Hapus sub-list "${sublist.name}" beserta semua item di dalamnya?`)) return;
+  const handleDeleteSublist = (sublist: PackingSublist) => {
+    setPendingDeleteSublist(sublist);
+  };
+
+  const confirmDeleteSublist = async () => {
+    if (!pendingDeleteSublist) return;
+    const sublist = pendingDeleteSublist;
 
     const toDelete = items
       .filter((i) => i.section === 'packing' && (i.group || 'Lain-lain') === sublist.name)
@@ -238,6 +245,7 @@ export const BekalScreen: React.FC = () => {
 
     setItems((prev) => prev.filter((i) => !toDelete.includes(i.id)));
     await persistSublists(sublists.filter((s) => s.id !== sublist.id));
+    setPendingDeleteSublist(null);
   };
 
   const toggleSublistCollapse = (subId: string) => {
@@ -628,6 +636,19 @@ export const BekalScreen: React.FC = () => {
           )}
         </div>
       </div>
+
+      <ConfirmModal
+        open={!!pendingDeleteSublist}
+        title="Hapus Sub-list?"
+        message={
+          pendingDeleteSublist
+            ? `Sub-list "${pendingDeleteSublist.name}" beserta semua item di dalamnya akan dihapus.`
+            : ''
+        }
+        confirmLabel="Hapus"
+        onConfirm={confirmDeleteSublist}
+        onCancel={() => setPendingDeleteSublist(null)}
+      />
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { db, type Expense, type Budget } from '../../database/dexie';
+import { ConfirmModal } from '../../components/common/ConfirmModal';
 
 interface BudgetScreenProps {
   initialOpenAddExpense?: boolean;
@@ -40,6 +41,7 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({
 
   // Edit expense modal state
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [pendingDeleteExpenseId, setPendingDeleteExpenseId] = useState<string | null>(null);
 
   // Edit budget ceiling modal state
   const [showEditBudgetModal, setShowEditBudgetModal] = useState(false);
@@ -256,9 +258,14 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({
     loadData();
   };
 
-  const handleDeleteExpense = async (id: string) => {
-    if (!window.confirm('Hapus transaksi pengeluaran ini? Saldo kas akan dikembalikan.')) return;
-    await db.expenses.delete(id);
+  const handleDeleteExpense = (id: string) => {
+    setPendingDeleteExpenseId(id);
+  };
+
+  const confirmDeleteExpense = async () => {
+    if (!pendingDeleteExpenseId) return;
+    await db.expenses.delete(pendingDeleteExpenseId);
+    setPendingDeleteExpenseId(null);
     setEditingExpense(null);
     loadData();
   };
@@ -944,6 +951,15 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={!!pendingDeleteExpenseId}
+        title="Hapus Catatan Pengeluaran?"
+        message="Transaksi ini akan dihapus dan saldo kas Anda akan dikembalikan."
+        confirmLabel="Hapus"
+        onConfirm={confirmDeleteExpense}
+        onCancel={() => setPendingDeleteExpenseId(null)}
+      />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { db, type Trip, type ItineraryDay, type ItineraryItem } from '../../database/dexie';
 import { MAIN_TRIP_ID } from '../../database/seed';
 import { addDaysToIso, detectJapanSeason, formatIndonesianDate } from '../../utils/tripDates';
+import { ConfirmModal } from '../../components/common/ConfirmModal';
 
 type DayWithItems = ItineraryDay & { items: ItineraryItem[] };
 
@@ -30,6 +31,10 @@ export const ItineraryScreen: React.FC = () => {
   const [itemCost, setItemCost] = useState('');
   const [itemNotes, setItemNotes] = useState('');
   const [itemHalal, setItemHalal] = useState(false);
+
+  // Confirm delete popups
+  const [pendingDeleteDay, setPendingDeleteDay] = useState<DayWithItems | null>(null);
+  const [pendingDeleteItem, setPendingDeleteItem] = useState<ItineraryItem | null>(null);
 
   async function syncTripDateBounds(activeTrip: Trip | null, orderedDays: ItineraryDay[]) {
     if (!activeTrip) return;
@@ -186,9 +191,16 @@ export const ItineraryScreen: React.FC = () => {
     handleStartEditDay(newDay);
   };
 
-  const handleDeleteDay = async (dayId: string) => {
+  const handleDeleteDay = (dayId: string) => {
     if (days.length <= 1) return;
-    if (!window.confirm('Hapus hari ini beserta semua agenda di dalamnya?')) return;
+    const targetDay = days.find((d) => d.id === dayId);
+    if (!targetDay) return;
+    setPendingDeleteDay(targetDay);
+  };
+
+  const confirmDeleteDay = async () => {
+    if (!pendingDeleteDay) return;
+    const dayId = pendingDeleteDay.id;
 
     await db.itinerary_items.where('day_id').equals(dayId).delete();
     await db.itinerary_days.delete(dayId);
@@ -200,6 +212,7 @@ export const ItineraryScreen: React.FC = () => {
 
     const reindexed = await db.itinerary_days.orderBy('day_number').toArray();
     await syncTripDateBounds(trip, reindexed);
+    setPendingDeleteDay(null);
     setEditingDayId(null);
     loadData();
   };
@@ -271,8 +284,18 @@ export const ItineraryScreen: React.FC = () => {
     loadData();
   };
 
-  const handleDeleteActivity = async (itemId: string) => {
-    await db.itinerary_items.delete(itemId);
+  const handleDeleteActivity = (itemId: string) => {
+    const found =
+      editingItem && editingItem.id === itemId
+        ? editingItem
+        : days.flatMap((d) => d.items).find((it) => it.id === itemId) || null;
+    if (found) setPendingDeleteItem(found);
+  };
+
+  const confirmDeleteActivity = async () => {
+    if (!pendingDeleteItem) return;
+    await db.itinerary_items.delete(pendingDeleteItem.id);
+    setPendingDeleteItem(null);
     setActivityModalDayId(null);
     setEditingItem(null);
     loadData();
@@ -712,6 +735,32 @@ export const ItineraryScreen: React.FC = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={!!pendingDeleteDay}
+        title="Hapus Hari Ini?"
+        message={
+          pendingDeleteDay
+            ? `Hari ${pendingDeleteDay.day_number}${pendingDeleteDay.title ? ` (${pendingDeleteDay.title})` : ''} beserta semua agenda di dalamnya akan dihapus.`
+            : ''
+        }
+        confirmLabel="Hapus Hari"
+        onConfirm={confirmDeleteDay}
+        onCancel={() => setPendingDeleteDay(null)}
+      />
+
+      <ConfirmModal
+        open={!!pendingDeleteItem}
+        title="Hapus Agenda?"
+        message={
+          pendingDeleteItem
+            ? `Agenda "${pendingDeleteItem.title}" akan dihapus dari rencana perjalanan.`
+            : ''
+        }
+        confirmLabel="Hapus"
+        onConfirm={confirmDeleteActivity}
+        onCancel={() => setPendingDeleteItem(null)}
+      />
     </div>
   );
 };
