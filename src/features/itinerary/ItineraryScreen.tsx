@@ -559,14 +559,14 @@ export const ItineraryScreen: React.FC = () => {
                 </p>
               )}
 
-              {/* Day Footer: Add Activity + Day Subtotal */}
+              {/* Day Footer: Add Activity (Consistent Modal Trigger) + Day Subtotal */}
               <div className="pt-2.5 mt-1 border-t border-surface-container/70 flex items-center justify-between gap-2">
                 <button
                   type="button"
                   onClick={() => handleOpenAddActivity(day.id)}
-                  className="text-[12px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
+                  className="h-8.5 px-3.5 rounded-xl bg-primary-container text-white text-[12px] font-bold inline-flex items-center justify-center gap-1 shadow-2xs hover:brightness-105 active:scale-95 transition-all shrink-0 whitespace-nowrap cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[16px]">add</span>
+                  <span className="material-symbols-outlined text-[15px]">add</span>
                   <span>Tambah agenda</span>
                 </button>
                 {dayCostJpy > 0 && (

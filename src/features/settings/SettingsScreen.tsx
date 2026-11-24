@@ -348,29 +348,18 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         </div>
       )}
 
-      {/* App Info Card */}
-      <div className="bg-surface-container-lowest rounded-2xl p-3.5 sm:p-4 shadow-xs border border-surface-container/80 flex items-center gap-3">
+      {/* App Info Card - Ringkas Tanpa Versi/Badge Berlebih */}
+      <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-2xs border border-surface-container flex items-center gap-3">
         <img
           src="/LOGO TJR.png"
           alt="Teman TJR Logo"
-          className="w-10 h-10 rounded-xl object-cover border border-white shadow-2xs bg-[#a90008] shrink-0"
+          className="w-10 h-10 rounded-xl object-cover border border-white/80 shadow-2xs bg-primary-container shrink-0"
         />
         <div className="flex-1 min-w-0">
-          <h2 className="text-[14.5px] font-extrabold text-on-surface leading-snug">Teman TJR</h2>
-          <p className="text-[10.5px] text-on-surface-variant font-medium mt-0.5">
-            Teman Jalan Dalam Genggaman • Versi 2.5 (Build 25)
+          <h2 className="text-[15px] font-extrabold text-on-surface leading-snug">Teman TJR</h2>
+          <p className="text-[11.5px] text-on-surface-variant font-medium mt-0.5 truncate">
+            Teman Jalan Dalam Genggaman
           </p>
-          <div className="flex items-center gap-1.5 mt-1">
-            <span className="inline-block px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed text-[9.5px] font-bold uppercase">
-              Akses Langsung Aktif
-            </span>
-            {isInstalled && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 text-[9.5px] font-bold">
-                <span className="material-symbols-outlined text-[12px]">check_circle</span>
-                PWA Terpasang
-              </span>
-            )}
-          </div>
         </div>
       </div>
 
@@ -443,40 +432,46 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
         </div>
       </div>
 
-      {/* 1. PWA Installation Section */}
-      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 flex items-center justify-between gap-3">
-        <div>
-          <h3 className="text-[13px] font-bold text-on-surface">Pemasangan Aplikasi (PWA)</h3>
-          <span className="text-[10.5px] font-semibold text-on-surface-variant">
-            {isInstalled ? 'Aplikasi sudah terpasang di HP' : 'Tersedia untuk diunduh ke layar HP'}
+      {/* 1. PWA Installation Section (Status PWA di dalam section ini) */}
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-2xs border border-surface-container flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <h3 className="text-[13px] font-bold text-on-surface">Pemasangan Aplikasi (PWA)</h3>
+            {isInstalled && (
+              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[9.5px] font-bold">
+                <span className="material-symbols-outlined text-[12px]">check_circle</span>
+                Terpasang
+              </span>
+            )}
+          </div>
+          <span className="text-[10.5px] font-semibold text-on-surface-variant block mt-0.5">
+            {isInstalled ? 'Aplikasi sudah terpasang di layar HP' : 'Unduh ke layar utama HP'}
           </span>
         </div>
         <button
+          type="button"
           onClick={isInstalled ? () => setShowSuccessModal(true) : handleInstallPWA}
-          className={`h-8 px-3.5 rounded-lg text-[11px] font-bold shrink-0 shadow-2xs transition-all active:scale-95 ${
-            isInstalled
-              ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-              : 'bg-primary text-white hover:bg-primary-container'
-          }`}
+          className="h-8.5 px-3.5 rounded-xl bg-primary-container text-white text-[11.5px] font-bold shrink-0 shadow-2xs hover:brightness-105 transition-all active:scale-95 whitespace-nowrap cursor-pointer"
         >
           {isInstalled ? 'Status PWA' : 'Pasang Aplikasi'}
         </button>
       </div>
 
       {/* 2. Auto-Update Section */}
-      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-surface-container/80 flex items-center justify-between gap-3">
-        <div>
+      <div className="bg-surface-container-lowest rounded-xl p-3.5 shadow-2xs border border-surface-container flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
           <h3 className="text-[13px] font-bold text-on-surface">Pembaruan Aplikasi</h3>
-          <span className="text-[10.5px] font-semibold text-on-surface-variant">
-            Pembersihan cache & versi terbaru
+          <span className="text-[10.5px] font-semibold text-on-surface-variant block mt-0.5">
+            Bersihkan cache &amp; muat versi terbaru
           </span>
         </div>
         <button
+          type="button"
           onClick={handleForceUpdate}
           disabled={isUpdating}
-          className="h-8 px-3.5 rounded-lg bg-primary text-white text-[11px] font-bold shrink-0 shadow-2xs hover:bg-primary-container transition-all active:scale-95 disabled:opacity-60 flex items-center gap-1.5"
+          className="h-8.5 px-3.5 rounded-xl bg-primary-container text-white text-[11.5px] font-bold shrink-0 shadow-2xs hover:brightness-105 transition-all active:scale-95 disabled:opacity-60 flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
         >
-          {isUpdating ? 'Memperbarui...' : 'Perbarui Aplikasi'}
+          {isUpdating ? 'Memperbarui...' : 'Perbarui'}
         </button>
       </div>
 
@@ -625,8 +620,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setShowSuccessModal(false)}
-              className="w-full mt-4 h-9.5 rounded-xl bg-primary text-on-primary text-[12px] font-extrabold hover:brightness-105 active:scale-98 transition-all shadow-xs"
+              className="w-full mt-4 h-9.5 rounded-xl bg-primary-container text-white text-[12px] font-extrabold hover:brightness-105 active:scale-98 transition-all shadow-xs cursor-pointer"
             >
               Mantap, Mengerti!
             </button>
@@ -679,8 +675,9 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ onDeactivated, o
             </div>
 
             <button
+              type="button"
               onClick={() => setShowGuideModal(false)}
-              className="w-full mt-3.5 h-9 rounded-xl bg-primary text-on-primary text-[11.5px] font-extrabold hover:brightness-105 active:scale-98 transition-all"
+              className="w-full mt-3.5 h-9 rounded-xl bg-primary-container text-white text-[11.5px] font-extrabold hover:brightness-105 active:scale-98 transition-all cursor-pointer"
             >
               Tutup Panduan
             </button>

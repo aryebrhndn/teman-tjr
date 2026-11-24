@@ -654,7 +654,7 @@ export const PrayerScreen: React.FC = () => {
             })}
 
             {/* Cardinals N 北, E 東, S 南, W 西 */}
-            <text x="120" y="31" textAnchor="middle" fill="#a90008" fontSize="13" fontWeight="bold" fontFamily="'Noto Sans JP', system-ui, sans-serif">
+            <text x="120" y="31" textAnchor="middle" fill="var(--color-primary)" fontSize="13" fontWeight="bold" fontFamily="'Noto Sans JP', system-ui, sans-serif">
               N 北
             </text>
             <text x="206" y="124" textAnchor="middle" fill="#78726e" fontSize="11" fontWeight="bold" fontFamily="'Noto Sans JP', system-ui, sans-serif">
@@ -672,13 +672,13 @@ export const PrayerScreen: React.FC = () => {
               transform={`rotate(${needleRotation}, 120, 120)`}
               style={{ transition: 'transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)' }}
             >
-              {/* Red Tip (Pointing towards Qibla) */}
-              <polygon points="112,120 120,32 128,120" fill="#c92a2a" />
+              {/* Red/Rose Tip (Pointing towards Qibla) */}
+              <polygon points="112,120 120,32 128,120" fill="var(--color-primary-container)" />
               {/* Beige Tail (Opposite Qibla) */}
               <polygon points="113,120 120,205 127,120" fill="#d8cebe" />
               {/* Center Hub */}
               <circle cx="120" cy="120" r="11" fill="#ffffff" stroke="#dcd6ce" strokeWidth="2" />
-              <circle cx="120" cy="120" r="5" fill="#c92a2a" />
+              <circle cx="120" cy="120" r="5" fill="var(--color-primary-container)" />
             </g>
 
             {/* Center Degree & Label: e.g. 293.0° DARI UTARA */}
@@ -812,7 +812,7 @@ export const PrayerScreen: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => openGoogleMaps(place)}
-                  className="h-8 px-3.5 rounded-xl bg-primary text-white text-[11.5px] font-bold shadow-2xs hover:bg-primary-container transition-all active:scale-95 shrink-0 flex items-center justify-center cursor-pointer"
+                  className="h-8 px-3.5 rounded-xl bg-primary-container text-white text-[11.5px] font-bold shadow-2xs hover:brightness-105 transition-all active:scale-95 shrink-0 flex items-center justify-center cursor-pointer"
                 >
                   Maps
                 </button>
@@ -824,7 +824,7 @@ export const PrayerScreen: React.FC = () => {
               <button
                 type="button"
                 onClick={openNearbyGoogleMaps}
-                className="h-8 px-3.5 rounded-xl bg-primary text-white text-[11.5px] font-bold inline-flex items-center justify-center cursor-pointer"
+                className="h-8 px-3.5 rounded-xl bg-primary-container text-white text-[11.5px] font-bold inline-flex items-center justify-center cursor-pointer"
               >
                 Cari di Google Maps
               </button>

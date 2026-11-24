@@ -315,12 +315,12 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
       {/* TAB 2: KONVERTER KURS (Terpisah Penuh, Bersih Apa Adanya) */}
       {activeTab === 'converter' && (
         <div className="bg-surface-container-lowest rounded-2xl p-4 sm:p-5 shadow-2xs border border-surface-container">
-          <div className="flex items-center justify-between mb-3.5">
+          <div className="flex items-center justify-between mb-3.5 gap-2">
             <span className="text-[14px] font-bold text-on-surface">Konverter Kurs</span>
             <button
               type="button"
               onClick={handleOpenEditRate}
-              className="text-primary text-[11.5px] font-bold hover:underline cursor-pointer"
+              className="h-8.5 px-3.5 rounded-xl bg-primary-container text-white text-[12px] font-bold inline-flex items-center justify-center gap-1 shadow-2xs hover:brightness-105 active:scale-95 transition-all shrink-0 whitespace-nowrap cursor-pointer"
             >
               Atur Kurs
             </button>
@@ -448,7 +448,7 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
               <button
                 type="button"
                 onClick={handleOpenEditBudget}
-                className="h-8 px-3 rounded-lg bg-surface-container-low hover:bg-surface-container text-primary text-[11.5px] font-bold border border-surface-container shrink-0 whitespace-nowrap cursor-pointer transition-colors"
+                className="h-8.5 px-3.5 rounded-xl bg-primary-container text-white text-[12px] font-bold inline-flex items-center justify-center gap-1 shadow-2xs hover:brightness-105 active:scale-95 transition-all shrink-0 whitespace-nowrap cursor-pointer"
               >
                 Atur Plafon
               </button>
@@ -501,9 +501,9 @@ export const BudgetScreen: React.FC<BudgetScreenProps> = ({ initialOpenAddExpens
               <button
                 type="button"
                 onClick={() => setShowAddModal(true)}
-                className="h-8.5 px-3.5 rounded-xl bg-primary-container text-white text-[12px] font-bold flex items-center gap-1 shadow-2xs active:scale-95 transition-transform cursor-pointer"
+                className="h-8.5 px-3.5 rounded-xl bg-primary-container text-white text-[12px] font-bold inline-flex items-center justify-center gap-1 shadow-2xs hover:brightness-105 active:scale-95 transition-all shrink-0 whitespace-nowrap cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[16px]">add</span>
+                <span className="material-symbols-outlined text-[15px]">add</span>
                 <span>Catat</span>
               </button>
             </div>

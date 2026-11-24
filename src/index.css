@@ -61,6 +61,12 @@
 @layer base {
   :root {
     --tjr-font-scale: 1;
+    --color-header-bg: #a90008;
+    --color-header-fg: #ffffff;
+    --color-header-muted: rgba(255, 255, 255, 0.9);
+    --color-header-border: transparent;
+    --color-header-stripe-red: #e53935;
+    --color-header-btn-bg: rgba(255, 255, 255, 0.14);
   }
 
   html, body {
@@ -136,18 +142,28 @@
 .material-symbols-outlined.text-2xl      { font-size: 24px !important; }
 
 /* =====================================================================
-   DARK MODE (data-theme="dark") — High-contrast, warm charcoal palette
+   DARK MODE (data-theme="dark") — Unified Dark Header/Footer + Soft Rose-Pink Accents
    ===================================================================== */
 html[data-theme="dark"] {
   color-scheme: dark;
-  --color-primary: #ff8a80;
-  --color-primary-container: #b71c1c;
+
+  /* Header matches Footer dark charcoal surface */
+  --color-header-bg: #1a1b1e;
+  --color-header-fg: #f2f2f0;
+  --color-header-muted: #b8b2ae;
+  --color-header-border: #2b2d33;
+  --color-header-stripe-red: #e07a85;
+  --color-header-btn-bg: #2b2d33;
+
+  /* Consistent Soft Rose-Pink (Merah Jambu) palette for all red accents */
+  --color-primary: #f08a94;
+  --color-primary-container: #cc6670;
   --color-on-primary: #ffffff;
-  --color-on-primary-container: #ffd8d4;
-  --color-primary-fixed: #4a1515;
-  --color-primary-fixed-dim: #7f2323;
-  --color-on-primary-fixed: #ffdad5;
-  --color-on-primary-fixed-variant: #ffb4aa;
+  --color-on-primary-container: #ffe2e5;
+  --color-primary-fixed: #3b2024;
+  --color-primary-fixed-dim: #5c3036;
+  --color-on-primary-fixed: #ffd6da;
+  --color-on-primary-fixed-variant: #f08a94;
 
   --color-secondary: #ffd54f;
   --color-secondary-container: #d4a100;
@@ -175,10 +191,10 @@ html[data-theme="dark"] {
   --color-outline: #8d8682;
   --color-outline-variant: #4a4544;
 
-  --color-error: #ff8a80;
-  --color-error-container: #4d1717;
+  --color-error: #f08a94;
+  --color-error-container: #3d2125;
   --color-on-error: #ffffff;
-  --color-on-error-container: #ffdad6;
+  --color-on-error-container: #ffd6da;
 }
 
 /* Adapt bg-white inputs, selects, buttons, and checkboxes cleanly in dark mode */
